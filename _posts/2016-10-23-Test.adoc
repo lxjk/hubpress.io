@@ -1,0 +1,10 @@
+= Test
+:stem: latexmath
+
+The Pythagorean theorem: \(a^2 + b^2 = c^2\)
+
+The fundamental theorem of calculus:
+
+\[
+   \frac{d}{dx}\int_0^x f(s)\,ds = f(x)
+\]
