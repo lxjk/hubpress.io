@@ -1,5 +1,13 @@
 = Test
-:stem: latexmath
+
+Samuel LL Jackson
+latexmath:[(a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d)]
+<div class="content">
+\[(a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d),\]
+</div>
+stem:[sqrt(4) = 2]
+
+stem:[x^2 - y^2 = (x + y)(x - y)]
 
 The Pythagorean theorem: \(a^2 + b^2 = c^2\)
 
@@ -8,3 +16,4 @@ The fundamental theorem of calculus:
 \[
    \frac{d}{dx}\int_0^x f(s)\,ds = f(x)
 \]
+
