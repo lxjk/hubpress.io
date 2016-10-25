@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 25 Oct 2016 23:06:22 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Test 2]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 25 Oct 2016 23:13:36 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Try num 2]]></title><description><![CDATA[<div class="paragraph">
 <p>Das
 is
 heine shculeder</p>
@@ -49,4 +49,4 @@ is something we all learn in Calculus</p>
 <p>\(C = \alpha + \beta Y^{\gamma} + \epsilon\)</p>
 </div>
 </div>
-</div>]]></description><link>https://lxjk.github.io/2016/10/25/Test-2.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/25/Test-2.html</guid><pubDate>Tue, 25 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
+</div>]]></description><link>https://lxjk.github.io/2016/10/25/Try-num-2.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/25/Try-num-2.html</guid><pubDate>Tue, 25 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
