@@ -1,4 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 23 Oct 2016 17:23:02 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Test]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 25 Oct 2016 22:47:15 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Test]]></title><description><![CDATA[<div class="paragraph">
+<p>Samuel LL Jackson
+\((a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d)\)
+&lt;div class="content"&gt;
+\[(a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d),\]
+&lt;/div&gt;
+\$sqrt(4) = 2\$</p>
+</div>
+<div class="paragraph">
+<p>\$x^2 - y^2 = (x + y)(x - y)\$</p>
+</div>
+<div class="paragraph">
 <p>The Pythagorean theorem: \(a^2 + b^2 = c^2\)</p>
 </div>
 <div class="paragraph">
