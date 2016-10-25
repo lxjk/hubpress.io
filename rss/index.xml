@@ -1,4 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 25 Oct 2016 22:47:15 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Test]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 25 Oct 2016 22:47:55 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Try num 2]]></title><description><![CDATA[<div class="paragraph">
+<p>Das
+is
+heine shculeder</p>
+</div>
+<div class="paragraph">
+<p>stem: [sqrt(4) = 2]</p>
+</div>
+<div class="paragraph">
 <p>Samuel LL Jackson
 \((a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d)\)
 &lt;div class="content"&gt;
@@ -6,17 +14,39 @@
 &lt;/div&gt;
 \$sqrt(4) = 2\$</p>
 </div>
+<div class="literalblock">
+<div class="content">
+<pre>\[
+   e^{2\pi \sqrt{-1}} = 1,
+\]</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>\[
+   x^n + y^n = z^n
+\]
+for \$n &gt; 2\$ has only trivial solutions</pre>
+</div>
+</div>
+<div class="openblock">
+<div class="content">
 <div class="paragraph">
-<p>\$x^2 - y^2 = (x + y)(x - y)\$</p>
+<p>The formula $a^2 + b^2 = c^2$ relates the sides
+and hypotenuse of a right triangle.  The formula
+\[
+\int_0^1 x^n dx = \frac{1}{n+1}
+\]
+is something we all learn in Calculus</p>
 </div>
 <div class="paragraph">
-<p>The Pythagorean theorem: \(a^2 + b^2 = c^2\)</p>
+<p>Let \(\dfrac{a}{b}, a \mid b\) denote \(a \circ b, a\ast b\) respectively.</p>
 </div>
 <div class="paragraph">
-<p>The fundamental theorem of calculus:</p>
+<p><code>C = \alpha + \beta Y^{\gamma} + \epsilon</code></p>
 </div>
 <div class="paragraph">
-<p>\[
-   \frac{d}{dx}\int_0^x f(s)\,ds = f(x)
-\]</p>
-</div>]]></description><link>https://lxjk.github.io/2016/10/23/Test.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/23/Test.html</guid><pubDate>Sun, 23 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
+<p>\(C = \alpha + \beta Y^{\gamma} + \epsilon\)</p>
+</div>
+</div>
+</div>]]></description><link>https://lxjk.github.io/2016/10/23/Try-num-2.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/23/Try-num-2.html</guid><pubDate>Sun, 23 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
