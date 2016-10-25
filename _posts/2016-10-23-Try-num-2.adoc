@@ -1,4 +1,10 @@
-= Test
+= Try num 2
+
+Das
+is 
+heine shculeder
+
+stem: [sqrt(4) = 2]
 
 Samuel LL Jackson
 latexmath:[(a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d)]
@@ -7,13 +13,26 @@ latexmath:[(a \circ b) \ast (c \circ d) = (a \ast c) \circ (b \ast d)]
 </div>
 stem:[sqrt(4) = 2]
 
-stem:[x^2 - y^2 = (x + y)(x - y)]
+ \[
+    e^{2\pi \sqrt{-1}} = 1,
+ \]
 
-The Pythagorean theorem: \(a^2 + b^2 = c^2\)
+ \[
+    x^n + y^n = z^n
+ \]
+ for \$n > 2\$ has only trivial solutions
+--
 
-The fundamental theorem of calculus:
 
+The formula $a^2 + b^2 = c^2$ relates the sides
+and hypotenuse of a right triangle.  The formula
 \[
-   \frac{d}{dx}\int_0^x f(s)\,ds = f(x)
+\int_0^1 x^n dx = \frac{1}{n+1}
 \]
+is something we all learn in Calculus
 
+Let \(\dfrac{a}{b}, a \mid b\) denote \(a \circ b, a\ast b\) respectively.
+
+`C = \alpha + \beta Y^{\gamma} + \epsilon`
+
+latexmath:[C = \alpha + \beta Y^{\gamma} + \epsilon]
