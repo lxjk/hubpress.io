@@ -1217,8 +1217,8 @@ hr {
   background-size: cover; }
 
 .panel-cover--collapsed {
-  width: 40%;
-  max-width: 530px; }
+  width: 30%;
+  max-width: 430px; }
 
 .panel-cover--overlay {
   display: block;
@@ -1263,7 +1263,7 @@ hr {
   padding: 0 60px; }
 
 .panel-main__content {
-  max-width: 620px;
+  max-width: 800px;
   margin: 0 auto; }
 
 .panel-main__content--fixed {
