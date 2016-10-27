@@ -4,6 +4,14 @@
     "repositoryName": "lxjk.github.io",
     "branch": "master"
   },
+  "site": {
+    "title": "Blog Title",
+    "description": "Blog desc"
+  },
+  "socialnetwork": {
+    "email": "lxjk001@gmail.com",
+    "linkedin": "lxjk001@gmail.com"
+  },
   "theme": {
     "name": "casper"
   }
