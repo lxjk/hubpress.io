@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 19:49:44 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 20:30:45 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -92,9 +92,60 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>Now we can rewrite our flip composition rule in a more specific form:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation equivalent to rotating angle \(θ\) along axis \(\vec{v}\) can be represented as a sequence of 2 flips along axis \(\vec{a}\) and \(\vec{b}\), such that \(\vec{a}\mid\vec{v}=0\), \(\vec{b}\mid\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+<p><strong><em>Any 3D rotation equivalent to rotating angle \(θ\) along axis \(\vec{v}\) can be represented as a sequence of 2 flips along axis \(\vec{a}\) and \(\vec{b}\), such that \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quaternion_and_flip">Quaternion and Flip</h3>
+<div class="paragraph">
+<p>Now let’s recall the quaternion vector form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). With the discussion of flips above, you can almost immediately see why we are using \(\frac{θ}{2}\) here.</p>
+</div>
+<div class="paragraph">
+<p>Think about flips again. A flip along axis \(\vec{a}\) is also a \(180^{\circ}\) rotation along axis \(\vec{a}\). So this flip can be represented in quaternion term</p>
+</div>
+<div class="paragraph">
+<p>\(q_a=(sin⁡\frac{180^{\circ}}{2}\vec{a},cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)\)</p>
+</div>
+<div class="paragraph">
+<p>From now on we will use quaternion to represent flip. Actually any unit quaternion with \(q.w=0\) is a flip along axis \((q.x,q.y,q.z)\).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flip_composition">Flip Composition</h3>
+<div class="paragraph">
+<p>Here we need to introduce the multiplication of general quaternion. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
+</div>
+<div class="paragraph">
+<p>\({q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1}w_2\vec{v_2}\vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}∙\vec{v_2})\)</p>
+</div>
+<div class="paragraph">
+<p>Note here \(q_1\) and \(q_2\) are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put \(sin⁡\frac{θ}{2}\) and \(cos⁡\frac{θ}{2}\) as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion <a href="https://en.wikipedia.org/wiki/Quaternion#Definition">Wiki page</a> has a very straight forward introduction.</p>
+</div>
+<div class="paragraph">
+<p>We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let \(q_a=(\vec{a},0)\), \(q_b=(\vec{b},0)\) then</p>
+</div>
+<div class="paragraph">
+<p>\({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}∙\vec{b})\)</p>
+</div>
+<div class="paragraph">
+<p>It is naturally derived from the general form, and we will be only using this multiplication in Part 1.</p>
+</div>
+<div class="paragraph">
+<p>With flip multiplication defined, we can rewrite our flip composition rule again:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and [q_b=(\vec{b},0)], such that</em></strong></p>
+</div>
+<div class="paragraph">
+<p><strong><em>\(q= -{q_b}{q_a}\)</em></strong></p>
+</div>
+<div class="paragraph">
+<p><strong><em>where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
 </div>
 </div>]]></description><link>https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 29 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
