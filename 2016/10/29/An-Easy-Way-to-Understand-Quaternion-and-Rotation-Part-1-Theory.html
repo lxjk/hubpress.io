@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477777432685" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477778273304" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -312,11 +312,13 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+\[\begin{align*}
+q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 &amp;=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
 &amp;=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
-&amp;=-{q_b}{q_a}\]
+&amp;=-{q_b}{q_a}
+\end{align*}\]
 </div>
 </div>
 <div class="paragraph">
@@ -328,7 +330,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-{-q}=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+{-q}&amp;=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
 &amp;=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
 &amp;=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
 \end{align*}\]
@@ -395,9 +397,11 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+\[\begin{align*}
+q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &amp;=-{q_a}{q_v}\\
-&amp;=-{q_v'}{q_a}\]
+&amp;=-{q_v'}{q_a}
+\end{align*}\]
 </div>
 </div>
 <div class="paragraph">
@@ -405,6 +409,51 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </div>
 <div class="paragraph">
 <p>(Here \(\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=sin\frac{θ}{2}\).If you are not sure what’s going on here, go back “Flip Composition” and read the proof)</p>
+</div>
+<div class="paragraph">
+<p>Now we need to introduce the inverse of a quaternion. The inverse of \(q\) is denoted as \(q^{-1}\), such that \(qq^{-1}=q^{-1}q=(\vec{0},1)\).</p>
+</div>
+<div class="paragraph">
+<p>\(I=(\vec{0},1)\) is called identity quaternion, means no rotation at all. You can think of \(I=(sin⁡0\vec{v},cos⁡0)\), which means rotating \(0^{\circ}\) along any axis \(\vec{v}\). We haven’t gone into quaternion multiplication or rotation composition, but it’s not hard to see for any quaternion \(q\), \(qI=Iq=q\).</p>
+</div>
+<div class="paragraph">
+<p>In the case of unit quaternion, the idea of inversed quaternion is if you apply a rotation, then apply its inverse, the result should be no rotation at all. And it is the same if you apply an inversed rotation then apply the original one.</p>
+</div>
+<div class="paragraph">
+<p>For any unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\), then \(q^{-1}=(-sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). You can understand this in two ways, either \(q^{-1}=(sin⁡\frac{θ}{2}(-\vec{v}),cos⁡\frac{θ}{2})\) or \(q^{-1}=(sin⁡\frac{-θ}{2}\vec{v},cos⁡\frac{-θ}{2})\). \(q^{-1}\) is either a rotation of angle \(θ\) along axis \(-\vec{v}\), or a rotation of angle \(–θ\) along axis \(\vec{v}\). Either way it will cancel out the original rotation.</p>
+</div>
+<div class="paragraph">
+<p>I will give a quick proof in the case of flip. You can try extend this proof to general unit quaternion. If \(q_a=(\vec{a},0)\), \(q_a^{-1}=(-\vec{a},0)\), we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_a}{q_a^{-1}}=(\vec{a}×-\vec{a},-(\vec{a}·-\vec{a}))=(\vec{0},1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>(Make sure you understand the difference between \(q^{-1}\) and \(–q\). Read “Flip Composition” about quaternion negation if you are not sure.)</p>
+</div>
+<div class="paragraph">
+<p>We can go back to previous result of flipping vector \({q_v'}{q_a}={q_a}{q_v}\). Apply inverse flip of q_a on both side, the equation becomes</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_v'}{q_a}{q_a^{-1}}&amp;={q_a}{q_v}{q_a^{-1}}\\
+q_v')&amp;={q_a}{q_v}{q_a^{-1}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This provides us a way to calculate the result of flip. Since we only need the vector part of the result, we can denote this as</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v'}={q_a}\vec{v}{q_a^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>When we put a vector \(\vec{v}\) in quaternion multiplication, we are implicitly making that vector the axis of a flip to stuff it into a quaternion \((\vec{v},0)\). This is how the “sandwich” multiplication form comes from, but only in the form of flip. We will prove that our result holds the same for any rotation in the next section.</p>
 </div>
 </div>
     </section>
@@ -435,7 +484,7 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477777432685"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477778273304"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
