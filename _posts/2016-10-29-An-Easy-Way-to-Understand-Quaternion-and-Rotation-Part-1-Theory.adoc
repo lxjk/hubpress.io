@@ -2,6 +2,7 @@
 Eric Zhang
 
 :stem: latexmath
+:figure-caption!:
 
 [.lead 3]
 Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector stem:[v] by quaternion stem:[q] is calculated by a “sandwich” multiplication: stem:[qvq^{-1}] ? Why rotating by quaternion stem:[q_1] then stem:[q_2] is in the reversed order: stem:[{q_2}{q_1}], and can you visualize the result rotation axis and angle?
@@ -20,17 +21,14 @@ In order to represent 3D rotation, we have a constraint on the quaternions we us
 
 *_Any rotation in 3D space is equivalent to a single rotation of angle stem:[θ] along some axis stem:[\vec{v}]._*
 
-We can use quaternion to describe this angle-axis rotation : stem:[q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})], or in a more compact form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using stem:[frac{θ}{2}]  other than using stem:[θ] directly. I will explain that in a later section.
+We can use quaternion to describe this angle-axis rotation : stem:[q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})], or in a more compact form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using stem:[\frac{θ}{2}] other than using stem:[θ] directly. I will explain that in a later section.
 
 It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1]. (Remember the axis stem:[\vec{v}] is a unit vector that stem:[\left|\vec{v}\right|=1]). We call it a unit quaternion if the length stem:[\left|q\right|=1]. So we can rewrite Euler’s rotation theorem in quaternion term:
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
-[NOTE]
-.Note
-====
+NOTE::
 This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. (2) For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
-====
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
@@ -43,4 +41,25 @@ Now let’s forget quaternion for a minute, and focus on the nature of rotations
 The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
 Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation stem:[q], which rotates  stem:[+90^{\circ}] along axis stem:[\vec{Z}]. Now I can say this rotation is the same as 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], both of them are on XY plane, and the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[+45^{\circ}].
 
-image::http://github.com/lxjk/lxjk.github.io/blob/master/images/quaternions/fig1.png[]
+We demonstrate this through Figure 1. For any vector stem:[\vec{v}], the result of this rotation is stem:[\vec{v''}] , which is the same as flip stem:[\vec{v}] along axis stem:[\vec{a}] and get stem:[\vec{v'}], and then flip stem:[\vec{v'}] along axis stem:[\vec{b}] and get stem:[\vec{v''}]. 
+
+.Figure 1 (b)
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png[, 300,float="right",align="center"]
+.Figure 1 (a)
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1.png[, 300,float="right",align="center"]
+
+It doesn’t matter where stem:[\vec{a}] and stem:[\vec{b}] are on the XY plane, but the order must be kept. If we choose stem:[\vec{b}] by rotating stem:[\vec{a}] along axis stem:[\vec{Z}] by stem:[+45^{\circ}] with the positive direction we defined above, then we must flip along stem:[\vec{a}] first then along stem:[\vec{b}] to get our target rotation. The order and the sign of angle is important, as you can easily see flip along stem:[\vec{b}] first then along stem:[\vec{a}] will give a different result.
+
+It’s not hard to generalize to a rotation of any angle stem:[θ] along stem:[\vec{Z}] axis. And in this case, the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[\frac{θ}{2}].
+
+What if the axis is not stem:[\vec{Z}] axis but any unit vector stem:[\vec{u}] ? It turns out to be very straight forward. stem:[\vec{a}] and stem:[\vec{b}] are no longer on XY plane but on a plane cross the origin and perpendicular to stem:[\vec{u}], as in Figure 2.
+
+.Figure 2
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig2.png[, 400,align="center"]
+
+Now we can rewrite our flip composition rule in a more specific form:
+
+*_Any 3D rotation equivalent to rotating angle stem:[θ] along axis stem:[\vec{v}] can be represented as a sequence of 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], such that stem:[\vec{a}\mid\vec{v}=0], stem:[\vec{b}\mid\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+
+This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.
+
