@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 21:31:32 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 21:36:34 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -34,6 +34,7 @@
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
+<hr>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -43,14 +44,15 @@
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p><code>This claim actually has 2 sides. Let me go a little be more in details in math term:
+<p>This claim actually has 2 sides. Let me go a little be more in details in math term:
 (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation.
-(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</code></p>
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
+<hr>
 <div class="paragraph">
 <p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
 </div>
@@ -173,11 +175,11 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
-=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
-=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
-=-{q_b}{q_a}\]
+\[q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&amp;=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&amp;=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
+&amp;=-{q_b}{q_a}\]
 </div>
 </div>
 <div class="paragraph">
@@ -188,9 +190,9 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 <div class="stemblock">
 <div class="content">
-\[-q=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
-=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
-=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\\]
+\[-q&amp;=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+&amp;=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
+&amp;=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\\]
 </div>
 </div>
 <div class="paragraph">
@@ -205,6 +207,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="paragraph">
 <p>The order of \(q=-{q_b}{q_a}\) on the right hand side is important. It means flip along \(\vec{a}\) first and then \(\vec{b}\). Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.</p>
 </div>
+<hr>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -228,6 +231,7 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </tr>
 </table>
 </div>
+<hr>
 </div>
 </div>
 <div class="sect2">
@@ -252,9 +256,9 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=-{q_a}{q_v}\\
-=-{q_v'}{q_a}\]
+\[q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&amp;=-{q_a}{q_v}\\
+&amp;=-{q_v'}{q_a}\]
 </div>
 </div>
 <div class="paragraph">
