@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477766316319" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477769548428" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -171,16 +171,41 @@ null
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
-<div class="sidebarblock">
-<div class="content">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
 <p>This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation. (2) For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
-</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
-<p>From now on, any quaternion q used in this article is by default a unit quaternion, and we will use q to describe rotations.</p>
+<p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_and_flip">Rotation and Flip</h3>
+<div class="paragraph">
+<p>Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation can be composed by 2 flips along some axes.</em></strong></p>
+</div>
+<div class="paragraph">
+<p>The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
+Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation \(q\), which rotates  \(+90^{\circ}\) along axis \(\vec{Z}\). Now I can say this rotation is the same as 2 flips along axis \(\vec{a}\) and \(\vec{b}\), both of them are on XY plane, and the angle from \(\vec{a}\) to \(\vec{b}\) is \(+45^{\circ}\).</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://github.com/lxjk/lxjk.github.io/blob/master/images/quaternions/fig1.png" alt="fig1.png">
+</div>
 </div>
 </div>
     </section>
@@ -211,7 +236,7 @@ null
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477766316319"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477769548428"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
