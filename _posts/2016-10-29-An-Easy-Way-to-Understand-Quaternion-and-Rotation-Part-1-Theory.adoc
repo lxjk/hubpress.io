@@ -132,9 +132,11 @@ One thing I need to mention here is the negation of a quaternion. stem:[q=(sin�
 
 [stem]
 ++++
--q&=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+\begin{align*}
+{-q}&=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
 &=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
 &=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
+\end{align*}
 ++++
 
 Recall that stem:[sin⁡θ=sin(π-θ)] and stem:[-cos⁡θ=cos(π-θ)], then stem:[-sin⁡θ=sin(-θ)] and stem:[cos⁡θ=cos(-θ)].
