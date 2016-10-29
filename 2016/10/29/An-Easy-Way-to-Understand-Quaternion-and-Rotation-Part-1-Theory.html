@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477764982729" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477766316319" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -151,20 +151,36 @@ null
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_quaternion_definition">Quaternion Definition</h4>
+<div class="sect2">
+<h3 id="_quaternion_definition">Quaternion Definition</h3>
 <div class="paragraph">
 <p>Quaternion is a 4-tuple denoted as \(q=(x,y,z,w)\). The length of a quaternion is defined as \(\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}\), just as you would expected from a 4D vector.</p>
 </div>
 <div class="paragraph">
 <p>In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:</p>
 </div>
-<div class="openblock red">
-<div class="content">
 <div class="paragraph">
-<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\)</em></strong></p>
+<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>We can use quaternion to describe this angle-axis rotation : \(q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})\), or in a more compact form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using \(frac{θ}{2}\)  other than using \(θ\) directly. I will explain that in a later section.</p>
+</div>
+<div class="paragraph">
+<p>It is easy to see the length of this quaternion \(\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1\). (Remember the axis \(\vec{v}\) is a unit vector that \(\left|\vec{v}\right|=1\)). We call it a unit quaternion if the length \(\left|q\right|=1\). So we can rewrite Euler’s rotation theorem in quaternion term:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation. (2) For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
 </div>
+</div>
+<div class="paragraph">
+<p>From now on, any quaternion q used in this article is by default a unit quaternion, and we will use q to describe rotations.</p>
 </div>
 </div>
     </section>
@@ -195,7 +211,7 @@ null
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477764982729"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477766316319"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
