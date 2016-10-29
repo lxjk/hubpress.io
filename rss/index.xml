@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 21:28:14 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 21:31:32 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -15,7 +15,7 @@
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quaternion_definition">1. Quaternion Definition</h3>
+<h3 id="_quaternion_definition">Quaternion Definition</h3>
 <div class="paragraph">
 <p>Quaternion is a 4-tuple denoted as \(q=(x,y,z,w)\). The length of a quaternion is defined as \(\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}\), just as you would expected from a 4D vector.</p>
 </div>
@@ -34,17 +34,29 @@
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
-<div class="verseblock">
-<pre class="content">This claim actually has 2 sides. Let me go a little be more in details in math term:
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p><code>This claim actually has 2 sides. Let me go a little be more in details in math term:
 (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation.
-(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</pre>
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</code></p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_rotation_and_flip">2. Rotation and Flip</h3>
+<h3 id="_rotation_and_flip">Rotation and Flip</h3>
 <div class="paragraph">
 <p>Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.</p>
 </div>
@@ -96,7 +108,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quaternion_and_flip">3. Quaternion and Flip</h3>
+<h3 id="_quaternion_and_flip">Quaternion and Flip</h3>
 <div class="paragraph">
 <p>Now let’s recall the quaternion vector form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). With the discussion of flips above, you can almost immediately see why we are using \(\frac{θ}{2}\) here.</p>
 </div>
@@ -113,7 +125,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_flip_composition">4. Flip Composition</h3>
+<h3 id="_flip_composition">Flip Composition</h3>
 <div class="paragraph">
 <p>Here we need to introduce the multiplication of general quaternion. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
 </div>
@@ -152,7 +164,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
 </div>
 <div class="sect3">
-<h4 id="_proof">4.1. Proof</h4>
+<h4 id="_proof">Proof</h4>
 <div class="paragraph">
 <p>\(\vec{a}·\vec{b}=cos&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}\). Since \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and \(\left|\vec{v}\right|=1\), we have \(\vec{a}×\vec{b}=sin&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}\).</p>
 </div>
@@ -193,19 +205,33 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="paragraph">
 <p>The order of \(q=-{q_b}{q_a}\) on the right hand side is important. It means flip along \(\vec{a}\) first and then \(\vec{b}\). Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.</p>
 </div>
-<div class="verseblock">
-<pre class="content">We can however get rid of the negative sign by choosing \(\vec{a}\) and \(\vec{b}\) differently.
-
-<em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>We can however get rid of the negative sign by choosing \(\vec{a}\) and \(\vec{b}\) differently.</p>
+</div>
+<div class="paragraph">
+<p><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that
 \(q={q_b}{q_a}\)
-where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}-π\).</em>
-
-It becomes harder to visualize \(\vec{a}\) and \(\vec{b}\) if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.</pre>
+where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}-π\).</em></p>
+</div>
+<div class="paragraph">
+<p>It becomes harder to visualize \(\vec{a}\) and \(\vec{b}\) if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_flip_vector">5. Flip Vector</h3>
+<h3 id="_flip_vector">Flip Vector</h3>
 <div class="paragraph">
 <p>Given a flip \(q_a=(\vec{a},0)\) and vector \(\vec{v}\), we are ready to calculate the result of the flip \(\vec{v'}\).</p>
 </div>
