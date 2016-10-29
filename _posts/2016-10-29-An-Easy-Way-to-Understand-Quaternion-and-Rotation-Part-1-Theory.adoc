@@ -26,15 +26,16 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
-
+---
 [NOTE, indent=2]
 .Note
 ====
-`This claim actually has 2 sides. Let me go a little be more in details in math term: 
+This claim actually has 2 sides. Let me go a little be more in details in math term: 
 (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. 
-(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].`
+(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
 
 ====
+---
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
@@ -118,11 +119,11 @@ If you are not sure about the direction of the cross product, see Figure 2.
 
 [stem]
 ++++
-q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
-=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
-=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
-=-{q_b}{q_a}
+q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
+&=-{q_b}{q_a}
 ++++
 
 Here you can also clearly see why we are using stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] in quaternions.
@@ -131,9 +132,9 @@ One thing I need to mention here is the negation of a quaternion. stem:[q=(sin�
 
 [stem]
 ++++
--q=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
-=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
-=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
+-q&=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+&=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
+&=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
 ++++
 
 Recall that stem:[sin⁡θ=sin(π-θ)] and stem:[-cos⁡θ=cos(π-θ)], then stem:[-sin⁡θ=sin(-θ)] and stem:[cos⁡θ=cos(-θ)].
@@ -144,6 +145,7 @@ The fact that stem:[q] and stem:[–q] represents the same rotation is usually c
 
 The order of stem:[q=-{q_b}{q_a}] on the right hand side is important. It means flip along stem:[\vec{a}] first and then stem:[\vec{b}]. Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.
 
+---
 [NOTE, indent=2]
 .Note
 ====
@@ -156,6 +158,7 @@ where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from st
 It becomes harder to visualize stem:[\vec{a}] and stem:[\vec{b}] if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.
 
 ====
+---
 
 
 === Flip Vector
@@ -173,9 +176,9 @@ We can actually calculate the result rotation. Let stem:[<\vec{v},\vec{a}>=<\vec
 
 [stem]
 ++++
-q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=-{q_a}{q_v}\\
-=-{q_v'}{q_a}
+q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&=-{q_a}{q_v}\\
+&=-{q_v'}{q_a}
 ++++
 
 This gives stem:[{q_v'}{q_a}={q_a}{q_v}].
