@@ -27,8 +27,12 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
-NOTE::
+[NOTE]
+.Note
+====
 This claim actually has 2 sides. Let me go a little be more in details in math term: (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. (2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
+
+====
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
@@ -89,15 +93,58 @@ It is naturally derived from the general form, and we will be only using this mu
 
 With flip multiplication defined, we can rewrite our flip composition rule again:
 
-[NOTE]
-====
-*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that_*
-
-*_stem:[q= -{q_b}{q_a}]_*
-
-*_where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
-
-====
+*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that +
+stem:[q=-{q_b}{q_a}] +
+where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
 
 You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
+
+#### Proof
+
+stem:[\vec{a}·\vec{b}=cos<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}]. Since stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and stem:[\left|\vec{v}\right|=1], we have stem:[\vec{a}×\vec{b}=sin<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}].
+
+If you are not sure about the direction of the cross product, see Figure 2.
+
+[stem]
+++++
+q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
+=-{q_b}{q_a}
+++++
+
+Here you can also clearly see why we are using stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] in quaternions.
+
+One thing I need to mention here is the negation of a quaternion. stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], then
+
+[stem]
+++++
+-q=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
+=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
+++++
+
+Recall that stem:[sin⁡θ=sin(π-θ)] and stem:[-cos⁡θ=cos(π-θ)], then stem:[-sin⁡θ=sin(-θ)] and stem:[cos⁡θ=cos(-θ)].
+
+It shows that stem:[-q] is a rotation along axis stem:[\vec{v}] of angle stem:[-(2π-θ)], which is exactly the same rotation as stem:[q]. For example if stem:[θ=90^{\circ}] then stem:[-(2π-θ)=-270^{\circ}], rotate stem:[90^{\circ}] along axis stem:[\vec{v}] is the same as rotate stem:[270^{\circ}] degree but in the opposite direction along the same axis stem:[\vec{v}]. 
+
+The fact that stem:[q] and stem:[–q] represents the same rotation is usually called double-cover. However in our calculation I don’t want you to simply think stem:[q] and stem:[–q] are the same. They are different in quaternion space, even though they map to the same 3D rotation. The negative sign of the flip composition needs to be there.
+
+The order of stem:[q=-{q_b}{q_a}] on the right hand side is important. It means flip along stem:[\vec{a}] first and then stem:[\vec{b}]. Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.
+
+[NOTE]
+.Note
+====
+We can however get rid of the negative sign by choosing stem:[\vec{a}] and stem:[\vec{b}] differently.
+
+_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that +
+stem:[q={q_b}{q_a}] +
+where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}-π]._
+
+It becomes harder to visualize stem:[\vec{a}] and stem:[\vec{b}] if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.
+
+====
+
+
 
