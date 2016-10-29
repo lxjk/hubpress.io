@@ -13,7 +13,7 @@ In this article, I will try to avoid touching the algebra structure of quaternio
 
 I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.
 
-### Quaternion Definition
+=== Quaternion Definition
 
 Quaternion is a 4-tuple denoted as stem:[q=(x,y,z,w)]. The length of a quaternion is defined as stem:[\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}], just as you would expected from a 4D vector. 
 
@@ -32,7 +32,7 @@ This claim actually has 2 sides. Let me go a little be more in details in math t
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
-### Rotation and Flip
+=== Rotation and Flip
 
 Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.
 
@@ -59,7 +59,41 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig2
 
 Now we can rewrite our flip composition rule in a more specific form:
 
-*_Any 3D rotation equivalent to rotating angle stem:[θ] along axis stem:[\vec{v}] can be represented as a sequence of 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], such that stem:[\vec{a}\mid\vec{v}=0], stem:[\vec{b}\mid\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+*_Any 3D rotation equivalent to rotating angle stem:[θ] along axis stem:[\vec{v}] can be represented as a sequence of 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], such that stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
 
 This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.
+
+=== Quaternion and Flip
+
+Now let’s recall the quaternion vector form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. With the discussion of flips above, you can almost immediately see why we are using stem:[\frac{θ}{2}] here.
+
+Think about flips again. A flip along axis stem:[\vec{a}] is also a stem:[180^{\circ}] rotation along axis stem:[\vec{a}]. So this flip can be represented in quaternion term 
+
+stem:[q_a=(sin⁡\frac{180^{\circ}}{2}\vec{a},cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)]
+
+From now on we will use quaternion to represent flip. Actually any unit quaternion with stem:[q.w=0] is a flip along axis stem:[(q.x,q.y,q.z)].
+
+=== Flip Composition
+
+Here we need to introduce the multiplication of general quaternion. Let stem:[q_1=(\vec{v_1},w_1)], stem:[q_2=(\vec{v_2},w_2)] then
+
+stem:[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1}+w_2\vec{v_2}+\vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}∙\vec{v_2})]
+
+Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion https://en.wikipedia.org/wiki/Quaternion#Definition[Wiki page] has a very straight forward introduction.
+
+We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
+
+stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}∙\vec{b})]
+
+It is naturally derived from the general form, and we will be only using this multiplication in Part 1.
+
+With flip multiplication defined, we can rewrite our flip composition rule again:
+
+*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and [q_b=(\vec{b},0)], such that_*
+
+*_stem:[q= -{q_b}{q_a}]_*
+
+*_where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+
+You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
 
