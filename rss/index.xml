@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 18:16:22 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 29 Oct 2016 18:38:36 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -14,19 +14,35 @@
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_quaternion_definition">Quaternion Definition</h4>
+<div class="sect2">
+<h3 id="_quaternion_definition">Quaternion Definition</h3>
 <div class="paragraph">
 <p>Quaternion is a 4-tuple denoted as \(q=(x,y,z,w)\). The length of a quaternion is defined as \(\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}\), just as you would expected from a 4D vector.</p>
 </div>
 <div class="paragraph">
 <p>In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:</p>
 </div>
-<div class="openblock red">
-<div class="content">
 <div class="paragraph">
-<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\)</em></strong></p>
+<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>We can use quaternion to describe this angle-axis rotation : \(q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})\), or in a more compact form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using \(frac{θ}{2}\)  other than using \(θ\) directly. I will explain that in a later section.</p>
+</div>
+<div class="paragraph">
+<p>It is easy to see the length of this quaternion \(\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1\). (Remember the axis \(\vec{v}\) is a unit vector that \(\left|\vec{v}\right|=1\)). We call it a unit quaternion if the length \(\left|q\right|=1\). So we can rewrite Euler’s rotation theorem in quaternion term:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Note</div>
+<div class="paragraph">
+<p>This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation. (2) For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
 </div>
+</div>
+<div class="paragraph">
+<p>From now on, any quaternion q used in this article is by default a unit quaternion, and we will use q to describe rotations.</p>
 </div>
 </div>]]></description><link>https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 29 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
