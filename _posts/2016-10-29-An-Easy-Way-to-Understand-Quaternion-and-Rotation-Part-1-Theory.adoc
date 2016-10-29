@@ -28,7 +28,7 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
 NOTE::
-This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. (2) For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
+This claim actually has 2 sides. Let me go a little be more in details in math term: (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. (2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
@@ -77,23 +77,27 @@ From now on we will use quaternion to represent flip. Actually any unit quaterni
 
 Here we need to introduce the multiplication of general quaternion. Let stem:[q_1=(\vec{v_1},w_1)], stem:[q_2=(\vec{v_2},w_2)] then
 
-stem:[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1}+w_2\vec{v_2}+\vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}∙\vec{v_2})]
+stem:[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1} + w_2\vec{v_2} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})]
 
 Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion https://en.wikipedia.org/wiki/Quaternion#Definition[Wiki page] has a very straight forward introduction.
 
 We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
 
-stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}∙\vec{b})]
+stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})]
 
 It is naturally derived from the general form, and we will be only using this multiplication in Part 1.
 
 With flip multiplication defined, we can rewrite our flip composition rule again:
 
-*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and [q_b=(\vec{b},0)], such that_*
+[NOTE]
+====
+*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that_*
 
 *_stem:[q= -{q_b}{q_a}]_*
 
 *_where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+
+====
 
 You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
 
