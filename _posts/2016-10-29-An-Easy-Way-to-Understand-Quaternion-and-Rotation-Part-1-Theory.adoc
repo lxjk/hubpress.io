@@ -119,7 +119,7 @@ If you are not sure about the direction of the cross product, see Figure 2.
 
 [stem]
 ++++
-q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 &=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
 &=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
@@ -178,7 +178,7 @@ We can actually calculate the result rotation. Let stem:[<\vec{v},\vec{a}>=<\vec
 
 [stem]
 ++++
-q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &=-{q_a}{q_v}\\
 &=-{q_v'}{q_a}
 ++++
