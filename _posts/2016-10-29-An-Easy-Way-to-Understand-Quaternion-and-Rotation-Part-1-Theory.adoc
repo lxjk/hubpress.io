@@ -26,9 +26,21 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
+[NOTE]
 .Note
-****
+====
 This claim actually has 2 sides. Let me go a little be more in details in math term: (1) For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. (2) For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
-****
+====
 
-From now on, any quaternion q used in this article is by default a unit quaternion, and we will use q to describe rotations.
+From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
+
+### Rotation and Flip
+
+Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.
+
+*_Any 3D rotation can be composed by 2 flips along some axes._*
+
+The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
+Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation stem:[q], which rotates  stem:[+90^{\circ}] along axis stem:[\vec{Z}]. Now I can say this rotation is the same as 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], both of them are on XY plane, and the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[+45^{\circ}].
+
+image::http://github.com/lxjk/lxjk.github.io/blob/master/images/quaternions/fig1.png[]
