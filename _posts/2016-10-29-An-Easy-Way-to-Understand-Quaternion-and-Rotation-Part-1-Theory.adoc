@@ -96,7 +96,10 @@ Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even
 
 We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
 
-stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})]
+[stem]
+++++
+{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})
+++++
 
 It is naturally derived from the general form, and we will be only using this multiplication in Part 1.
 
@@ -110,8 +113,6 @@ q=-{q_b}{q_a}
 *_where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
 
 You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
-
-#### Proof
 
 stem:[\vec{a}·\vec{b}=cos<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}]. Since stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and stem:[\left|\vec{v}\right|=1], we have stem:[\vec{a}×\vec{b}=sin<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}].
 
@@ -214,7 +215,7 @@ We can go back to previous result of flipping vector stem:[{q_v'}{q_a}={q_a}{q_v
 ++++
 \begin{align*}
 {q_v'}{q_a}{q_a^{-1}}&={q_a}{q_v}{q_a^{-1}}\\
-q_v')&={q_a}{q_v}{q_a^{-1}}
+q_v'&={q_a}{q_v}{q_a^{-1}}
 \end{align*}
 ++++  
 
@@ -227,4 +228,108 @@ This provides us a way to calculate the result of flip. Since we only need the v
 
 When we put a vector stem:[\vec{v}] in quaternion multiplication, we are implicitly making that vector the axis of a flip to stuff it into a quaternion stem:[(\vec{v},0)]. This is how the “sandwich” multiplication form comes from, but only in the form of flip. We will prove that our result holds the same for any rotation in the next section.
 
+=== Rotate Vector
 
+We know any 3D rotation stem:[q] can be broken down into 2 flips stem:[q= -{q_b}{q_a}], which means flipping along stem:[\vec{a}] first and then stem:[\vec{b}]. So for a vector stem:[\vec{v}], we apply the first flip and get
+[stem]
+++++
+\vec{v'}={q_a}\vec{v}{q_a^{-1}}
+++++
+Then we apply the second flip stem:[\vec{v'}] and get
+[stem]
+++++
+\vec{v''}={q_b}\vec{v'}{q_b^{-1}}
+++++
+So the final result is
+[stem]
+++++
+\begin{align*}
+\vec{v''}&={q_b}{q_a}\vec{v}{q_a^{-1}}{q_b^{-1}}\\
+&=({q_b}{q_a})\vec{v}({q_b}{q_a})^{-1}\\
+&=(-q)\vec{v}(-q^{-1})\\
+&=q\vec{v}q^{-1}\\
+\end{align*}
+++++  
+Here you can see why stem:[q= -{q_b}{q_a}] needs to be in this order.
+
+One thing we need to prove
+[stem]
+++++
+\begin{align*}
+{q_a^{-1}}{q_b^{-1}}&=(-\vec{a},0)(-\vec{b},0)\\
+&=(-\vec{a}×-\vec{b},-(-\vec{a})·(-\vec{b}))\\
+&=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&=(-\vec{b}×\vec{a},-\vec{b}·\vec{a})\\
+&=({q_b}{q_a})^{-1}
+\end{align*}
+++++  
+At this point, we fully explained how to rotate a vector using quaternion.
+
+=== Rotation Composition
+
+Given rotation stem:[q_1] and stem:[q_2], from the formula in the previous section, if we rotate vector stem:[\vec{v}] by stem:[q_1] first then by stem:[q_2], we have
+[stem]
+++++
+\begin{align*}
+\vec{v'}&={q_1}\vec{v}{q_1^{-1}}
+\vec{v''}&={q_2}\vec{v'}{q_2^{-1}}
+&={q_2}{q_1}\vec{v}{q_1^{-1}}{q_2^{-1}}\\
+&=({q_2}{q_1})\vec{v}({q_2}{q_1})^{-1}\\
+\end{align*}
+++++  
+It is the same as apply the combined rotation stem:[q={q_2}{q_1}]. Be careful about the multiplication order.
+
+Again we need to prove stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}], but we will do this later.
+
+What does it really mean to combine 2 rotations, can we visualize the rotation axis and angle of the result? By converting rotations to flips we actually do that.
+
+Let stem:[q_1=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})], stem:[q_2=(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})], we need to choose a special flip break down, such that they share one flip: stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}]. 
+
+Can we find such a break down? Remember the rule of flip composition requires the flip axis to be perpendicular to the rotation axis, that is stem:[\vec{c}·\vec{v_1}=0], stem:[\vec{c}·\vec{v_2}=0], we can choose stem:[\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}]. 
+
+Based on stem:[\vec{c}] we can find out the other two axes: rotate stem:[\vec{c}] along axis stem:[\vec{v_1}] by angle stem:[-\frac{θ_1}{2}] results in stem:[\vec{a}]; rotate stem:[\vec{c}] along axis stem:[\vec{v_2}] by angle stem:[\frac{θ_2}{2}] results in stem:[\vec{b}]. This process is demonstrated in Figure 4.
+
+Now we have stem:[\vec{a}·\vec{v_1}=0], stem:[\vec{c}·\vec{v_1}=0], stem:[<\vec{a},\vec{c}>=\frac{θ_1}{2}] and stem:[\vec{c}·\vec{v_2}=0], stem:[\vec{b}·\vec{v_2}=0], stem:[<\vec{c},\vec{b}>=\frac{θ_2}{2}]. Our break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}] is valid. The combined rotation can be written as
+[stem]
+++++
+\begin{align*}
+q&={q_2}{q_1}
+&=(-{q_b}{q_c})(-{q_c}{q_a})\\
+&={q_b}({q_c}{q_c}){q_a}\\
+&=-{q_b}{q_a}\\
+\end{align*}
+++++ 
+Here we need to prove this
+[stem]
+++++
+{q_c}{q_c}=(\vec{c},0)(\vec{c},0)=(\vec{c}×\vec{c},-(\vec{c}·\vec{c}))=(\vec{0},-1)=-I
+++++ 
+It shows that the combined rotation can be composed by flip stem:[q_a] and stem:[q_b], which tells the combined rotation is a rotation of angle stem:[2<vec{a},vec{b}>] along axis stem:[\vec{u}=\frac{\vec{a}×\vec{b}}{\left|\vec{a}×\vec{b}\right|}].
+
+.Figure 4
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig4.png[, 400,align="center"]
+In Figure 4, Blue plane is based on stem:[\vec{v_1}] and stem:[\vec{v_1}], stem:[\vec{c}] is perpendicular to that plane. 
+Orange plane is based on stem:[\vec{a}] and stem:[\vec{b}], the result rotation axis stem:[\vec{u}] is perpendicular to that plane.
+
+With the same method, let’s prove the thing we left out:
+[stem]
+++++
+\begin{align*}
+{q_1^{-1}}{q_2^{-1}}&=(-{q_c}{q_a})^{-1}(-{q_b}{q_c})^{-1}\\
+&={q_a^{-1}}{q_c^{-1}}{q_c^{-1}}{q_b^{-1}}\\
+&=-{q_a^{-1}}{q_b^{-1}}\\
+&=(-{q_b}{q_a})^{-1}\\
+&=({q_b}{q_c}{q_c}{q_a})^{-1}\\
+&=({q_2}{q_1})^{-1}\\
+\end{align*}
+++++  
+
+=== Summary of Part 1
+
+In Part 1, we covered the definition of quaternion stem:[q=(x,y,z,w)], the vector form of quaternion stem:[q=(\vec{v},w)], unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] and how it is used to represent a rotation.
+
+We also talked about negation of quaternion stem:[–q], and its double cover property; the inverse of quaternion stem:[q^{-1}] and identity quaternion stem:[I=(\vec{0},1)].
+
+We use quaternion to represent flip stem:[q_a=(\vec{a},0)], and derive the rule of flip composition stem:[q=-{q_b}{q_a}]. Based on this rule, we visualized and proved how quaternion rotates a vector by stem:[\vec{v'}=q\vec{v}q^{-1}] and how rotation gets composed by stem:[q={q_2}{q_1}].
+
+We slightly touched quaternion multiplication, and we proved an important equation stem:[{q_1^{-1}{q_2^{-1}}=({q_2}{q_1})^{-1}].
