@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477778273304" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477783585656" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -279,8 +279,10 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="paragraph">
 <p>We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let \(q_a=(\vec{a},0)\), \(q_b=(\vec{b},0)\) then</p>
 </div>
-<div class="paragraph">
-<p>\({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\)</p>
+<div class="stemblock">
+<div class="content">
+\[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\]
+</div>
 </div>
 <div class="paragraph">
 <p>It is naturally derived from the general form, and we will be only using this multiplication in Part 1.</p>
@@ -302,8 +304,6 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="paragraph">
 <p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
 </div>
-<div class="sect3">
-<h4 id="_proof">Proof</h4>
 <div class="paragraph">
 <p>\(\vec{a}·\vec{b}=cos&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}\). Since \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and \(\left|\vec{v}\right|=1\), we have \(\vec{a}×\vec{b}=sin&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}\).</p>
 </div>
@@ -374,7 +374,6 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </div>
 <hr>
 </div>
-</div>
 <div class="sect2">
 <h3 id="_flip_vector">Flip Vector</h3>
 <div class="paragraph">
@@ -440,7 +439,7 @@ q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 <div class="content">
 \[\begin{align*}
 {q_v'}{q_a}{q_a^{-1}}&amp;={q_a}{q_v}{q_a^{-1}}\\
-q_v')&amp;={q_a}{q_v}{q_a^{-1}}
+q_v'&amp;={q_a}{q_v}{q_a^{-1}}
 \end{align*}\]
 </div>
 </div>
@@ -454,6 +453,156 @@ q_v')&amp;={q_a}{q_v}{q_a^{-1}}
 </div>
 <div class="paragraph">
 <p>When we put a vector \(\vec{v}\) in quaternion multiplication, we are implicitly making that vector the axis of a flip to stuff it into a quaternion \((\vec{v},0)\). This is how the “sandwich” multiplication form comes from, but only in the form of flip. We will prove that our result holds the same for any rotation in the next section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotate_vector">Rotate Vector</h3>
+<div class="paragraph">
+<p>We know any 3D rotation \(q\) can be broken down into 2 flips \(q= -{q_b}{q_a}\), which means flipping along \(\vec{a}\) first and then \(\vec{b}\). So for a vector \(\vec{v}\), we apply the first flip and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v'}={q_a}\vec{v}{q_a^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Then we apply the second flip \(\vec{v'}\) and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v''}={q_b}\vec{v'}{q_b^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>So the final result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v''}&amp;={q_b}{q_a}\vec{v}{q_a^{-1}}{q_b^{-1}}\\
+&amp;=({q_b}{q_a})\vec{v}({q_b}{q_a})^{-1}\\
+&amp;=(-q)\vec{v}(-q^{-1})\\
+&amp;=q\vec{v}q^{-1}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here you can see why \(q= -{q_b}{q_a}\) needs to be in this order.</p>
+</div>
+<div class="paragraph">
+<p>One thing we need to prove</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_a^{-1}}{q_b^{-1}}&amp;=(-\vec{a},0)(-\vec{b},0)\\
+&amp;=(-\vec{a}×-\vec{b},-(-\vec{a})·(-\vec{b}))\\
+&amp;=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&amp;=(-\vec{b}×\vec{a},-\vec{b}·\vec{a})\\
+&amp;=({q_b}{q_a})^{-1}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>At this point, we fully explained how to rotate a vector using quaternion.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_composition">Rotation Composition</h3>
+<div class="paragraph">
+<p>Given rotation \(q_1\) and \(q_2\), from the formula in the previous section, if we rotate vector \(\vec{v}\) by \(q_1\) first then by \(q_2\), we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v'}&amp;={q_1}\vec{v}{q_1^{-1}}
+\vec{v''}&amp;={q_2}\vec{v'}{q_2^{-1}}
+&amp;={q_2}{q_1}\vec{v}{q_1^{-1}}{q_2^{-1}}\\
+&amp;=({q_2}{q_1})\vec{v}({q_2}{q_1})^{-1}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>It is the same as apply the combined rotation \(q={q_2}{q_1}\). Be careful about the multiplication order.</p>
+</div>
+<div class="paragraph">
+<p>Again we need to prove \({q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}\), but we will do this later.</p>
+</div>
+<div class="paragraph">
+<p>What does it really mean to combine 2 rotations, can we visualize the rotation axis and angle of the result? By converting rotations to flips we actually do that.</p>
+</div>
+<div class="paragraph">
+<p>Let \(q_1=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})\), \(q_2=(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})\), we need to choose a special flip break down, such that they share one flip: \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\).</p>
+</div>
+<div class="paragraph">
+<p>Can we find such a break down? Remember the rule of flip composition requires the flip axis to be perpendicular to the rotation axis, that is \(\vec{c}·\vec{v_1}=0\), \(\vec{c}·\vec{v_2}=0\), we can choose \(\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}\).</p>
+</div>
+<div class="paragraph">
+<p>Based on \(\vec{c}\) we can find out the other two axes: rotate \(\vec{c}\) along axis \(\vec{v_1}\) by angle \(-\frac{θ_1}{2}\) results in \(\vec{a}\); rotate \(\vec{c}\) along axis \(\vec{v_2}\) by angle \(\frac{θ_2}{2}\) results in \(\vec{b}\). This process is demonstrated in Figure 4.</p>
+</div>
+<div class="paragraph">
+<p>Now we have \(\vec{a}·\vec{v_1}=0\), \(\vec{c}·\vec{v_1}=0\), \(&lt;\vec{a},\vec{c}&gt;=\frac{θ_1}{2}\) and \(\vec{c}·\vec{v_2}=0\), \(\vec{b}·\vec{v_2}=0\), \(&lt;\vec{c},\vec{b}&gt;=\frac{θ_2}{2}\). Our break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\) is valid. The combined rotation can be written as</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;={q_2}{q_1}
+&amp;=(-{q_b}{q_c})(-{q_c}{q_a})\\
+&amp;={q_b}({q_c}{q_c}){q_a}\\
+&amp;=-{q_b}{q_a}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here we need to prove this</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_c}{q_c}=(\vec{c},0)(\vec{c},0)=(\vec{c}×\vec{c},-(\vec{c}·\vec{c}))=(\vec{0},-1)=-I\]
+</div>
+</div>
+<div class="paragraph">
+<p>It shows that the combined rotation can be composed by flip \(q_a\) and \(q_b\), which tells the combined rotation is a rotation of angle \(2&lt;vec{a},vec{b}&gt;\) along axis \(\vec{u}=\frac{\vec{a}×\vec{b}}{\left|\vec{a}×\vec{b}\right|}\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig4.png" alt="fig4.png" width="400">
+</div>
+<div class="title">Figure 4</div>
+</div>
+<div class="paragraph">
+<p>In Figure 4, Blue plane is based on \(\vec{v_1}\) and \(\vec{v_1}\), \(\vec{c}\) is perpendicular to that plane.
+Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \(\vec{u}\) is perpendicular to that plane.</p>
+</div>
+<div class="paragraph">
+<p>With the same method, let’s prove the thing we left out:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_1^{-1}}{q_2^{-1}}&amp;=(-{q_c}{q_a})^{-1}(-{q_b}{q_c})^{-1}\\
+&amp;={q_a^{-1}}{q_c^{-1}}{q_c^{-1}}{q_b^{-1}}\\
+&amp;=-{q_a^{-1}}{q_b^{-1}}\\
+&amp;=(-{q_b}{q_a})^{-1}\\
+&amp;=({q_b}{q_c}{q_c}{q_a})^{-1}\\
+&amp;=({q_2}{q_1})^{-1}\\
+\end{align*}\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary_of_part_1">Summary of Part 1</h3>
+<div class="paragraph">
+<p>In Part 1, we covered the definition of quaternion \(q=(x,y,z,w)\), the vector form of quaternion \(q=(\vec{v},w)\), unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) and how it is used to represent a rotation.</p>
+</div>
+<div class="paragraph">
+<p>We also talked about negation of quaternion \(–q\), and its double cover property; the inverse of quaternion \(q^{-1}\) and identity quaternion \(I=(\vec{0},1)\).</p>
+</div>
+<div class="paragraph">
+<p>We use quaternion to represent flip \(q_a=(\vec{a},0)\), and derive the rule of flip composition \(q=-{q_b}{q_a}\). Based on this rule, we visualized and proved how quaternion rotates a vector by \(\vec{v'}=q\vec{v}q^{-1}\) and how rotation gets composed by \(q={q_2}{q_1}\).</p>
+</div>
+<div class="paragraph">
+<p>We slightly touched quaternion multiplication, and we proved an important equation \({q_1^{-1}{q_2^{-1}}=({q_2}{q_1})^{-1}\).</p>
 </div>
 </div>
     </section>
@@ -484,7 +633,7 @@ q_v')&amp;={q_a}{q_v}{q_a^{-1}}
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477778273304"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477783585656"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
