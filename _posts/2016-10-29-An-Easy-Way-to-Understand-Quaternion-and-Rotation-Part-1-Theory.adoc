@@ -119,11 +119,13 @@ If you are not sure about the direction of the cross product, see Figure 2.
 
 [stem]
 ++++
-q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+\begin{align*}
+q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 &=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
 &=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
 &=-{q_b}{q_a}
+\end{align*}
 ++++
 
 Here you can also clearly see why we are using stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] in quaternions.
@@ -133,7 +135,7 @@ One thing I need to mention here is the negation of a quaternion. stem:[q=(sin�
 [stem]
 ++++
 \begin{align*}
-{-q}=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+{-q}&=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
 &=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
 &=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
 \end{align*}
@@ -178,11 +180,51 @@ We can actually calculate the result rotation. Let stem:[<\vec{v},\vec{a}>=<\vec
 
 [stem]
 ++++
-q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+\begin{align*}
+q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 &=-{q_a}{q_v}\\
 &=-{q_v'}{q_a}
+\end{align*}
 ++++
 
 This gives stem:[{q_v'}{q_a}={q_a}{q_v}].
 
 (Here stem:[\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=sin\frac{θ}{2}].If you are not sure what’s going on here, go back “Flip Composition” and read the proof)
+
+Now we need to introduce the inverse of a quaternion. The inverse of stem:[q] is denoted as stem:[q^{-1}], such that stem:[qq^{-1}=q^{-1}q=(\vec{0},1)]. 
+
+stem:[I=(\vec{0},1)] is called identity quaternion, means no rotation at all. You can think of stem:[I=(sin⁡0\vec{v},cos⁡0)], which means rotating stem:[0^{\circ}] along any axis stem:[\vec{v}]. We haven’t gone into quaternion multiplication or rotation composition, but it’s not hard to see for any quaternion stem:[q], stem:[qI=Iq=q].
+
+In the case of unit quaternion, the idea of inversed quaternion is if you apply a rotation, then apply its inverse, the result should be no rotation at all. And it is the same if you apply an inversed rotation then apply the original one.
+
+For any unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], then stem:[q^{-1}=(-sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. You can understand this in two ways, either stem:[q^{-1}=(sin⁡\frac{θ}{2}(-\vec{v}),cos⁡\frac{θ}{2})] or stem:[q^{-1}=(sin⁡\frac{-θ}{2}\vec{v},cos⁡\frac{-θ}{2})]. stem:[q^{-1}] is either a rotation of angle stem:[θ] along axis stem:[-\vec{v}], or a rotation of angle stem:[–θ] along axis stem:[\vec{v}]. Either way it will cancel out the original rotation.
+
+I will give a quick proof in the case of flip. You can try extend this proof to general unit quaternion. If stem:[q_a=(\vec{a},0)], stem:[q_a^{-1}=(-\vec{a},0)], we have
+
+[stem]
+++++
+{q_a}{q_a^{-1}}=(\vec{a}×-\vec{a},-(\vec{a}·-\vec{a}))=(\vec{0},1)
+++++
+
+(Make sure you understand the difference between stem:[q^{-1}] and stem:[–q]. Read “Flip Composition” about quaternion negation if you are not sure.) 
+
+We can go back to previous result of flipping vector stem:[{q_v'}{q_a}={q_a}{q_v}]. Apply inverse flip of q_a on both side, the equation becomes
+
+[stem]
+++++
+\begin{align*}
+{q_v'}{q_a}{q_a^{-1}}&={q_a}{q_v}{q_a^{-1}}\\
+q_v')&={q_a}{q_v}{q_a^{-1}}
+\end{align*}
+++++  
+
+This provides us a way to calculate the result of flip. Since we only need the vector part of the result, we can denote this as 
+
+[stem]
+++++
+\vec{v'}={q_a}\vec{v}{q_a^{-1}}
+++++
+
+When we put a vector stem:[\vec{v}] in quaternion multiplication, we are implicitly making that vector the axis of a flip to stuff it into a quaternion stem:[(\vec{v},0)]. This is how the “sandwich” multiplication form comes from, but only in the form of flip. We will prove that our result holds the same for any rotation in the next section.
+
+
