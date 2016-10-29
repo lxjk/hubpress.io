@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477774889599" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477776494575" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -152,7 +152,7 @@ null
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quaternion_definition">Quaternion Definition</h3>
+<h3 id="_quaternion_definition">1. Quaternion Definition</h3>
 <div class="paragraph">
 <p>Quaternion is a 4-tuple denoted as \(q=(x,y,z,w)\). The length of a quaternion is defined as \(\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}\), just as you would expected from a 4D vector.</p>
 </div>
@@ -171,27 +171,17 @@ null
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
-<div class="paragraph">
-<p>This claim actually has 2 sides. Let me go a little be more in details in math term: (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation. (2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
-</div>
-</td>
-</tr>
-</table>
+<div class="verseblock">
+<pre class="content">This claim actually has 2 sides. Let me go a little be more in details in math term:
+(1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation.
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</pre>
 </div>
 <div class="paragraph">
 <p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_rotation_and_flip">Rotation and Flip</h3>
+<h3 id="_rotation_and_flip">2. Rotation and Flip</h3>
 <div class="paragraph">
 <p>Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.</p>
 </div>
@@ -243,27 +233,31 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quaternion_and_flip">Quaternion and Flip</h3>
+<h3 id="_quaternion_and_flip">3. Quaternion and Flip</h3>
 <div class="paragraph">
 <p>Now let’s recall the quaternion vector form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). With the discussion of flips above, you can almost immediately see why we are using \(\frac{θ}{2}\) here.</p>
 </div>
 <div class="paragraph">
 <p>Think about flips again. A flip along axis \(\vec{a}\) is also a \(180^{\circ}\) rotation along axis \(\vec{a}\). So this flip can be represented in quaternion term</p>
 </div>
-<div class="paragraph">
-<p>\(q_a=(sin⁡\frac{180^{\circ}}{2}\vec{a},cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)\)</p>
+<div class="stemblock">
+<div class="content">
+\[q_a=(sin⁡\frac{180^{\circ}}{2}\vec{a},cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)\]
+</div>
 </div>
 <div class="paragraph">
 <p>From now on we will use quaternion to represent flip. Actually any unit quaternion with \(q.w=0\) is a flip along axis \((q.x,q.y,q.z)\).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_flip_composition">Flip Composition</h3>
+<h3 id="_flip_composition">4. Flip Composition</h3>
 <div class="paragraph">
 <p>Here we need to introduce the multiplication of general quaternion. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
 </div>
-<div class="paragraph">
-<p>\({q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1} + w_2\vec{v_2} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})\)</p>
+<div class="stemblock">
+<div class="content">
+\[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1} + w_2\vec{v_2} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})\]
+</div>
 </div>
 <div class="paragraph">
 <p>Note here \(q_1\) and \(q_2\) are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put \(sin⁡\frac{θ}{2}\) and \(cos⁡\frac{θ}{2}\) as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion <a href="https://en.wikipedia.org/wiki/Quaternion#Definition">Wiki page</a> has a very straight forward introduction.</p>
@@ -281,15 +275,21 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>With flip multiplication defined, we can rewrite our flip composition rule again:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that<br>
-\(q=-{q_b}{q_a}\)<br>
-where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+<p><strong><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that</em></strong></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q=-{q_b}{q_a}\]
+</div>
+</div>
+<div class="paragraph">
+<p><strong><em>where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
 </div>
 <div class="sect3">
-<h4 id="_proof">Proof</h4>
+<h4 id="_proof">4.1. Proof</h4>
 <div class="paragraph">
 <p>\(\vec{a}·\vec{b}=cos&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}\). Since \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and \(\left|\vec{v}\right|=1\), we have \(\vec{a}×\vec{b}=sin&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}\).</p>
 </div>
@@ -330,29 +330,49 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 <div class="paragraph">
 <p>The order of \(q=-{q_b}{q_a}\) on the right hand side is important. It means flip along \(\vec{a}\) first and then \(\vec{b}\). Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Note</div>
+<div class="verseblock">
+<pre class="content">We can however get rid of the negative sign by choosing \(\vec{a}\) and \(\vec{b}\) differently.
+
+<em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that
+\(q={q_b}{q_a}\)
+where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}-π\).</em>
+
+It becomes harder to visualize \(\vec{a}\) and \(\vec{b}\) if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flip_vector">5. Flip Vector</h3>
 <div class="paragraph">
-<p>We can however get rid of the negative sign by choosing \(\vec{a}\) and \(\vec{b}\) differently.</p>
+<p>Given a flip \(q_a=(\vec{a},0)\) and vector \(\vec{v}\), we are ready to calculate the result of the flip \(\vec{v'}\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig3.png" alt="fig3.png" width="400">
+</div>
+<div class="title">Figure 3</div>
 </div>
 <div class="paragraph">
-<p><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that<br>
-\(q={q_b}{q_a}\)<br>
-where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}-π\).</em></p>
+<p>According to flip definition, \(\vec{v}\), \(\vec{a}\) and \(\vec{v'}\) are on the same plane, and the angle \(&lt;\vec{v},\vec{a}&gt;=&lt;\vec{a},\vec{v'}&gt;\).</p>
 </div>
 <div class="paragraph">
-<p>It becomes harder to visualize \(\vec{a}\) and \(\vec{b}\) if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.</p>
+<p>If we treat \(\vec{v}\) and \(\vec{v'}\) as the axis of flip \(q_v=(\vec{v},0)\) and \(q_v'=(\vec{v'},0)\). From our flip composition rule, flipping along axis \(\vec{v}\) then \(\vec{a}\) should give us the same rotation as flipping along axis \(\vec{a}\) then \(\vec{v'}\).</p>
 </div>
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>We can actually calculate the result rotation. Let \(&lt;\vec{v},\vec{a}&gt;=&lt;\vec{a},\vec{v'}&gt;=\frac{θ}{2}\), \(\vec{u}=\frac{\vec{v}×\vec{a}}{\left|\vec{v}×\vec{a}\right|}=\frac{\vec{a}×\vec{v'}}{\left|\vec{a}×\vec{v'}\right|}\). Then the result rotation is of angle \(θ\) along axis \(\vec{u}\).</p>
 </div>
+<div class="stemblock">
+<div class="content">
+\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+=-{q_a}{q_v}\\
+=-{q_v'}{q_a}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This gives \({q_v'}{q_a}={q_a}{q_v}\).</p>
+</div>
+<div class="paragraph">
+<p>(Here \(\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=sin\frac{θ}{2}\).If you are not sure what’s going on here, go back “Flip Composition” and read the proof)</p>
 </div>
 </div>
     </section>
@@ -383,7 +403,7 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477774889599"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477776494575"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
