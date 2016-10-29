@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477776692867" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477776994695" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -171,6 +171,7 @@ null
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
+<hr>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -180,14 +181,15 @@ null
 <td class="content">
 <div class="title">Note</div>
 <div class="paragraph">
-<p><code>This claim actually has 2 sides. Let me go a little be more in details in math term:
+<p>This claim actually has 2 sides. Let me go a little be more in details in math term:
 (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation.
-(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</code></p>
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
 </td>
 </tr>
 </table>
 </div>
+<hr>
 <div class="paragraph">
 <p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
 </div>
@@ -310,11 +312,11 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
-=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
-=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
-=-{q_b}{q_a}\]
+\[q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&amp;=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&amp;=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
+&amp;=-{q_b}{q_a}\]
 </div>
 </div>
 <div class="paragraph">
@@ -325,9 +327,9 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 </div>
 <div class="stemblock">
 <div class="content">
-\[-q=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
-=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
-=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\\]
+\[-q&amp;=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
+&amp;=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
+&amp;=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\\]
 </div>
 </div>
 <div class="paragraph">
@@ -342,6 +344,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <div class="paragraph">
 <p>The order of \(q=-{q_b}{q_a}\) on the right hand side is important. It means flip along \(\vec{a}\) first and then \(\vec{b}\). Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.</p>
 </div>
+<hr>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -365,6 +368,7 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </tr>
 </table>
 </div>
+<hr>
 </div>
 </div>
 <div class="sect2">
@@ -389,9 +393,9 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
-=-{q_a}{q_v}\\
-=-{q_v'}{q_a}\]
+\[q&amp;=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+&amp;=-{q_a}{q_v}\\
+&amp;=-{q_v'}{q_a}\]
 </div>
 </div>
 <div class="paragraph">
@@ -429,7 +433,7 @@ where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477776692867"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477776994695"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
