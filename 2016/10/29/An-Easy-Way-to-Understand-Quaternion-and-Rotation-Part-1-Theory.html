@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477786604838" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477786738189" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -160,7 +160,7 @@ null
 <p>In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(\textbf{θ}\) along some axis \(\textbf{\vec{v}}\).</em></strong></p>
+<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>We can use quaternion to describe this angle-axis rotation : \(q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})\), or in a more compact form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using \(\frac{θ}{2}\) other than using \(θ\) directly. I will explain that in a later section.</p>
@@ -169,7 +169,7 @@ null
 <p>It is easy to see the length of this quaternion \(\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1\). (Remember the axis \(\vec{v}\) is a unit vector that \(\left|\vec{v}\right|=1\)). We call it a unit quaternion if the length \(\left|q\right|=1\). So we can rewrite Euler’s rotation theorem in quaternion term:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(\textbf{q}\) that \(\textbf{\left|q\right|=1}\).</em></strong></p>
+<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
 <hr>
 <div class="admonitionblock note">
@@ -240,7 +240,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>Now we can rewrite our flip composition rule in a more specific form:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation equivalent to rotating angle \(\textbf{θ}\) along axis \(\textbf{\vec{v}}\) can be represented as a sequence of 2 flips along axis \(\textbf{\vec{a}}\) and \(\textbf{\vec{b}}\), such that \(\textbf{\vec{a}·\vec{v}=0}\), \(\textbf{\vec{b}·\vec{v}=0}\) and the angle from \(\textbf{\vec{a}}\) to \(\textbf{\vec{b}}\): \(\textbf{&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}}\).</em></strong></p>
+<p><strong><em>Any 3D rotation equivalent to rotating angle \(θ\) along axis \(\vec{v}\) can be represented as a sequence of 2 flips along axis \(\vec{a}\) and \(\vec{b}\), such that \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.</p>
@@ -291,15 +291,15 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>With flip multiplication defined, we can rewrite our flip composition rule again:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation \(\textbf{q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})}\) can be represented as a sequence of 2 flips \(\textbf{{q_a=(\vec{a},0)}\) and \(\textbf{q_b=(\vec{b},0)}\), such that</em></strong></p>
+<p><strong><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that</em></strong></p>
 </div>
 <div class="stemblock">
 <div class="content">
-\[\textbf{q=-{q_b}{q_a}}\]
+\[q=-{q_b}{q_a}\]
 </div>
 </div>
 <div class="paragraph">
-<p><strong><em>where \(\textbf{\vec{a}·\vec{v}=0}\), \(\textbf{\vec{b}·\vec{v}=0}\) and the angle from \(\textbf{\vec{a}}\) to \(\textbf{\vec{b}}\): \(\textbf{&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}}\).</em></strong></p>
+<p><strong><em>where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
@@ -660,8 +660,8 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <div class="content">
 \[\begin{align*}
 \vec{a}×\vec{b}&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
-- sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
-- sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&amp;- sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
+&amp;- sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
 &amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
 &amp;=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
 \end{align*}\]
@@ -710,7 +710,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477786604838"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477786738189"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
