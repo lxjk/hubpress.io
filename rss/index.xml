@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 30 Oct 2016 00:09:08 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric Zhang]]></title><description><![CDATA[Game Dev - Tool Dev - Math - Machine Learning]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 30 Oct 2016 00:16:44 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -23,7 +23,7 @@
 <p>In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\).</em></strong></p>
+<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(\textbf{θ}\) along some axis \(\textbf{\vec{v}}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>We can use quaternion to describe this angle-axis rotation : \(q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})\), or in a more compact form \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\). We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using \(\frac{θ}{2}\) other than using \(θ\) directly. I will explain that in a later section.</p>
@@ -32,7 +32,7 @@
 <p>It is easy to see the length of this quaternion \(\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1\). (Remember the axis \(\vec{v}\) is a unit vector that \(\left|\vec{v}\right|=1\)). We call it a unit quaternion if the length \(\left|q\right|=1\). So we can rewrite Euler’s rotation theorem in quaternion term:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
+<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(\textbf{q}\) that \(\textbf{\left|q\right|=1}\).</em></strong></p>
 </div>
 <hr>
 <div class="admonitionblock note">
@@ -103,7 +103,7 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>Now we can rewrite our flip composition rule in a more specific form:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation equivalent to rotating angle \(θ\) along axis \(\vec{v}\) can be represented as a sequence of 2 flips along axis \(\vec{a}\) and \(\vec{b}\), such that \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+<p><strong><em>Any 3D rotation equivalent to rotating angle \(\textbf{θ}\) along axis \(\textbf{\vec{v}}\) can be represented as a sequence of 2 flips along axis \(\textbf{\vec{a}}\) and \(\textbf{\vec{b}}\), such that \(\textbf{\vec{a}·\vec{v}=0}\), \(\textbf{\vec{b}·\vec{v}=0}\) and the angle from \(\textbf{\vec{a}}\) to \(\textbf{\vec{b}}\): \(\textbf{&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.</p>
@@ -154,15 +154,15 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>With flip multiplication defined, we can rewrite our flip composition rule again:</p>
 </div>
 <div class="paragraph">
-<p><strong><em>Any 3D rotation \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that</em></strong></p>
+<p><strong><em>Any 3D rotation \(\textbf{q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})}\) can be represented as a sequence of 2 flips \(\textbf{{q_a=(\vec{a},0)}\) and \(\textbf{q_b=(\vec{b},0)}\), such that</em></strong></p>
 </div>
 <div class="stemblock">
 <div class="content">
-\[q=-{q_b}{q_a}\]
+\[\textbf{q=-{q_b}{q_a}}\]
 </div>
 </div>
 <div class="paragraph">
-<p><strong><em>where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+<p><strong><em>where \(\textbf{\vec{a}·\vec{v}=0}\), \(\textbf{\vec{b}·\vec{v}=0}\) and the angle from \(\textbf{\vec{a}}\) to \(\textbf{\vec{b}}\): \(\textbf{&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}}\).</em></strong></p>
 </div>
 <div class="paragraph">
 <p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
@@ -467,15 +467,9 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <div class="paragraph">
 <p>We slightly touched quaternion multiplication, and we proved an important equation \({q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}\).</p>
 </div>
-<hr>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<div class="title">Side Note</div>
+</div>
+<div class="sect2">
+<h3 id="_appendix_derive_quaternion_multiplication">Appendix: Derive Quaternion Multiplication</h3>
 <div class="paragraph">
 <p>This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.</p>
 </div>
@@ -528,7 +522,9 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-\vec{a}×\vec{b}&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))) - sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+\vec{a}×\vec{b}&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
+- sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
+- sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
 &amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
 &amp;=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
 \end{align*}\]
@@ -548,9 +544,4 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 <div class="paragraph">
 <p>which is the definition of quaternion multiplication of \({q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})\).</p>
 </div>
-</td>
-</tr>
-</table>
-</div>
-<hr>
 </div>]]></description><link>https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 29 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
