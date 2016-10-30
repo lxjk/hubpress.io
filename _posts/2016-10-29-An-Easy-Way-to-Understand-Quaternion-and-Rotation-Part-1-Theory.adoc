@@ -50,10 +50,10 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 
 We demonstrate this through Figure 1. For any vector stem:[\vec{v}], the result of this rotation is stem:[\vec{v''}] , which is the same as flip stem:[\vec{v}] along axis stem:[\vec{a}] and get stem:[\vec{v'}], and then flip stem:[\vec{v'}] along axis stem:[\vec{b}] and get stem:[\vec{v''}]. 
 
-.Figure 1 (b)
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png[, 300,float="right",align="center"]
 .Figure 1 (a)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1.png[, 300,float="right",align="center"]
+.Figure 1 (b)
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png[, 300,float="right",align="center"]
 
 It doesn’t matter where stem:[\vec{a}] and stem:[\vec{b}] are on the XY plane, but the order must be kept. If we choose stem:[\vec{b}] by rotating stem:[\vec{a}] along axis stem:[\vec{Z}] by stem:[+45^{\circ}] with the positive direction we defined above, then we must flip along stem:[\vec{a}] first then along stem:[\vec{b}] to get our target rotation. The order and the sign of angle is important, as you can easily see flip along stem:[\vec{b}] first then along stem:[\vec{a}] will give a different result.
 
