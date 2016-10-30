@@ -89,7 +89,7 @@ Here we need to introduce the multiplication of general quaternion. Let stem:[q_
 
 [stem]
 ++++
-{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_1} + w_2\vec{v_2} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})
+{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})
 ++++
 
 Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion https://en.wikipedia.org/wiki/Quaternion#Definition[Wiki page] has a very straight forward introduction.
