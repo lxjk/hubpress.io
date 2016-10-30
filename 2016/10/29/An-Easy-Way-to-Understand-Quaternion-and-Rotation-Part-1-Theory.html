@@ -38,9 +38,9 @@
     <link href="//fonts.googleapis.com/" rel="dns-prefetch">
     <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
 
-    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/main.min.css?v=1477787055923"/>
-    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/custom.css?v=1477787055923"/>
-    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1477787055923"/>
+    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/main.min.css?v=1477787732153"/>
+    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/custom.css?v=1477787732153"/>
+    <link rel="stylesheet" href="//lxjk.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1477787732153"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -72,7 +72,7 @@
       GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
     </script>
 
-    <script src="//lxjk.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1477787055923"></script>
+    <script src="//lxjk.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1477787732153"></script>
 
     <link rel="canonical" href="https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html" />
     <meta name="referrer" content="origin" />
@@ -80,11 +80,11 @@
     <meta property="og:site_name" content="Eric Zhang" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="An Easy Way to Understand Quaternion and Rotation: Part 1. Theory" />
-    <meta property="og:description" content="Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”" />
+    <meta property="og:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
     <meta property="og:url" content="https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="An Easy Way to Understand Quaternion and Rotation: Part 1. Theory" />
-    <meta name="twitter:description" content="Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”" />
+    <meta name="twitter:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
     <meta name="twitter:url" content="https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html" />
     
     <script type="application/ld+json">
@@ -151,7 +151,7 @@ null
             <ul class="post-meta-list">
               <li class="post-meta-item">
                 <time datetime="2016-10-29" itemprop="datePublished">
-                  17 hours ago
+                  18 hours ago
                 </time>
               </li>
               <li class="post-meta-item">
@@ -175,8 +175,8 @@ null
             </div>
           </aside>
           <div itemprop="articleBody" class="post-body">
-            <div id="preamble">
-<div class="sectionbody">
+            <div class="sect2">
+<h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(v\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(qvq^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
 </div>
@@ -188,7 +188,6 @@ null
 </div>
 <div class="paragraph">
 <p>I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.</p>
-</div>
 </div>
 </div>
 <div class="sect2">
@@ -211,25 +210,16 @@ null
 <div class="paragraph">
 <p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
 </div>
-<hr>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
+<div class="sidebarblock">
+<div class="content">
 <div class="title">Side Note</div>
 <div class="paragraph">
 <p>This claim actually has 2 sides. Let me go a little be more in details in math term:
 (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\) to describe this rotation.
 (2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
 </div>
-</td>
-</tr>
-</table>
 </div>
-<hr>
+</div>
 <div class="paragraph">
 <p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
 </div>
@@ -784,7 +774,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script src="//lxjk.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1477787055923"></script>
+    <script src="//lxjk.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1477787732153"></script>
 
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
