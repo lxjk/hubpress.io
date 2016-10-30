@@ -278,7 +278,7 @@ Given rotation stem:[q_1] and stem:[q_2], from the formula in the previous secti
 ++++  
 It is the same as apply the combined rotation stem:[q={q_2}{q_1}]. Be careful about the multiplication order.
 
-Again we need to prove stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}], but we will do this later.
+Again we need to prove stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}], but we will do this later. This equation is actually very easy to understand in geometric term. We have a combined rotation stem:[q={q_2}{q_1}] that rotates stem:[q_1] first then rotates stem:[q_2]. If we want to undo this rotation, which means apply the inverse stem:[q^{-1}={q_2}{q_1^{-1}}], we need to undo stem:[q_2] first then undo stem:[q_1], that is effectively stem:[q_1^{-1}q_2^{-1}].
 
 What does it really mean to combine 2 rotations, can we visualize the rotation axis and angle of the result? By converting rotations to flips we actually do that.
 
