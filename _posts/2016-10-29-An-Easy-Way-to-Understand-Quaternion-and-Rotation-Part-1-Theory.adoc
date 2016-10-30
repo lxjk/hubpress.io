@@ -18,13 +18,13 @@ Quaternion is a 4-tuple denoted as stem:[q=(x,y,z,w)]. The length of a quaternio
 
 In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:
 
-*_Any rotation in 3D space is equivalent to a single rotation of angle stem:[θ] along some axis stem:[\vec{v}]._*
+*_Any rotation in 3D space is equivalent to a single rotation of angle stem:[\textbf{θ}] along some axis stem:[\textbf{\vec{v}}]._*
 
 We can use quaternion to describe this angle-axis rotation : stem:[q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})], or in a more compact form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using stem:[\frac{θ}{2}] other than using stem:[θ] directly. I will explain that in a later section.
 
 It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1]. (Remember the axis stem:[\vec{v}] is a unit vector that stem:[\left|\vec{v}\right|=1]). We call it a unit quaternion if the length stem:[\left|q\right|=1]. So we can rewrite Euler’s rotation theorem in quaternion term:
 
-*_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
+*_Any 3D rotation is equivalent a unit quaternion stem:[\textbf{q}] that stem:[\textbf{\left|q\right|=1}]._*
 
 ---
 [NOTE, indent=2]
@@ -66,7 +66,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig2
 
 Now we can rewrite our flip composition rule in a more specific form:
 
-*_Any 3D rotation equivalent to rotating angle stem:[θ] along axis stem:[\vec{v}] can be represented as a sequence of 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], such that stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+*_Any 3D rotation equivalent to rotating angle stem:[\textbf{θ}] along axis stem:[\textbf{\vec{v}}] can be represented as a sequence of 2 flips along axis stem:[\textbf{\vec{a}}] and stem:[\textbf{\vec{b}}], such that stem:[\textbf{\vec{a}·\vec{v}=0}], stem:[\textbf{\vec{b}·\vec{v}=0}] and the angle from stem:[\textbf{\vec{a}}] to stem:[\textbf{\vec{b}}]: stem:[\textbf{<\vec{a},\vec{b}>=\frac{θ}{2}}]._*
 
 This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.
 
@@ -105,12 +105,12 @@ It is naturally derived from the general form, and we will be only using this mu
 
 With flip multiplication defined, we can rewrite our flip composition rule again:
 
-*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that_*
+*_Any 3D rotation stem:[\textbf{q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})}] can be represented as a sequence of 2 flips stem:[\textbf{{q_a=(\vec{a},0)}] and stem:[\textbf{q_b=(\vec{b},0)}], such that_*
 [stem]
 ++++
-q=-{q_b}{q_a}
+\textbf{q=-{q_b}{q_a}}
 ++++
-*_where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}]._*
+*_where stem:[\textbf{\vec{a}·\vec{v}=0}], stem:[\textbf{\vec{b}·\vec{v}=0}] and the angle from stem:[\textbf{\vec{a}}] to stem:[\textbf{\vec{b}}]: stem:[\textbf{<\vec{a},\vec{b}>=\frac{θ}{2}}]._*
 
 You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
 
@@ -334,11 +334,8 @@ We use quaternion to represent flip stem:[q_a=(\vec{a},0)], and derive the rule 
 
 We slightly touched quaternion multiplication, and we proved an important equation stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}].
 
+=== Appendix: Derive Quaternion Multiplication
 
----
-[NOTE, indent=2]
-.Side Note
-====
 This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.
 
 We can actually derive the general quaternion multiplication from this special flip break down. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})] would look like.
@@ -377,7 +374,9 @@ And we will have
 [stem]
 ++++
 \begin{align*}
-\vec{a}×\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))) - sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+\vec{a}×\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
+- sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
+- sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
 &=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
 &=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
 \end{align*}
@@ -392,5 +391,3 @@ q&=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 ++++ 
 which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})].
 
-====
----
