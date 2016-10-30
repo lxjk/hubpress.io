@@ -25,7 +25,7 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477794534271" />
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1477794614823" />
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -199,9 +199,6 @@ null
 <p>The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
 Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation \(q\), which rotates  \(+90^{\circ}\) along axis \(\vec{Z}\). Now I can say this rotation is the same as 2 flips along axis \(\vec{a}\) and \(\vec{b}\), both of them are on XY plane, and the angle from \(\vec{a}\) to \(\vec{b}\) is \(+45^{\circ}\).</p>
 </div>
-<div class="paragraph">
-<p>We demonstrate this through Figure 1. For any vector \(\vec{v}\), the result of this rotation is \(\vec{v''}\) , which is the same as flip \(\vec{v}\) along axis \(\vec{a}\) and get \(\vec{v'}\), and then flip \(\vec{v'}\) along axis \(\vec{b}\) and get \(\vec{v''}\).</p>
-</div>
 <div class="imageblock" style="text-align: center;float: right">
 <div class="content">
 <img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1.png" alt="fig1.png" width="300">
@@ -213,6 +210,9 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png" alt="fig1 b.png" width="300">
 </div>
 <div class="title">Figure 1 (b)</div>
+</div>
+<div class="paragraph">
+<p>We demonstrate this through Figure 1. For any vector \(\vec{v}\), the result of this rotation is \(\vec{v''}\) , which is the same as flip \(\vec{v}\) along axis \(\vec{a}\) and get \(\vec{v'}\), and then flip \(\vec{v'}\) along axis \(\vec{b}\) and get \(\vec{v''}\).</p>
 </div>
 <div class="paragraph">
 <p>It doesn’t matter where \(\vec{a}\) and \(\vec{b}\) are on the XY plane, but the order must be kept. If we choose \(\vec{b}\) by rotating \(\vec{a}\) along axis \(\vec{Z}\) by \(+45^{\circ}\) with the positive direction we defined above, then we must flip along \(\vec{a}\) first then along \(\vec{b}\) to get our target rotation. The order and the sign of angle is important, as you can easily see flip along \(\vec{b}\) first then along \(\vec{a}\) will give a different result.</p>
@@ -696,7 +696,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477794534271"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1477794614823"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
