@@ -293,7 +293,7 @@ Now we have stem:[\vec{a}·\vec{v_1}=0], stem:[\vec{c}·\vec{v_1}=0], stem:[<\ve
 [stem]
 ++++
 \begin{align*}
-q&={q_2}{q_1}
+q&={q_2}{q_1}\\
 &=(-{q_b}{q_c})(-{q_c}{q_a})\\
 &={q_b}({q_c}{q_c}){q_a}\\
 &=-{q_b}{q_a}\\
@@ -347,9 +347,9 @@ Here are some equations we will be using:
 [stem]
 ++++
 \begin{align*}
-vec{a}×(vec{b}×vec{c})&=(vec{a}·vec{c})vec{b}-(vec{a}·vec{b})vec{c}\\
-(vec{a}×vec{b})·(vec{c}×vec{d})&=(vec{a}·vec{c})(vec{b}·vec{d})-(vec{a}·vec{d})(vec{b}·vec{c})\\
-(vec{a}×vec{b})×(vec{a}×vec{c})&=(vec{a}·(vec{b}×vec{c}))vec{a}
+\vec{a}×(\vec{b}×\vec{c})&=(\vec{a}·\vec{c})\vec{b}-(\vec{a}·\vec{b})\vec{c}\\
+(\vec{a}×\vec{b})·(\vec{c}×\vec{d})&=(\vec{a}·\vec{c})(\vec{b}·\vec{d})-(\vec{a}·\vec{d})(\vec{b}·\vec{c})\\
+(\vec{a}×\vec{b})×(\vec{a}×\vec{c})&=(\vec{a}·(\vec{b}×\vec{c}))\vec{a}
 \end{align*}
 ++++  
 
@@ -358,36 +358,36 @@ Recall how we choose the flip break down stem:[\vec{c}=\frac{\vec{v_1}×\vec{v_2
 Rotate stem:[\vec{c}] along axis stem:[\vec{v_1}] by angle stem:[-\frac{θ_1}{2}] we get
 [stem]
 ++++
-\vec{a}=cos\frac{-θ_1}{2}\vec{c} + sin\frac{-θ_1}{2}(vec{v_1}×vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}}(cos\frac{θ_1}{2}(vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}(vec{v_1}×(vec{v_1}×\vec{v_2})))
+\vec{a}=cos\frac{-θ_1}{2}\vec{c} + sin\frac{-θ_1}{2}(\vec{v_1}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(cos\frac{θ_1}{2}(\vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}(\vec{v_1}×(\vec{v_1}×\vec{v_2})))
 ++++
 Rotate stem:[\vec{c}] along axis stem:[\vec{v_2}] by angle stem:[\frac{θ_2}{2}] we get
 [stem]
 ++++
-\vec{b}=cos\frac{θ_2}{2}\vec{c} + sin\frac{θ_2}{2}(vec{v_2}×vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}}(cos\frac{θ_2}{2}(vec{v_1}×\vec{v_2}) + sin\frac{θ_2}{2}(vec{v_2}×(vec{v_1}×\vec{v_2})))
+\vec{b}=cos\frac{θ_2}{2}\vec{c} + sin\frac{θ_2}{2}(\vec{v_2}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(cos\frac{θ_2}{2}(\vec{v_1}×\vec{v_2}) + sin\frac{θ_2}{2}(\vec{v_2}×(\vec{v_1}×\vec{v_2})))
 ++++
 And we will have
 [stem]
 ++++
 \begin{align*}
-vec{a}·vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))·(vec{v_2}×(vec{v_1}×\vec{v_2}))))\\
-&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}·vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}}^{2})\\
-&=cos\frac{θ_1}{2}cos\frac{θ_2}{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}·vec{v_2})
+\vec{a}·\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))·(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}^{2})\\
+&=cos\frac{θ_1}{2}cos\frac{θ_2}{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2})
 \end{align*}
 ++++ 
 [stem]
 ++++
 \begin{align*}
-vec{a}×vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×\vec{v_2})×(vec{v_2}×(vec{v_1}×\vec{v_2}))) - sin\frac{θ_1}{2}cos\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))×(vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))×(vec{v_2}×(vec{v_1}×\vec{v_2}))))\\
-&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}(vec{v_1}×\vec{v_2}))\\
-&=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}×\vec{v_2})
+\vec{a}×\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))) - sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
+&=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
 \end{align*}
 ++++ 
 From the previous proof of rotation composition we know stem:[q={q_2}{q_1}=-{q_b}{q_a}], that is 
 [stem]
 ++++
 \begin{align*}
-q&=(vec{a}×vec{b},vec{a}·vec{b})\\
-&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}vec{v_1})·(sin\frac{θ_2}{2}vec{v_2}))
+q&=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}\vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}\vec{v_1})·(sin\frac{θ_2}{2}vec{v_2}))
 \end{align*}
 ++++ 
 which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})].
