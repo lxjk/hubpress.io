@@ -48,12 +48,12 @@ Now let’s forget quaternion for a minute, and focus on the nature of rotations
 The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
 Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation stem:[q], which rotates  stem:[+90^{\circ}] along axis stem:[\vec{Z}]. Now I can say this rotation is the same as 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], both of them are on XY plane, and the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[+45^{\circ}].
 
-We demonstrate this through Figure 1. For any vector stem:[\vec{v}], the result of this rotation is stem:[\vec{v''}] , which is the same as flip stem:[\vec{v}] along axis stem:[\vec{a}] and get stem:[\vec{v'}], and then flip stem:[\vec{v'}] along axis stem:[\vec{b}] and get stem:[\vec{v''}]. 
-
 .Figure 1 (a)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1.png[, 300,float="right",align="center"]
 .Figure 1 (b)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png[, 300,float="right",align="center"]
+
+We demonstrate this through Figure 1. For any vector stem:[\vec{v}], the result of this rotation is stem:[\vec{v''}] , which is the same as flip stem:[\vec{v}] along axis stem:[\vec{a}] and get stem:[\vec{v'}], and then flip stem:[\vec{v'}] along axis stem:[\vec{b}] and get stem:[\vec{v''}]. 
 
 It doesn’t matter where stem:[\vec{a}] and stem:[\vec{b}] are on the XY plane, but the order must be kept. If we choose stem:[\vec{b}] by rotating stem:[\vec{a}] along axis stem:[\vec{Z}] by stem:[+45^{\circ}] with the positive direction we defined above, then we must flip along stem:[\vec{a}] first then along stem:[\vec{b}] to get our target rotation. The order and the sign of angle is important, as you can easily see flip along stem:[\vec{b}] first then along stem:[\vec{a}] will give a different result.
 
