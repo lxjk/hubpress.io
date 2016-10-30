@@ -149,10 +149,8 @@ The fact that stem:[q] and stem:[–q] represents the same rotation is usually c
 
 The order of stem:[q=-{q_b}{q_a}] on the right hand side is important. It means flip along stem:[\vec{a}] first and then stem:[\vec{b}]. Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.
 
----
-[NOTE, indent=2]
 .Side Note
-====
+****
 We can however get rid of the negative sign by choosing stem:[\vec{a}] and stem:[\vec{b}] differently.
 
 _Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that
@@ -161,8 +159,7 @@ where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from st
 
 It becomes harder to visualize stem:[\vec{a}] and stem:[\vec{b}] if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.
 
-====
----
+****
 
 
 === Flip Vector
