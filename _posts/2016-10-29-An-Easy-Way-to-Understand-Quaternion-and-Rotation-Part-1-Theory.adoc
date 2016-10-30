@@ -4,6 +4,8 @@ Eric Zhang
 :stem: latexmath
 :figure-caption!:
 
+=== Before We Start
+
 Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector stem:[v] by quaternion stem:[q] is calculated by a “sandwich” multiplication: stem:[qvq^{-1}] ? Why rotating by quaternion stem:[q_1] then stem:[q_2] is in the reversed order: stem:[{q_2}{q_1}], and can you visualize the result rotation axis and angle?
 
 Understanding quaternions also leads to more efficient use of quaternion. For example, one common situation in game development is that we need an object to face its opposite direction. What we usually would do is to get the normal or forward vector, negate it, build a rotation out of it, and assign the rotation to the object. Later in this article we will see how much calculation we need to do in this process. However with the understanding of quaternion, we only need to do stem:[q=(q.y,-q.x,q.w,-q.z)], and I will show you why.
@@ -26,16 +28,13 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
----
-[NOTE, indent=2]
 .Side Note
-====
+****
 This claim actually has 2 sides. Let me go a little be more in details in math term: 
 (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. 
 (2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
 
-====
----
+****
 
 From now on, any quaternion stem:[q] used in this article is by default a unit quaternion, and we will use stem:[q] to describe rotations.
 
