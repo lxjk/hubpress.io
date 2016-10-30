@@ -28,7 +28,7 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 
 ---
 [NOTE, indent=2]
-.Note
+.Side Note
 ====
 This claim actually has 2 sides. Let me go a little be more in details in math term: 
 (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. 
@@ -152,7 +152,7 @@ The order of stem:[q=-{q_b}{q_a}] on the right hand side is important. It means 
 
 ---
 [NOTE, indent=2]
-.Note
+.Side Note
 ====
 We can however get rid of the negative sign by choosing stem:[\vec{a}] and stem:[\vec{b}] differently.
 
@@ -271,8 +271,8 @@ Given rotation stem:[q_1] and stem:[q_2], from the formula in the previous secti
 [stem]
 ++++
 \begin{align*}
-\vec{v'}&={q_1}\vec{v}{q_1^{-1}}
-\vec{v''}&={q_2}\vec{v'}{q_2^{-1}}
+\vec{v'}&={q_1}\vec{v}{q_1^{-1}}\\
+\vec{v''}&={q_2}\vec{v'}{q_2^{-1}}\\
 &={q_2}{q_1}\vec{v}{q_1^{-1}}{q_2^{-1}}\\
 &=({q_2}{q_1})\vec{v}({q_2}{q_1})^{-1}\\
 \end{align*}
@@ -304,7 +304,7 @@ Here we need to prove this
 ++++
 {q_c}{q_c}=(\vec{c},0)(\vec{c},0)=(\vec{c}×\vec{c},-(\vec{c}·\vec{c}))=(\vec{0},-1)=-I
 ++++ 
-It shows that the combined rotation can be composed by flip stem:[q_a] and stem:[q_b], which tells the combined rotation is a rotation of angle stem:[2<vec{a},vec{b}>] along axis stem:[\vec{u}=\frac{\vec{a}×\vec{b}}{\left|\vec{a}×\vec{b}\right|}].
+It shows that the combined rotation can be composed by flip stem:[q_a] and stem:[q_b], which tells the combined rotation is a rotation of angle stem:[2<\vec{a},\vec{b}>] along axis stem:[\vec{u}=\frac{\vec{a}×\vec{b}}{\left|\vec{a}×\vec{b}\right|}].
 
 .Figure 4
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig4.png[, 400,align="center"]
@@ -332,4 +332,65 @@ We also talked about negation of quaternion stem:[–q], and its double cover pr
 
 We use quaternion to represent flip stem:[q_a=(\vec{a},0)], and derive the rule of flip composition stem:[q=-{q_b}{q_a}]. Based on this rule, we visualized and proved how quaternion rotates a vector by stem:[\vec{v'}=q\vec{v}q^{-1}] and how rotation gets composed by stem:[q={q_2}{q_1}].
 
-We slightly touched quaternion multiplication, and we proved an important equation stem:[{q_1^{-1}{q_2^{-1}}=({q_2}{q_1})^{-1}].
+We slightly touched quaternion multiplication, and we proved an important equation stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}].
+
+
+---
+[NOTE, indent=2]
+.Side Note
+====
+This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.
+
+We can actually derive the general quaternion multiplication from this special flip break down. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})] would look like.
+
+Here are some equations we will be using:
+[stem]
+++++
+\begin{align*}
+vec{a}×(vec{b}×vec{c})&=(vec{a}·vec{c})vec{b}-(vec{a}·vec{b})vec{c}\\
+(vec{a}×vec{b})·(vec{c}×vec{d})&=(vec{a}·vec{c})(vec{b}·vec{d})-(vec{a}·vec{d})(vec{b}·vec{c})\\
+(vec{a}×vec{b})×(vec{a}×vec{c})&=(vec{a}·(vec{b}×vec{c}))vec{a}
+\end{align*}
+++++  
+
+Recall how we choose the flip break down stem:[\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}].
+
+Rotate stem:[\vec{c}] along axis stem:[\vec{v_1}] by angle stem:[-\frac{θ_1}{2}] we get
+[stem]
+++++
+\vec{a}=cos\frac{-θ_1}{2}\vec{c} + sin\frac{-θ_1}{2}(vec{v_1}×vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}}(cos\frac{θ_1}{2}(vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}(vec{v_1}×(vec{v_1}×\vec{v_2})))
+++++
+Rotate stem:[\vec{c}] along axis stem:[\vec{v_2}] by angle stem:[\frac{θ_2}{2}] we get
+[stem]
+++++
+\vec{b}=cos\frac{θ_2}{2}\vec{c} + sin\frac{θ_2}{2}(vec{v_2}×vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}}(cos\frac{θ_2}{2}(vec{v_1}×\vec{v_2}) + sin\frac{θ_2}{2}(vec{v_2}×(vec{v_1}×\vec{v_2})))
+++++
+And we will have
+[stem]
+++++
+\begin{align*}
+vec{a}·vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))·(vec{v_2}×(vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}·vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}}^{2})\\
+&=cos\frac{θ_1}{2}cos\frac{θ_2}{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}·vec{v_2})
+\end{align*}
+++++ 
+[stem]
+++++
+\begin{align*}
+vec{a}×vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×\vec{v_2})×(vec{v_2}×(vec{v_1}×\vec{v_2}))) - sin\frac{θ_1}{2}cos\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))×(vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((vec{v_1}×(vec{v_1}×\vec{v_2}))×(vec{v_2}×(vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}}^{2}(vec{v_1}×\vec{v_2}))\\
+&=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(vec{v_1}×\vec{v_2})
+\end{align*}
+++++ 
+From the previous proof of rotation composition we know stem:[q={q_2}{q_1}=-{q_b}{q_a}], that is 
+[stem]
+++++
+\begin{align*}
+q&=(vec{a}×vec{b},vec{a}·vec{b})\\
+&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}vec{v_1})·(sin\frac{θ_2}{2}vec{v_2}))
+\end{align*}
+++++ 
+which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})].
+
+====
+---
