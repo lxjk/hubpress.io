@@ -1263,11 +1263,11 @@ hr {
   padding: 0 60px; }
 
 .panel-main__content {
-  max-width: 820px;
+  max-width: 1220px;
   margin: 0 auto; }
 
 .panel-main__content--fixed {
-  width: 780px;
+  width: 1080px;
   transition: width 1s;
   -webkit-transition: width 1s;
   /* Safari */ }
