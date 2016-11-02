@@ -1098,9 +1098,9 @@ pre {
 
 .content-wrapper {
   z-index: 800;
-  width: 60%;
+  width: 100%;
   max-width: 1200px;
-  margin-left: 20%; }
+  margin-left: 25%; }
 
 .content-wrapper__inner {
   margin: 0 10%;
@@ -1239,7 +1239,7 @@ hr {
   margin: 0 30px; }
 
 .panel-cover__divider {
-  width: 10%;
+  width: 50%;
   margin: 20px auto;
   border-top: 1px solid rgba(255, 255, 255, 0.14); }
 
@@ -1263,11 +1263,11 @@ hr {
   padding: 0 60px; }
 
 .panel-main__content {
-  max-width: 1220px;
+  max-width: 620px;
   margin: 0 auto; }
 
 .panel-main__content--fixed {
-  width: 1080px;
+  width: 480px;
   transition: width 1s;
   -webkit-transition: width 1s;
   /* Safari */ }
