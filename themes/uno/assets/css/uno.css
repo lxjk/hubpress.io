@@ -1100,7 +1100,7 @@ pre {
   z-index: 800;
   width: 100%;
   max-width: 1200px;
-  margin-left: 25%; }
+  margin-left: 0%; }
 
 .content-wrapper__inner {
   margin: 0 10%;
