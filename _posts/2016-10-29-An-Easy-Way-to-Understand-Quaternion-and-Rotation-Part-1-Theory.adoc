@@ -385,7 +385,7 @@ From the previous proof of rotation composition we know stem:[q={q_2}{q_1}=-{q_b
 ++++
 \begin{align*}
 q&=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
-&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}\vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}\vec{v_1})·(sin\frac{θ_2}{2}vec{v_2}))
+&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}\vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}\vec{v_1})·(sin\frac{θ_2}{2}\vec{v_2}))
 \end{align*}
 ++++ 
 which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})].
