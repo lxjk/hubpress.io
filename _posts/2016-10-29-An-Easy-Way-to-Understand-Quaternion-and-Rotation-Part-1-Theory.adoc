@@ -7,7 +7,7 @@ Eric Zhang
 
 === Before We Start
 
-Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector stem:[v] by quaternion stem:[q] is calculated by a “sandwich” multiplication: stem:[qvq^{-1}] ? Why rotating by quaternion stem:[q_1] then stem:[q_2] is in the reversed order: stem:[{q_2}{q_1}], and can you visualize the result rotation axis and angle?
+Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector stem:[\vec{v}] by quaternion stem:[q] is calculated by a “sandwich” multiplication: stem:[q\vec{v}q^{-1}] ? Why rotating by quaternion stem:[q_1] then stem:[q_2] is in the reversed order: stem:[{q_2}{q_1}], and can you visualize the result rotation axis and angle?
 
 Understanding quaternions also leads to more efficient use of quaternion. For example, one common situation in game development is that we need an object to face its opposite direction. What we usually would do is to get the normal or forward vector, negate it, build a rotation out of it, and assign the rotation to the object. Later in this article we will see how much calculation we need to do in this process. However with the understanding of quaternion, we only need to do stem:[q=(q.y,-q.x,q.w,-q.z)], and I will show you why.
 
