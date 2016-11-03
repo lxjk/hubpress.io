@@ -6,7 +6,7 @@
 
     <header class="post-header">
       <div class="post-meta">
-        <time datetime="{{date format="DD MMM YYYY"}}" class="post-meta__date date">{{date format="DD MMM YYYY"}}</time> &#8226; <span class="post-meta__tags tags">{{tags prefix="on "}}</span>
+        <time datetime="{{date format="MMM DD YYYY"}}" class="post-meta__date date">{{date format="MMM DD YYYY"}}</time> &#8226; <span class="post-meta__tags tags">{{tags prefix="on "}}</span>
         <span class="post-meta__author author"><img src="{{author.image}}" alt="profile image for {{author.name}}" class="avatar post-meta__avatar" /> by {{author.name}}</span>
       </div>
       <h1 class="post-title">{{{title}}}</h1>
@@ -34,6 +34,10 @@
                 {{#if bio}}
                     <p>{{bio}}</p>
                 {{/if}}
+				
+                <h5>Published on</h5>	
+				<time class="post-meta__date date">{{post.date format="MMMM DD, YYYY"}}</time>
+				
             </section>
 
         {{/author}}
@@ -49,6 +53,11 @@
                     onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
 					<i class='icon icon-social-facebook'></i>
                     <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url={{url absolute="true"}}"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
                 </a>
             </section>
 

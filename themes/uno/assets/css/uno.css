@@ -1242,12 +1242,12 @@ hr {
 .post-footer .share a {
   font-size: 1.8rem;
   display: inline-block;
-  margin: 1rem 1.6rem 1.6rem 0;
+  margin: 0.2rem 0.6rem 0.6rem 0;
   color: #BBC7CC;
   text-decoration: none; }
 
 .post-footer .share a .icon {
-  font-size: 1.3em;
+  font-size: 1em;
   margin: 0; }
 
 .post-footer .share .icon-social-twitter:hover {
@@ -1255,6 +1255,9 @@ hr {
 
 .post-footer .share .icon-social-facebook:hover {
   color: #3b5998; }
+
+.post-footer .share .icon-social-google-plus:hover {
+  color: #dd4b39; }
 
 .author-image {
   -webkit-box-sizing: border-box;
