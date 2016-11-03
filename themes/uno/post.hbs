@@ -15,6 +15,41 @@
     <section class="{{post_class}}">
       {{content}}
     </section>
+	
+	<footer class="post-footer">
+		<div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+		  {{#if author.image}}
+			<a href="{{author.website}}" class="post-author-avatar">
+			  <img itemprop="image" src="{{author.image}}" alt="{{author.name}}">
+			</a>
+		  {{/if}}
+		  <div class="post-author-info">
+			<h4 class="post-footer-heading">Written By</h4>
+			<a href="{{author.website}}" itemprop="url" class="post-author-name">
+			  <span itemprop="name">{{author.name}}</span>
+			</a>
+			<p itemprop="description" class="post-author-bio">{{author.bio}}</p>
+			{{#if author.location}}
+			  <p class="post-author-location">{{author.location}}</p>
+			{{/if}}
+			{{#if author.website}}
+			  <p class="post-author-website">
+				<a href="{{author.website}}" rel="nofollow">{{author.website}}</a>
+			  </p>
+			{{/if}}
+			<p class="post-info">
+			  <b class="post-info-title">Published on</b>
+			  <time class="post-date">{{date format='MMMM DD, YYYY'}}</time>
+			</p>
+		  </div>
+		</div>
+		<div class="post-social">
+		  <h4 class="post-footer-heading">Spread the word</h4>
+		  <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+		  <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+		  <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+		</div>
+	</footer>
 
   </article>
 
