@@ -35,8 +35,11 @@
                     <p>{{bio}}</p>
                 {{/if}}
 				
+				{{#post}}
+				</br>
                 <h5>Published on</h5>	
-				<time class="post-meta__date date">{{post.date format="MMMM DD, YYYY"}}</time>
+				<time datetime="{{date format="MMMM DD, YYYY"}}" class="post-meta__date date">{{date format="MMMM DD, YYYY"}}</time>
+				{{/post}}
 				
             </section>
 
