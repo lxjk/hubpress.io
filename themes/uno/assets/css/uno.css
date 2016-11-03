@@ -1247,7 +1247,8 @@ hr {
   text-decoration: none; }
 
 .post-footer .share a .icon {
-  font-size: 1.8em; }
+  font-size: 1.3em;
+  margin: 0; }
 
 .post-footer .share .icon-social-twitter:hover {
   color: #55acee; }
