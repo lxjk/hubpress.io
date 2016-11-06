@@ -559,6 +559,57 @@ w&=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\
 
 Converting quaternion to Euler angles, however, is tricky. It is easier if we convert quaternion to rotation matrix first then convert the rotation matrix to Euler angles, than trying to obtain the conversion directly. We will talk about this after the next section.
 
+=== Quaternion and Rotation Matrix
+
+If we say quaternion is an instruction, Euler angles are 3 instructions, then the rotation matrix stores the rotation result directly. Remember each row of the rotation matrix is the X, Y, Z axis after this rotation, which means give a rotation stem:[q=(x,y,z,w)], it’s corresponding rotation matrix is 
+
+[stem]
+++++
+M=\left[ \begin{array}{} \vec{X'} \\ \vec{Y'} \\ \vec{Z'} \end{array} \right]=\left[ \begin{array}{} q\vec{X}q^{-1} \\ q\vec{Y}q^{-1} \\ q\vec{Z}q^{-1} \end{array}  \right]
+++++
+
+By calculating the rotation result of the 3 axes, we get the conversion from quaternion to rotation matrix
+
+[stem]
+++++
+M = \left[ \begin{array}{} 1-2y^{2}-2z^{2} & 2xy+2zw & 2xz-2yw \\ 2xy-2zw & 1-2x^{2}-2z^{2} & 2yz+2xw \\ 2xz+2yw & 2yz-2xw & 1-2x^{2}-2y^{2} \\ \end{array} \right]
+++++
+
+To convert from rotation matrix to quaternion, we can sum up diagonal elements of the matrix and get
+
+[stem]
+++++
+M_{11}+M_{22}+M_{33}=3-4x^{2}-4y^{2}-4z^{2}
+++++
+
+Remember as a unit quaternion stem:{x^{2}+y^{2}+z^{2}+w^{2}=1],
+
+[stem]
+++++
+M_{11}+M_{22}+M_{33}= 4w^{2}-1\\
+w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}
+++++
+
+Similarly we can obtain stem:[x,y,z] by
+[stem]
+++++
+M_{11}-M_{22}-M_{33}= 4x^{2}-1\\
+M_{22}-M_{33}-M_{11}= 4y^{2}-1\\
+M_{33}-M_{11}-M_{22}= 4z^{2}-1\\
+x=\frac{1}{2}\sqrt{M_{11}-M_{22}-M_{33}+1}\\
+y=\frac{1}{2}\sqrt{M_{22}-M_{33}-M_{11}+1}\\
+z=\frac{1}{2}\sqrt{M_{33}-M_{11}-M_{22}+1}\\
+++++
+
+We can avoid calculating square root 4 times, by using the element we already calculated. Say we calculate stem:[w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}] first, then we can get stem:[x,y,z] by
+[stem]
+++++
+x=\frac{1}{4w}(M_{23}-M_{32})\\
+y=\frac{1}{4w}(M_{31}-M_{13})\\
+z=\frac{1}{4w}(M_{12}-M_{21})\\
+++++
+
+You need to be careful if the value of stem:[w] is closed to 0 (means stem:[M_{11}+M_{22}+M_{33}+1] is closed to 0, no need to do square root).  In this case you want to calculate one of stem:[x,y,z] instead. You can simply choose the one has the largest absolute value, and calculate the other 3 elements in a similar fashion.
 
 == Appendix
 
