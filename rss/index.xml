@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 05:43:30 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 05:57:38 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -595,6 +595,96 @@ q&amp;={q_{2W}}{q_1}\\
 </div>
 <div class="paragraph">
 <p>This means when we rotate \(q_1\) then rotate \(q_2\), if \(q_2\) is in world space, then combined rotation is \(q={q_2}{q_1}\) (right to left); if \(q_2\) is in local space of \(q_1\), the combined rotation is \(q={q_1}{q_2}\) (left to right).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</h3>
+<div class="paragraph">
+<p>We can now go back to the problem I mentioned at the very beginning: we need an object to face its opposite direction. More clearly we have an object with rotation \(q=((x,y,z),w)\), and we want to flip it along local Z axis, that is rotate it \(180^{\circ}\) along its local Z axis. This extra rotation is denoted as \(q'=((0,0,\sin\frac{180^{\circ}}{2},\cos\frac{180^{\circ}}{2})=((0,0,1),0)\). Based on local rotation composition we proved in previous section, the result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_Z=qq'=((x,y,z),w)((0,0,1),0)=((y,-x,w),-z)\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we generalize the angle to \(θ\), then \(q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\), then the result is:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(Z,θ)}=qq'&amp;=((x,y,z),w)((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\\
+&amp;=((x,y,z),w)(((0,0,0),1)\cos\frac{θ}{2}+((0,0,1),0)\sin\frac{θ}{2})\\
+&amp;=((x,y,z),w)\cos\frac{θ}{2}+((y,-x,w),-z)\sin\frac{θ}{2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to flip along world Z axis instead, we just need to change the multiplication order:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_Z=q'q=((0,0,1),0)((x,y,z),w)=((-y,x,w),-z)\]
+</div>
+</div>
+<div class="paragraph">
+<p>We can use the same method to generalize the angle to \(θ\), and let \(q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\),</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_{(Z,θ)}=q'q=((x,y,z),w)\cos\frac{θ}{2}+((-y,x,w),-z)\sin\frac{θ}{2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>It is easy to extend the result to X and Y axis. I list the result summary as the following.</p>
+</div>
+<div class="paragraph">
+<p>Flip along local axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_X&amp;=(w,z,-y,-x)\\
+q_Y&amp;=(-z,w,x,-y)\\
+q_Z&amp;=(y,-x,w,-z)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Rotate \(θ\) along local axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,z,-y,-x)\sin\frac{θ}{2})\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-z,w,x,-y)\sin\frac{θ}{2})\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(y,-x,w,-z)\sin\frac{θ}{2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Flip along world axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_X&amp;=(w,-z,y,-x)\\
+q_Y&amp;=(z,w,-x,-y)\\
+q_Z&amp;=(-y,x,w,-z)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Rotate \(θ\) along world axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2})\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2})\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2})\\
+\end{align*}\]
+</div>
 </div>
 </div>
 <div class="sect2">
