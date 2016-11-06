@@ -412,29 +412,29 @@ Let’s look at rotation composition again. The combined rotation stem:[q={q_2}{
 
 As an example of local rotation, imagine yourself lying down on the ground and facing up, now flip around to face the ground. What you just did is a stem:[180^{\circ}] local rotation along Z axis. The rotation axis is not the world Z axis (which will be the up direction) but your local Z axis.
 
-If we have an object with rotation stem:[{q_1}=(\vec{v_1},{w_1})], now we want to apply a local rotation stem:[{q_2L}=(\vec{v_2},{w_2})]. We can convert the local rotation stem:[{q_2L}] to world rotation stem:[{q_2W}] by converting its rotation axis into world space. Since stem:[\vec{v_2}] is in local space of stem:[q_1], converting it into world space means rotating it by stem:[q_1], so the world space rotation axis is stem:[\vec{v_2W}={q_1}\vec{v_2}{q_1}^(-1)].
+If we have an object with rotation stem:[{q_1}=(\vec{v_1},{w_1})], now we want to apply a local rotation stem:[{q_{2L}}=(\vec{v_2},{w_2})]. We can convert the local rotation stem:[q_{2L}] to world rotation stem:[q_{2W}] by converting its rotation axis into world space. Since stem:[\vec{v_2}] is in local space of stem:[q_1], converting it into world space means rotating it by stem:[q_1], so the world space rotation axis is stem:[\vec{v_{2W}}={q_1}\vec{v_2}{q_1}^{-1}].
 
-(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_2W}\right|=sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
+(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
 
 [stem]
 ++++
 \begin{align*}
-{q_2W}&=(\vec{v_2W},{w_2})\\
-&=(\vec{v_2W},0)+(\vec{0},{w_2})\\
-&={q_1}(\vec{v_2},0){q_1}^(-1)+{q_1}(\vec{0},{w_2}){q_1}^(-1)\\
-&={q_1}(\vec{v_2},{w_2}){q_1}^(-1)\\
-&={q_1}{q_2L}{q_1}^(-1)\\
+{q_{2W}}&=(\vec{v_{2W}},{w_2})\\
+&=(\vec{v_{2W}},0)+(\vec{0},{w_2})\\
+&={q_1}(\vec{v_2},0){q_1}^{-1}+{q_1}(\vec{0},{w_2}){q_1}^{-1}\\
+&={q_1}(\vec{v_2},{w_2}){q_1}^{-1}\\
+&={q_1}{q_{2L}}{q_1}^{-1}\\
 \end{align*}
 ++++  
 
-This equation tells us to convert a local rotation to world rotation, we can do the same as rotating a vector by using “sandwich” multiplication stem:[{q_2W}={q_1}{q_2L}{q_1}^{-1}]. It also makes sense in geometric term. If we undo stem:[q_1], now local space and world space are the same, we can then apply stem:[q_2L] and apply stem:[q_1] again to get the world rotation we want.
+This equation tells us to convert a local rotation to world rotation, we can do the same as rotating a vector by using “sandwich” multiplication stem:[{q_{2W}}={q_1}{q_{2L}}{q_1}^{-1}]. It also makes sense in geometric term. If we undo stem:[q_1], now local space and world space are the same, we can then apply stem:[q_{2L}] and apply stem:[q_1] again to get the world rotation we want.
 
 One thing I need to prove here
 
 [stem]
 ++++
 \begin{align*}
-{q_1}(\vec{0},{w_2}){q_1}^(-1)&=(\vec{v_1},{w_1})(\vec{0},{w_2})(-\vec{v_1},{w_1})\\
+{q_1}(\vec{0},{w_2}){q_1}^{-1}&=(\vec{v_1},{w_1})(\vec{0},{w_2})(-\vec{v_1},{w_1})\\
 &=({w_2}\vec{v_1},{w_1}{w_2})(-\vec{v_1},{w_1})\\
 &=(\vec{0},{w_2}(\left|\vec{v_1}\right|^{2}+{w_1}^{2}))\\
 &=(\vec{0},{w_2})\\
@@ -446,9 +446,9 @@ With the world rotation, we can see the result of combined rotation:
 [stem]
 ++++
 \begin{align*}
-q&={q_2W}{q_1}\\
-&={q_1}{q_2L}{q_1}^{-1}{q_1}\\
-&={q_1}{q_2L}\\
+q&={q_{2W}}{q_1}\\
+&={q_1}{q_{2L}}{q_1}^{-1}{q_1}\\
+&={q_1}{q_{2L}}\\
 \end{align*}
 ++++  
 
