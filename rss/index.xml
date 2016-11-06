@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 04 Nov 2016 03:40:02 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation: Part 1. Theory]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 05:06:06 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -7,12 +7,15 @@
 <p>Understanding quaternions also leads to more efficient use of quaternion. For example, one common situation in game development is that we need an object to face its opposite direction. What we usually would do is to get the normal or forward vector, negate it, build a rotation out of it, and assign the rotation to the object. Later in this article we will see how much calculation we need to do in this process. However with the understanding of quaternion, we only need to do \(q=(q.y,-q.x,q.w,-q.z)\), and I will show you why.</p>
 </div>
 <div class="paragraph">
-<p>In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angle.</p>
+<p>In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angles.</p>
 </div>
 <div class="paragraph">
 <p>I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.</p>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_part_1_theory">Part 1. Theory</h2>
+<div class="sectionbody">
 <div class="sect2">
 <h3 id="_quaternion_definition">Quaternion Definition</h3>
 <div class="paragraph">
@@ -453,13 +456,93 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <p>We slightly touched quaternion multiplication, and we proved an important equation \({q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}\).</p>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_part_2_application">Part 2. Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form \(q=(\vec{v},w)\) even for unit quaternion instead of \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\), since it is closed to the actual data format.
+Recall the definition of general quaternion multiplication we mentioned in Part 1. Let \(q_a=(\vec{a},0)\), \(q_b=(\vec{b},0)\) then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\]
+</div>
+</div>
+<div class="paragraph">
+<p>We will be using this a lot in the following sections.
+The coordinate system we use is Z up and right-handed.</p>
+</div>
+<div class="sect2">
+<h3 id="_calculation_of_vector_rotation">Calculation of Vector Rotation</h3>
+<div class="paragraph">
+<p>In this section we will derive the formula which most game engine are using to rotate a vector with quaternion. Given a rotation \(q=(\vec{v},w)\) and vector \(\vec{p}\), the rotation result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{p'}&amp;=q\vec{p}q^{-1}\\
+&amp;=(\vec{v},w)(\vec{p},0)(-\vec{v},w)\\
+&amp;=(w\vec{p}+\vec{v}×\vec{p},-\vec{v}·\vec{p})(-\vec{v},w)\\
+&amp;=((\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p}),0)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Since we only want the vector part</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{p'}=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p})\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here we need to use the following equation of cross product to simplify the result</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{a}×(\vec{b}×\vec{c})=(\vec{a}·\vec{c})\vec{b}-(\vec{a}·\vec{b})\vec{c}\]
+</div>
+</div>
+<div class="paragraph">
+<p>So in our case</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v}×(\vec{v}×\vec{p})=(\vec{v}·\vec{p})\vec{v}-(\vec{v}·\vec{v})\vec{p}=(\vec{v}·\vec{p})\vec{v}-\left|\vec{v}\right|^{2}\vec{p}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember \(q\) is unit quaternion, so \(\left|\vec{v}\right|^{2}+w^{2}=1\). We have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v}×(\vec{v}×\vec{p})&amp;=(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}-\vec{p}\\
+(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}&amp;=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can simplify our rotation result to get rid of the dot product</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{p'}&amp;=\vec{p}+2w(\vec{v}×\vec{p})+2\vec{v}×(\vec{v}×\vec{p})\\
+&amp;=\vec{p}+2(\vec{v}×(\vec{v}×\vec{p}+w\vec{p}))
+\end{align*}\]
+</div>
+</div>
+</div>
 <div class="sect2">
 <h3 id="_appendix_derive_quaternion_multiplication">Appendix: Derive Quaternion Multiplication</h3>
 <div class="paragraph">
 <p>This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.</p>
 </div>
 <div class="paragraph">
-<p>We can actually derive the general quaternion multiplication from this special flip break down. That is if we define flip multiplication \({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\) directly, we can proof what general quaternion multiplication \({q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})\) would look like.</p>
+<p>We can actually derive the general quaternion multiplication from the special flip break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\), we used to visualize the result of rotation composition. That is if we define flip multiplication \({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\) directly, we can proof what general quaternion multiplication \({q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})\) would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.</p>
 </div>
 <div class="paragraph">
 <p>Here are some equations we will be using:</p>
@@ -529,4 +612,6 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 <div class="paragraph">
 <p>which is the definition of quaternion multiplication of \({q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})\).</p>
 </div>
-</div>]]></description><link>https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation-Part-1-Theory.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 29 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
+</div>
+</div>
+</div>]]></description><link>https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation.html</link><guid isPermaLink="true">https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 29 Oct 2016 00:00:00 GMT</pubDate></item></channel></rss>
