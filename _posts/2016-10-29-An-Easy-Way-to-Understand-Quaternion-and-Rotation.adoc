@@ -1,7 +1,7 @@
 = An Easy Way to Understand Quaternion and Rotation
 Eric Zhang
 v1.0, 2016-11-06
-:toc:
+:toc: macro
 
 :stem: latexmath
 :figure-caption!:
@@ -16,6 +16,8 @@ Understanding quaternions also leads to more efficient use of quaternion. For ex
 In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angles.
 
 I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.
+
+toc::[]
 
 == Part 1. Theory
 
