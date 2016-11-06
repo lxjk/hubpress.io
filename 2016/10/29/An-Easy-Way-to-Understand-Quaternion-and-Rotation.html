@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478412445672" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478412445672"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478455082553" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478455082553"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -825,6 +825,36 @@ q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_euler_angles_to_quaternion">Euler Angles to Quaternion</h3>
+<div class="paragraph">
+<p>Quaternion is an instruction for rotation: rotate angle \(θ\) along axis \(\vec{v}\). Euler angles is a sequence of 3 instructions: rotate yaw angle along world axis Z, then rotate pitch angle along local axis Y, then rotate roll angle along local axis X.</p>
+</div>
+<div class="paragraph">
+<p>It is very natural to see how Euler angles can be converted to quaternion. If we use \(Y,P,R\) for angle yaw pitch and roll, then these 3 rotations to can be denoted in quaternion \(q_Y=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})\), \(q_P=(0,\sin\frac{P}{2},0,\cos\frac{P}{2})\), \(q_R=(\sin\frac{R}{2},0,0,\cos\frac{R}{2})\). Since pitch and roll are local rotations, the combined rotation will be</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q={q_Y}{q_P}{q_R}=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})(0,\sin\frac{P}{2},0,\cos\frac{P}{2})(\sin\frac{R}{2},0,0,\cos\frac{R}{2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>Solving this we have the conversion from Euler angles to quaternion.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+x&amp;=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&amp;=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Converting quaternion to Euler angles, however, is tricky. It is easier if we convert quaternion to rotation matrix first then convert the rotation matrix to Euler angles, than trying to obtain the conversion directly. We will talk about this after the next section.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -970,7 +1000,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478412445672"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478455082553"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
