@@ -25,9 +25,9 @@ In order to represent 3D rotation, we have a constraint on the quaternions we us
 
 *_Any rotation in 3D space is equivalent to a single rotation of angle stem:[θ] along some axis stem:[\vec{v}]._*
 
-We can use quaternion to describe this angle-axis rotation : stem:[q=(sin⁡\frac{θ}{2}\vec{v}.x,sin⁡\frac{θ}{2}\vec{v}.y,sin⁡\frac{θ}{2}\vec{v}.z,cos⁡\frac{θ}{2})], or in a more compact form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using stem:[\frac{θ}{2}] other than using stem:[θ] directly. I will explain that in a later section.
+We can use quaternion to describe this angle-axis rotation : stem:[q=(\sin⁡\frac{θ}{2}\vec{v}.x,\sin⁡\frac{θ}{2}\vec{v}.y,\sin⁡\frac{θ}{2}\vec{v}.z,\cos⁡\frac{θ}{2})], or in a more compact form stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})]. We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using stem:[\frac{θ}{2}] other than using stem:[θ] directly. I will explain that in a later section.
 
-It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+cos^{2}\frac{θ}{2}}=1]. (Remember the axis stem:[\vec{v}] is a unit vector that stem:[\left|\vec{v}\right|=1]). We call it a unit quaternion if the length stem:[\left|q\right|=1]. So we can rewrite Euler’s rotation theorem in quaternion term:
+It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{\sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+\cos^{2}\frac{θ}{2}}=1]. (Remember the axis stem:[\vec{v}] is a unit vector that stem:[\left|\vec{v}\right|=1]). We call it a unit quaternion if the length stem:[\left|q\right|=1]. So we can rewrite Euler’s rotation theorem in quaternion term:
 
 *_Any 3D rotation is equivalent a unit quaternion stem:[q] that stem:[\left|q\right|=1]._*
 
@@ -35,8 +35,8 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{sin^{
 .Side Note
 ****
 This claim actually has 2 sides. Let me go a little be more in details in math term: 
-(1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] to describe this rotation. 
-(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
+(1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})] to describe this rotation. 
+(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2\cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
 
 ****
 ---
@@ -76,13 +76,13 @@ This representation means if we fully understand flip, which is easier to visual
 
 === Quaternion and Flip
 
-Now let’s recall the quaternion vector form stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. With the discussion of flips above, you can almost immediately see why we are using stem:[\frac{θ}{2}] here.
+Now let’s recall the quaternion vector form stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})]. With the discussion of flips above, you can almost immediately see why we are using stem:[\frac{θ}{2}] here.
 
 Think about flips again. A flip along axis stem:[\vec{a}] is also a stem:[180^{\circ}] rotation along axis stem:[\vec{a}]. So this flip can be represented in quaternion term 
 
 [stem]
 ++++
-q_a=(sin⁡\frac{180^{\circ}}{2}\vec{a},cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)
+q_a=(\sin⁡\frac{180^{\circ}}{2}\vec{a},\cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)
 ++++
 
 From now on we will use quaternion to represent flip. Actually any unit quaternion with stem:[q.w=0] is a flip along axis stem:[(q.x,q.y,q.z)].
@@ -96,7 +96,7 @@ Here we need to introduce the multiplication of general quaternion. Let stem:[q_
 {q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})
 ++++
 
-Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion https://en.wikipedia.org/wiki/Quaternion#Definition[Wiki page] has a very straight forward introduction.
+Note here stem:[q_1] and stem:[q_2] are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put stem:[\sin⁡\frac{θ}{2}] and stem:[\cos⁡\frac{θ}{2}] as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion https://en.wikipedia.org/wiki/Quaternion#Definition[Wiki page] has a very straight forward introduction.
 
 We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
 
@@ -109,7 +109,7 @@ It is naturally derived from the general form, and we will be only using this mu
 
 With flip multiplication defined, we can rewrite our flip composition rule again:
 
-*_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that_*
+*_Any 3D rotation stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that_*
 [stem]
 ++++
 q=-{q_b}{q_a}
@@ -118,14 +118,14 @@ q=-{q_b}{q_a}
 
 You might be thinking why it is not stem:[q= {q_a}{q_b}] instead. We will show where the order and the negative sign coming from in the proof.
 
-stem:[\vec{a}·\vec{b}=cos<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|=cos\frac{θ}{2}]. Since stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and stem:[\left|\vec{v}\right|=1], we have stem:[\vec{a}×\vec{b}=sin<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=sin\frac{θ}{2}\vec{v}].
+stem:[\vec{a}·\vec{b}=\cos<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|=\cos\frac{θ}{2}]. Since stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and stem:[\left|\vec{v}\right|=1], we have stem:[\vec{a}×\vec{b}=\sin<\vec{a},\vec{b}>\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=\sin\frac{θ}{2}\vec{v}].
 
 If you are not sure about the direction of the cross product, see Figure 2.
 
 [stem]
 ++++
 \begin{align*}
-q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+q&=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\\
 &=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
 &=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
 &=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
@@ -133,20 +133,20 @@ q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 \end{align*}
 ++++
 
-Here you can also clearly see why we are using stem:[sin⁡\frac{θ}{2}] and stem:[cos⁡\frac{θ}{2}] in quaternions.
+Here you can also clearly see why we are using stem:[\sin⁡\frac{θ}{2}] and stem:[\cos⁡\frac{θ}{2}] in quaternions.
 
-One thing I need to mention here is the negation of a quaternion. stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], then
+One thing I need to mention here is the negation of a quaternion. stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})], then
 
 [stem]
 ++++
 \begin{align*}
-{-q}&=(-sin⁡\frac{θ}{2}\vec{v},-cos⁡\frac{θ}{2})\\
-&=(-sin⁡\frac{2π-θ}{2}\vec{v},cos⁡\frac{2π-θ}{2})\\
-&=(sin⁡\frac{-(2π-θ)}{2}\vec{v},cos⁡\frac{-(2π-θ)}{2})\\
+{-q}&=(-\sin⁡\frac{θ}{2}\vec{v},-\cos⁡\frac{θ}{2})\\
+&=(-\sin⁡\frac{2π-θ}{2}\vec{v},\cos⁡\frac{2π-θ}{2})\\
+&=(\sin⁡\frac{-(2π-θ)}{2}\vec{v},\cos⁡\frac{-(2π-θ)}{2})\\
 \end{align*}
 ++++
 
-Recall that stem:[sin⁡θ=sin(π-θ)] and stem:[-cos⁡θ=cos(π-θ)], then stem:[-sin⁡θ=sin(-θ)] and stem:[cos⁡θ=cos(-θ)].
+Recall that stem:[\sin⁡θ=\sin(π-θ)] and stem:[-\cos⁡θ=\cos(π-θ)], then stem:[-\sin⁡θ=\sin(-θ)] and stem:[\cos⁡θ=\cos(-θ)].
 
 It shows that stem:[-q] is a rotation along axis stem:[\vec{v}] of angle stem:[-(2π-θ)], which is exactly the same rotation as stem:[q]. For example if stem:[θ=90^{\circ}] then stem:[-(2π-θ)=-270^{\circ}], rotate stem:[90^{\circ}] along axis stem:[\vec{v}] is the same as rotate stem:[270^{\circ}] degree but in the opposite direction along the same axis stem:[\vec{v}]. 
 
@@ -159,7 +159,7 @@ The order of stem:[q=-{q_b}{q_a}] on the right hand side is important. It means 
 ****
 We can however get rid of the negative sign by choosing stem:[\vec{a}] and stem:[\vec{b}] differently.
 
-_Any 3D rotation stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that
+_Any 3D rotation stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})] can be represented as a sequence of 2 flips stem:[q_a=(\vec{a},0)] and stem:[q_b=(\vec{b},0)], such that
 stem:[q={q_b}{q_a}]
 where stem:[\vec{a}·\vec{v}=0], stem:[\vec{b}·\vec{v}=0] and the angle from stem:[\vec{a}] to stem:[\vec{b}]: stem:[<\vec{a},\vec{b}>=\frac{θ}{2}-π]._
 
@@ -185,7 +185,7 @@ We can actually calculate the result rotation. Let stem:[<\vec{v},\vec{a}>=<\vec
 [stem]
 ++++
 \begin{align*}
-q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
+q&=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\\
 &=-{q_a}{q_v}\\
 &=-{q_v'}{q_a}
 \end{align*}
@@ -193,15 +193,15 @@ q&=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\\
 
 This gives stem:[{q_v'}{q_a}={q_a}{q_v}].
 
-(Here stem:[\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=sin\frac{θ}{2}].If you are not sure what’s going on here, go back “Flip Composition” and read the proof)
+(Here stem:[\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=\sin\frac{θ}{2}].If you are not sure what’s going on here, go back “Flip Composition” and read the proof)
 
 Now we need to introduce the inverse of a quaternion. The inverse of stem:[q] is denoted as stem:[q^{-1}], such that stem:[qq^{-1}=q^{-1}q=(\vec{0},1)]. 
 
-stem:[I=(\vec{0},1)] is called identity quaternion, means no rotation at all. You can think of stem:[I=(sin⁡0\vec{v},cos⁡0)], which means rotating stem:[0^{\circ}] along any axis stem:[\vec{v}]. We haven’t gone into quaternion multiplication or rotation composition, but it’s not hard to see for any quaternion stem:[q], stem:[qI=Iq=q].
+stem:[I=(\vec{0},1)] is called identity quaternion, means no rotation at all. You can think of stem:[I=(\sin⁡0\vec{v},\cos⁡0)], which means rotating stem:[0^{\circ}] along any axis stem:[\vec{v}]. We haven’t gone into quaternion multiplication or rotation composition, but it’s not hard to see for any quaternion stem:[q], stem:[qI=Iq=q].
 
 In the case of unit quaternion, the idea of inversed quaternion is if you apply a rotation, then apply its inverse, the result should be no rotation at all. And it is the same if you apply an inversed rotation then apply the original one.
 
-For any unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], then stem:[q^{-1}=(-sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})]. You can understand this in two ways, either stem:[q^{-1}=(sin⁡\frac{θ}{2}(-\vec{v}),cos⁡\frac{θ}{2})] or stem:[q^{-1}=(sin⁡\frac{-θ}{2}\vec{v},cos⁡\frac{-θ}{2})]. stem:[q^{-1}] is either a rotation of angle stem:[θ] along axis stem:[-\vec{v}], or a rotation of angle stem:[–θ] along axis stem:[\vec{v}]. Either way it will cancel out the original rotation.
+For any unit quaternion stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})], then stem:[q^{-1}=(-\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})]. You can understand this in two ways, either stem:[q^{-1}=(\sin⁡\frac{θ}{2}(-\vec{v}),\cos⁡\frac{θ}{2})] or stem:[q^{-1}=(\sin⁡\frac{-θ}{2}\vec{v},\cos⁡\frac{-θ}{2})]. stem:[q^{-1}] is either a rotation of angle stem:[θ] along axis stem:[-\vec{v}], or a rotation of angle stem:[–θ] along axis stem:[\vec{v}]. Either way it will cancel out the original rotation.
 
 I will give a quick proof in the case of flip. You can try extend this proof to general unit quaternion. If stem:[q_a=(\vec{a},0)], stem:[q_a^{-1}=(-\vec{a},0)], we have
 
@@ -286,7 +286,7 @@ Again we need to prove stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}], but we wil
 
 What does it really mean to combine 2 rotations, can we visualize the rotation axis and angle of the result? By converting rotations to flips we actually do that.
 
-Let stem:[q_1=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})], stem:[q_2=(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})], we need to choose a special flip break down, such that they share one flip: stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}]. 
+Let stem:[q_1=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})], stem:[q_2=(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})], we need to choose a special flip break down, such that they share one flip: stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}]. 
 
 Can we find such a break down? Remember the rule of flip composition requires the flip axis to be perpendicular to the rotation axis, that is stem:[\vec{c}·\vec{v_1}=0], stem:[\vec{c}·\vec{v_2}=0], we can choose stem:[\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}]. 
 
@@ -329,7 +329,7 @@ With the same method, let’s prove the thing we left out:
 
 === Summary of Part 1
 
-In Part 1, we covered the definition of quaternion stem:[q=(x,y,z,w)], the vector form of quaternion stem:[q=(\vec{v},w)], unit quaternion stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})] and how it is used to represent a rotation.
+In Part 1, we covered the definition of quaternion stem:[q=(x,y,z,w)], the vector form of quaternion stem:[q=(\vec{v},w)], unit quaternion stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})] and how it is used to represent a rotation.
 
 We also talked about negation of quaternion stem:[–q], and its double cover property; the inverse of quaternion stem:[q^{-1}] and identity quaternion stem:[I=(\vec{0},1)].
 
@@ -339,7 +339,7 @@ We slightly touched quaternion multiplication, and we proved an important equati
 
 == Part 2. Application
 
-In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form stem:[q=(\vec{v},w)] even for unit quaternion instead of stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], since it is closed to the actual data format.
+In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form stem:[q=(\vec{v},w)] even for unit quaternion instead of stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})], since it is closed to the actual data format.
 
 Recall the definition of general quaternion multiplication we mentioned in Part 1. Let stem:[q_1=(\vec{v_1},w_1)], stem:[q_2=(\vec{v_2},w_2)] then
 
@@ -414,7 +414,7 @@ As an example of local rotation, imagine yourself lying down on the ground and f
 
 If we have an object with rotation stem:[{q_1}=(\vec{v_1},{w_1})], now we want to apply a local rotation stem:[{q_{2L}}=(\vec{v_2},{w_2})]. We can convert the local rotation stem:[q_{2L}] to world rotation stem:[q_{2W}] by converting its rotation axis into world space. Since stem:[\vec{v_2}] is in local space of stem:[q_1], converting it into world space means rotating it by stem:[q_1], so the world space rotation axis is stem:[\vec{v_{2W}}={q_1}\vec{v_2}{q_1}^{-1}].
 
-(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
+(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
 
 [stem]
 ++++
@@ -460,7 +460,7 @@ This means when we rotate stem:[q_1] then rotate stem:[q_2], if stem:[q_2] is in
 
 This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.
 
-We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})] would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.
+We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})] would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.
 
 Here are some equations we will be using:
 [stem]
@@ -477,30 +477,30 @@ Recall how we choose the flip break down stem:[\vec{c}=\frac{\vec{v_1}×\vec{v_2
 Rotate stem:[\vec{c}] along axis stem:[\vec{v_1}] by angle stem:[-\frac{θ_1}{2}] we get
 [stem]
 ++++
-\vec{a}=cos\frac{-θ_1}{2}\vec{c} + sin\frac{-θ_1}{2}(\vec{v_1}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(cos\frac{θ_1}{2}(\vec{v_1}×\vec{v_2}) - sin\frac{θ_1}{2}(\vec{v_1}×(\vec{v_1}×\vec{v_2})))
+\vec{a}=\cos\frac{-θ_1}{2}\vec{c} + \sin\frac{-θ_1}{2}(\vec{v_1}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(\cos\frac{θ_1}{2}(\vec{v_1}×\vec{v_2}) - \sin\frac{θ_1}{2}(\vec{v_1}×(\vec{v_1}×\vec{v_2})))
 ++++
 Rotate stem:[\vec{c}] along axis stem:[\vec{v_2}] by angle stem:[\frac{θ_2}{2}] we get
 [stem]
 ++++
-\vec{b}=cos\frac{θ_2}{2}\vec{c} + sin\frac{θ_2}{2}(\vec{v_2}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(cos\frac{θ_2}{2}(\vec{v_1}×\vec{v_2}) + sin\frac{θ_2}{2}(\vec{v_2}×(\vec{v_1}×\vec{v_2})))
+\vec{b}=\cos\frac{θ_2}{2}\vec{c} + \sin\frac{θ_2}{2}(\vec{v_2}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(\cos\frac{θ_2}{2}(\vec{v_1}×\vec{v_2}) + \sin\frac{θ_2}{2}(\vec{v_2}×(\vec{v_1}×\vec{v_2})))
 ++++
 And we will have
 [stem]
 ++++
 \begin{align*}
-\vec{a}·\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))·(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
-&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}^{2})\\
-&=cos\frac{θ_1}{2}cos\frac{θ_2}{2} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2})
+\vec{a}·\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))·(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}^{2})\\
+&=\cos\frac{θ_1}{2}\cos\frac{θ_2}{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2})
 \end{align*}
 ++++ 
 [stem]
 ++++
 \begin{align*}
-\vec{a}×\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
-&- sin\frac{θ_1}{2}cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
-&- sin\frac{θ_1}{2}sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
-&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(cos\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
-&=cos\frac{θ_1}{2}sin\frac{θ_2}{2}\vec{v_2} + sin\frac{θ_1}{2}cos\frac{θ_2}{2}\vec{v_1} - sin\frac{θ_1}{2}sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
+\vec{a}×\vec{b}&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
+&- \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
+&- \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
+&=\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}\vec{v_2} + \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}\vec{v_1} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
 \end{align*}
 ++++ 
 From the previous proof of rotation composition we know stem:[q={q_2}{q_1}=-{q_b}{q_a}], that is 
@@ -508,8 +508,8 @@ From the previous proof of rotation composition we know stem:[q={q_2}{q_1}=-{q_b
 ++++
 \begin{align*}
 q&=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
-&=(cos\frac{θ_1}{2}(sin\frac{θ_2}{2}\vec{v_2}) + cos\frac{θ_2}{2}(sin\frac{θ_1}{2}\vec{v_1}) - (sin\frac{θ_1}{2}\vec{v_1})×(sin\frac{θ_2}{2}\vec{v_2}), cos\frac{θ_1}{2}cos\frac{θ_2}{2} - (sin\frac{θ_1}{2}\vec{v_1})·(sin\frac{θ_2}{2}\vec{v_2}))
+&=(\cos\frac{θ_1}{2}(\sin\frac{θ_2}{2}\vec{v_2}) + \cos\frac{θ_2}{2}(\sin\frac{θ_1}{2}\vec{v_1}) - (\sin\frac{θ_1}{2}\vec{v_1})×(\sin\frac{θ_2}{2}\vec{v_2}), \cos\frac{θ_1}{2}\cos\frac{θ_2}{2} - (\sin\frac{θ_1}{2}\vec{v_1})·(\sin\frac{θ_2}{2}\vec{v_2}))
 \end{align*}
 ++++ 
-which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})].
+which is the definition of quaternion multiplication of stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})].
 
