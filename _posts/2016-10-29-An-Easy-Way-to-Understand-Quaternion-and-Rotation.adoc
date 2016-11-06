@@ -454,7 +454,85 @@ q&={q_{2W}}{q_1}\\
 
 This means when we rotate stem:[q_1] then rotate stem:[q_2], if stem:[q_2] is in world space, then combined rotation is stem:[q={q_2}{q_1}] (right to left); if stem:[q_2] is in local space of stem:[q_1], the combined rotation is stem:[q={q_1}{q_2}] (left to right).
 
+=== Rotation along X/Y/Z Axis
 
+We can now go back to the problem I mentioned at the very beginning: we need an object to face its opposite direction. More clearly we have an object with rotation stem:[q=((x,y,z),w)], and we want to flip it along local Z axis, that is rotate it stem:[180^{\circ}] along its local Z axis. This extra rotation is denoted as stem:[q'=((0,0,\sin\frac{180^{\circ}}{2},\cos\frac{180^{\circ}}{2})=((0,0,1),0)]. Based on local rotation composition we proved in previous section, the result is 
+
+[stem]
+++++
+q_Z=qq'=((x,y,z),w)((0,0,1),0)=((y,-x,w),-z)
+++++
+
+If we generalize the angle to stem:[θ], then stem:[q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})], then the result is:
+
+[stem]
+++++
+\begin{align*}
+q_{(Z,θ)}=qq'&=((x,y,z),w)((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\\
+&=((x,y,z),w)(((0,0,0),1)\cos\frac{θ}{2}+((0,0,1),0)\sin\frac{θ}{2})\\
+&=((x,y,z),w)\cos\frac{θ}{2}+((y,-x,w),-z)\sin\frac{θ}{2})\\
+\end{align*}
+++++  
+
+If we want to flip along world Z axis instead, we just need to change the multiplication order:
+
+[stem]
+++++
+q_Z=q'q=((0,0,1),0)((x,y,z),w)=((-y,x,w),-z)
+++++
+
+We can use the same method to generalize the angle to stem:[θ], and let stem:[q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})],
+
+[stem]
+++++
+q_{(Z,θ)}=q'q=((x,y,z),w)\cos\frac{θ}{2}+((-y,x,w),-z)\sin\frac{θ}{2})
+++++
+
+It is easy to extend the result to X and Y axis. I list the result summary as the following.
+
+Flip along local axis:
+
+[stem]
+++++
+\begin{align*}
+q_X&=(w,z,-y,-x)\\
+q_Y&=(-z,w,x,-y)\\
+q_Z&=(y,-x,w,-z)\\
+\end{align*}
+++++  
+
+Rotate stem:[θ] along local axis:
+
+[stem]
+++++
+\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,z,-y,-x)\sin\frac{θ}{2})\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-z,w,x,-y)\sin\frac{θ}{2})\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(y,-x,w,-z)\sin\frac{θ}{2})\\
+\end{align*}
+++++  
+
+Flip along world axis:
+
+[stem]
+++++
+\begin{align*}
+q_X&=(w,-z,y,-x)\\
+q_Y&=(z,w,-x,-y)\\
+q_Z&=(-y,x,w,-z)\\
+\end{align*}
+++++  
+
+Rotate stem:[θ] along world axis:
+
+[stem]
+++++
+\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2})\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2})\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2})\\
+\end{align*}
+++++  
 
 === Appendix: Derive Quaternion Multiplication
 
