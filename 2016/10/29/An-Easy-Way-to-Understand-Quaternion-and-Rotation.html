@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478411858483" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478411858483"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478412085354" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478412085354"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -738,7 +738,7 @@ q&amp;={q_{2W}}{q_1}\\
 <div class="sect2">
 <h3 id="_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</h3>
 <div class="paragraph">
-<p>We can now go back to the problem I mentioned at the very beginning: we need an object to face its opposite direction. More clearly we have an object with rotation \(q=((x,y,z),w)\), and we want to flip it along local Z axis, that is rotate it \(180^{\circ}\) along its local Z axis. This extra rotation is denoted as \(q'=((0,0,\sin\frac{180^{\circ}}{2},\cos\frac{180^{\circ}}{2})=((0,0,1),0)\). Based on local rotation composition we proved in previous section, the result is</p>
+<p>We can now go back to the problem I mentioned at the very beginning: we need an object to face its opposite direction. More clearly we have an object with rotation \(q=((x,y,z),w)\), and we want to flip it along local Z axis, that is rotate it \(180^{\circ}\) along its local Z axis. This extra rotation is denoted as \(q'=((0,0,\sin\frac{180^{\circ}}{2}),\cos\frac{180^{\circ}}{2})=((0,0,1),0)\). Based on local rotation composition we proved in previous section, the result is</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -746,14 +746,14 @@ q&amp;={q_{2W}}{q_1}\\
 </div>
 </div>
 <div class="paragraph">
-<p>If we generalize the angle to \(θ\), then \(q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\), then the result is:</p>
+<p>If we generalize the angle to \(θ\), then \(q'=((0,0,\sin\frac{θ}{2}),\cos\frac{θ}{2})\), then the result is:</p>
 </div>
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
 q_{(Z,θ)}=qq'&amp;=((x,y,z),w)((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\\
 &amp;=((x,y,z),w)(((0,0,0),1)\cos\frac{θ}{2}+((0,0,1),0)\sin\frac{θ}{2})\\
-&amp;=((x,y,z),w)\cos\frac{θ}{2}+((y,-x,w),-z)\sin\frac{θ}{2})\\
+&amp;=((x,y,z),w)\cos\frac{θ}{2}+((y,-x,w),-z)\sin\frac{θ}{2}\\
 \end{align*}\]
 </div>
 </div>
@@ -766,7 +766,7 @@ q_{(Z,θ)}=qq'&amp;=((x,y,z),w)((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\\
 </div>
 </div>
 <div class="paragraph">
-<p>We can use the same method to generalize the angle to \(θ\), and let \(q'=((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\),</p>
+<p>We can use the same method to generalize the angle to \(θ\), and let \(q'=((0,0,\sin\frac{θ}{2}),\cos\frac{θ}{2})\),</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -794,9 +794,9 @@ q_Z&amp;=(y,-x,w,-z)\\
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,z,-y,-x)\sin\frac{θ}{2})\\
-q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-z,w,x,-y)\sin\frac{θ}{2})\\
-q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(y,-x,w,-z)\sin\frac{θ}{2})\\
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,z,-y,-x)\sin\frac{θ}{2}\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-z,w,x,-y)\sin\frac{θ}{2}\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(y,-x,w,-z)\sin\frac{θ}{2}\\
 \end{align*}\]
 </div>
 </div>
@@ -818,15 +818,20 @@ q_Z&amp;=(-y,x,w,-z)\\
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2})\\
-q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2})\\
-q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2})\\
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2}\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2}\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
 \end{align*}\]
 </div>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_appendix">Appendix</h2>
+<div class="sectionbody">
 <div class="sect2">
-<h3 id="_appendix_derive_quaternion_multiplication">Appendix: Derive Quaternion Multiplication</h3>
+<h3 id="_derive_quaternion_multiplication">Derive Quaternion Multiplication</h3>
 <div class="paragraph">
 <p>This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.</p>
 </div>
@@ -968,7 +973,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478411858483"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478412085354"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
