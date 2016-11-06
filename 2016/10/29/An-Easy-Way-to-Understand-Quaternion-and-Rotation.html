@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478460299827" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478460299827"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478460889582" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478460889582"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -38,11 +38,11 @@
     <meta property="og:site_name" content="Eric&#x27;s Blog" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="An Easy Way to Understand Quaternion and Rotation" />
-    <meta property="og:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
+    <meta property="og:description" content="Table of Contents Before We Start Part 1. Theory Quaternion Definition Rotation and Flip Quaternion and Flip Flip Composition Flip Vector Rotate Vector Rotation Composition Summary of Part 1 Part 2. Application Calculation of Vector Rotation World Rotation and Local Rotation Rotation along X/Y/Z Axis Euler Angles to" />
     <meta property="og:url" content="https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation.html" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="An Easy Way to Understand Quaternion and Rotation" />
-    <meta name="twitter:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
+    <meta name="twitter:description" content="Table of Contents Before We Start Part 1. Theory Quaternion Definition Rotation and Flip Quaternion and Flip Flip Composition Flip Vector Rotate Vector Rotation Composition Summary of Part 1 Part 2. Application Calculation of Vector Rotation World Rotation and Local Rotation Rotation along X/Y/Z Axis Euler Angles to" />
     <meta name="twitter:url" content="https://lxjk.github.io/2016/10/29/An-Easy-Way-to-Understand-Quaternion-and-Rotation.html" />
     
     <script type="application/ld+json">
@@ -136,7 +136,41 @@ null
     </header>
 
     <section class="post">
-      <div class="sect2">
+      <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel2">
+<li><a href="#_before_we_start">Before We Start</a></li>
+<li><a href="#_part_1_theory">Part 1. Theory</a>
+<ul class="sectlevel2">
+<li><a href="#_quaternion_definition">Quaternion Definition</a></li>
+<li><a href="#_rotation_and_flip">Rotation and Flip</a></li>
+<li><a href="#_quaternion_and_flip">Quaternion and Flip</a></li>
+<li><a href="#_flip_composition">Flip Composition</a></li>
+<li><a href="#_flip_vector">Flip Vector</a></li>
+<li><a href="#_rotate_vector">Rotate Vector</a></li>
+<li><a href="#_rotation_composition">Rotation Composition</a></li>
+<li><a href="#_summary_of_part_1">Summary of Part 1</a></li>
+</ul>
+</li>
+<li><a href="#_part_2_application">Part 2. Application</a>
+<ul class="sectlevel2">
+<li><a href="#_calculation_of_vector_rotation">Calculation of Vector Rotation</a></li>
+<li><a href="#_world_rotation_and_local_rotation">World Rotation and Local Rotation</a></li>
+<li><a href="#_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</a></li>
+<li><a href="#_euler_angles_to_quaternion">Euler Angles to Quaternion</a></li>
+<li><a href="#_quaternion_and_rotation_matrix">Quaternion and Rotation Matrix</a></li>
+<li><a href="#_quaternion_to_euler_angles">Quaternion to Euler Angles</a></li>
+<li><a href="#_summary_of_part_2">Summary of Part 2</a></li>
+</ul>
+</li>
+<li><a href="#_appendix">Appendix</a>
+<ul class="sectlevel2">
+<li><a href="#_derive_quaternion_multiplication">Derive Quaternion Multiplication</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -984,7 +1018,7 @@ M_{-90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; 1 \\ -\sin{R}\cos{Y}
 </div>
 </div>
 <div class="paragraph">
-<p>The formula we use to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
+<p>The formula we used to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
 </div>
 <div class="paragraph">
 <p>We need to go a different way, recall the conversion from Euler angles to quaternion.</p>
@@ -1184,7 +1218,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478460299827"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478460889582"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
