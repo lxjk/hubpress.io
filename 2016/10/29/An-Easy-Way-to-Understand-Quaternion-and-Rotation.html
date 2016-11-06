@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478408766482" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478408766482"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478410112245" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478410112245"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -600,17 +600,21 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <h2 id="_part_2_application">Part 2. Application</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form \(q=(\vec{v},w)\) even for unit quaternion instead of \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\), since it is closed to the actual data format.
-Recall the definition of general quaternion multiplication we mentioned in Part 1. Let \(q_a=(\vec{a},0)\), \(q_b=(\vec{b},0)\) then</p>
+<p>In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form \(q=(\vec{v},w)\) even for unit quaternion instead of \(q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})\), since it is closed to the actual data format.</p>
+</div>
+<div class="paragraph">
+<p>Recall the definition of general quaternion multiplication we mentioned in Part 1. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
 </div>
 <div class="stemblock">
 <div class="content">
-\[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\]
+\[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})\]
 </div>
 </div>
 <div class="paragraph">
-<p>We will be using this a lot in the following sections.
-The coordinate system we use is Z up and right-handed.</p>
+<p>We will be using this a lot in the following sections.</p>
+</div>
+<div class="paragraph">
+<p>The coordinate system we use is Z up and right-handed.</p>
 </div>
 <div class="sect2">
 <h3 id="_calculation_of_vector_rotation">Calculation of Vector Rotation</h3>
@@ -657,8 +661,8 @@ The coordinate system we use is Z up and right-handed.</p>
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-\vec{v}×(\vec{v}×\vec{p})&amp;=(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}-\vec{p}\\
-(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}&amp;=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
+\vec{v}×(\vec{v}×\vec{p})&amp;=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}-\vec{p}\\
+(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}&amp;=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
 \end{align*}\]
 </div>
 </div>
@@ -672,6 +676,63 @@ The coordinate system we use is Z up and right-handed.</p>
 &amp;=\vec{p}+2(\vec{v}×(\vec{v}×\vec{p}+w\vec{p}))
 \end{align*}\]
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_world_rotation_and_local_rotation">World Rotation and Local Rotation</h3>
+<div class="paragraph">
+<p>Let’s look at rotation composition again. The combined rotation \(q={q_2}{q_1}\) means rotating \(q_1\) first then \(q_2\). This right to left order only holds when \(q_2\) is a world rotation, or in another term the rotation axis \(\vec{v_2}\) of \(q_2\) is in world space. Then what if \(q_2\) is a local rotation, which means the rotation axis \(\vec{v_2}\) of \(q_2\) is in the local space after \(q_1\) rotation.</p>
+</div>
+<div class="paragraph">
+<p>As an example of local rotation, imagine yourself lying down on the ground and facing up, now flip around to face the ground. What you just did is a \(180^{\circ}\) local rotation along Z axis. The rotation axis is not the world Z axis (which will be the up direction) but your local Z axis.</p>
+</div>
+<div class="paragraph">
+<p>If we have an object with rotation \({q_1}=(\vec{v_1},{w_1})\), now we want to apply a local rotation \({q_2L}=(\vec{v_2},{w_2})\). We can convert the local rotation \({q_2L}\) to world rotation \({q_2W}\) by converting its rotation axis into world space. Since \(\vec{v_2}\) is in local space of \(q_1\), converting it into world space means rotating it by \(q_1\), so the world space rotation axis is \(\vec{v_2W}={q_1}\vec{v_2}{q_1}^(-1)\).</p>
+</div>
+<div class="paragraph">
+<p>(Technically the rotation axis is \(\frac{\vec{v_2}}{\left|\vec{v_2}\right|}\), but since rotation angle is the same for local and world space, \(\left|\vec{v_2}\right|=\left|\vec{v_2W}\right|=sin⁡\frac{θ}{2}\), we can just use \({v_2}\) in the calculation).</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_2W}&amp;=(\vec{v_2W},{w_2})\\
+&amp;=(\vec{v_2W},0)+(\vec{0},{w_2})\\
+&amp;={q_1}(\vec{v_2},0){q_1}^(-1)+{q_1}(\vec{0},{w_2}){q_1}^(-1)\\
+&amp;={q_1}(\vec{v_2},{w_2}){q_1}^(-1)\\
+&amp;={q_1}{q_2L}{q_1}^(-1)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This equation tells us to convert a local rotation to world rotation, we can do the same as rotating a vector by using “sandwich” multiplication \({q_2W}={q_1}{q_2L}{q_1}^{-1}\). It also makes sense in geometric term. If we undo \(q_1\), now local space and world space are the same, we can then apply \(q_2L\) and apply \(q_1\) again to get the world rotation we want.</p>
+</div>
+<div class="paragraph">
+<p>One thing I need to prove here</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_1}(\vec{0},{w_2}){q_1}^(-1)&amp;=(\vec{v_1},{w_1})(\vec{0},{w_2})(-\vec{v_1},{w_1})\\
+&amp;=({w_2}\vec{v_1},{w_1}{w_2})(-\vec{v_1},{w_1})\\
+&amp;=(\vec{0},{w_2}(\left|\vec{v_1}\right|^{2}+{w_1}^{2}))\\
+&amp;=(\vec{0},{w_2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>With the world rotation, we can see the result of combined rotation:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;={q_2W}{q_1}\\
+&amp;={q_1}{q_2L}{q_1}^{-1}{q_1}\\
+&amp;={q_1}{q_2L}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This means when we rotate \(q_1\) then rotate \(q_2\), if \(q_2\) is in world space, then combined rotation is \(q={q_2}{q_1}\) (right to left); if \(q_2\) is in local space of \(q_1\), the combined rotation is \(q={q_1}{q_2}\) (left to right).</p>
 </div>
 </div>
 <div class="sect2">
@@ -817,7 +878,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478408766482"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478410112245"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
