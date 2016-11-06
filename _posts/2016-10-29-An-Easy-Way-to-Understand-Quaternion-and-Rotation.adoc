@@ -561,7 +561,7 @@ Converting quaternion to Euler angles, however, is tricky. It is easier if we co
 
 === Quaternion and Rotation Matrix
 
-If we say quaternion is an instruction, Euler angles are 3 instructions, then the rotation matrix stores the rotation result directly. Remember each row of the rotation matrix is the X, Y, Z axis after this rotation, which means give a rotation stem:[q=(x,y,z,w)], it’s corresponding rotation matrix is 
+If we say quaternion is an instruction, Euler angles are 3 instructions, then the rotation matrix stores the rotation result directly. Remember each row of the rotation matrix is the X, Y, Z axis after this rotation, which means given a rotation stem:[q=(x,y,z,w)], it’s corresponding rotation matrix is 
 
 [stem]
 ++++
@@ -582,7 +582,7 @@ To convert from rotation matrix to quaternion, we can sum up diagonal elements o
 M_{11}+M_{22}+M_{33}=3-4x^{2}-4y^{2}-4z^{2}
 ++++
 
-Remember as a unit quaternion stem:{x^{2}+y^{2}+z^{2}+w^{2}=1],
+Remember as a unit quaternion stem:[x^{2}+y^{2}+z^{2}+w^{2}=1],
 
 [stem]
 ++++
@@ -610,6 +610,59 @@ z=\frac{1}{4w}(M_{12}-M_{21})\\
 ++++
 
 You need to be careful if the value of stem:[w] is closed to 0 (means stem:[M_{11}+M_{22}+M_{33}+1] is closed to 0, no need to do square root).  In this case you want to calculate one of stem:[x,y,z] instead. You can simply choose the one has the largest absolute value, and calculate the other 3 elements in a similar fashion.
+
+=== Quaternion to Euler Angles
+
+Before we try to convert quaternion to Euler angles, let’s review how Euler angles can be converted to rotation matrix. As we know Euler angles are 3 instructions, it could be viewed as 3 rotation matrix:
+
+[stem]
+++++
+M_R = \left[ \begin{array}{} 1 & 0 & 0 \\ 0 & \cos{R} & \sin{R} \\ 0 & -\sin{R} & \cos{R} \\ \end{array} \right],
+M_P = \left[ \begin{array}{} \cos{P} & 0 & -\sin{P} \\ 0 & 1 & 0 \\ \sin{P} & 0 & \cos{P} \\ \end{array} \right],
+M_Y = \left[ \begin{array}{} \cos{Y} & \sin{Y} & 0 \\ -\sin{Y} & \cos{Y} & 0 \\ 0 & 0 & 1 \\ \end{array} \right],
+++++
+
+The result rotation matrix is
+
+[stem]
+++++
+M={M_R}{M_P}{M_Y}=\left[ \begin{array}{} \cos{P}\cos{Y} & \cos{P}\sin{Y} & -\sin{P} \\ \sin{R}\sin{P}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{P}\sin{Y}+\cos{R}\cos{Y} & \sin{R}\cos{P} \\ \cos{R}\sin{P}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{P}\sin{Y}-\sin{R}\cos{Y} & \cos{R}\cos{P} \\ \end{array} \right]
+++++
+
+You can also derive this by converting Euler angles to quaternion, then quaternion to rotation matrix, and by applying trigonometric double-angle formula you should get the same result.
+If you put this result side by side with our quaternion to rotation matrix conversion, which I put here again for reference.
+
+[stem]
+++++
+M = \left[ \begin{array}{} 1-2y^{2}-2z^{2} & 2xy+2zw & 2xz-2yw \\ 2xy-2zw & 1-2x^{2}-2z^{2} & 2yz+2xw \\ 2xz+2yw & 2yz-2xw & 1-2x^{2}-2y^{2} \\ \end{array} \right]
+++++
+
+You can easily spot this:
+
+[stem]
+++++
+\begin{align*}
+\cos{P}\cos{Y}&=1-2y^{2}-2z^{2}\\
+\cos{P}\sin{Y}&=2xy+2zw\\
+-\sin{P}&=2xz-2yw\\
+\sin{R}\cos{P}&=2yz+2xw\\
+\cos{R}\cos{P}&=1-2x^{2}-2y^{2}\\
+\end{align*}
+++++
+
+Now we can write down the conversion from quaternion to Euler angles
+
+[stem]
+++++
+\usepackage{amsmath}
+\DeclareMathOperator{\atantwo}{atan2}
+
+\begin{align*}
+P&=\asin{-2xy+2yw)\\
+Y&=\atantwo(2xy+2zw,1-2y^{2}-2z^{2})\\
+R&=\atantwo(2yz+2xw,1-2x^{2}-2y^{2})\\
+\end{align*}
+++++
 
 == Appendix
 
