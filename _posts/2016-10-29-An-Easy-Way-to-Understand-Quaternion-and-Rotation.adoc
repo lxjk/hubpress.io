@@ -619,7 +619,7 @@ Before we try to convert quaternion to Euler angles, let’s review how Euler an
 ++++
 M_R = \left[ \begin{array}{} 1 & 0 & 0 \\ 0 & \cos{R} & \sin{R} \\ 0 & -\sin{R} & \cos{R} \\ \end{array} \right],
 M_P = \left[ \begin{array}{} \cos{P} & 0 & -\sin{P} \\ 0 & 1 & 0 \\ \sin{P} & 0 & \cos{P} \\ \end{array} \right],
-M_Y = \left[ \begin{array}{} \cos{Y} & \sin{Y} & 0 \\ -\sin{Y} & \cos{Y} & 0 \\ 0 & 0 & 1 \\ \end{array} \right],
+M_Y = \left[ \begin{array}{} \cos{Y} & \sin{Y} & 0 \\ -\sin{Y} & \cos{Y} & 0 \\ 0 & 0 & 1 \\ \end{array} \right]
 ++++
 
 The result rotation matrix is
@@ -666,8 +666,7 @@ However we still have a problem when pitch is near stem:[90^{\circ}] or stem:[-9
 [stem]
 ++++
 \begin{align*}
-M_{90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & -1} \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & -1} \\ \sin(R-Y) & \cos(R-Y) & 0 \\ \cos(R-Y) & -\sin(R-Y) & 0 \\ \end{array} \right]\\ 
-M_{-90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & 1} \\ -\sin{R}\cos{Y}-\cos{R}\sin{Y} & -\sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ -\cos{R}\cos{Y}+\sin{R}\sin{Y} & -\cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & 1} \\ -\sin(R+Y) & \cos(R+Y) & 0 \\ -\cos(R+Y) & -\sin(R+Y) & 0 \\ \end{array} \right]\\ 
+M_{90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & -1} \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right]
 \end{align*}
 ++++
 
