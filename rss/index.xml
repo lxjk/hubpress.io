@@ -1,4 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 19:24:59 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 19:34:49 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel2">
+<li><a href="#_before_we_start">Before We Start</a></li>
+<li><a href="#_part_1_theory">Part 1. Theory</a>
+<ul class="sectlevel2">
+<li><a href="#_quaternion_definition">Quaternion Definition</a></li>
+<li><a href="#_rotation_and_flip">Rotation and Flip</a></li>
+<li><a href="#_quaternion_and_flip">Quaternion and Flip</a></li>
+<li><a href="#_flip_composition">Flip Composition</a></li>
+<li><a href="#_flip_vector">Flip Vector</a></li>
+<li><a href="#_rotate_vector">Rotate Vector</a></li>
+<li><a href="#_rotation_composition">Rotation Composition</a></li>
+<li><a href="#_summary_of_part_1">Summary of Part 1</a></li>
+</ul>
+</li>
+<li><a href="#_part_2_application">Part 2. Application</a>
+<ul class="sectlevel2">
+<li><a href="#_calculation_of_vector_rotation">Calculation of Vector Rotation</a></li>
+<li><a href="#_world_rotation_and_local_rotation">World Rotation and Local Rotation</a></li>
+<li><a href="#_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</a></li>
+<li><a href="#_euler_angles_to_quaternion">Euler Angles to Quaternion</a></li>
+<li><a href="#_quaternion_and_rotation_matrix">Quaternion and Rotation Matrix</a></li>
+<li><a href="#_quaternion_to_euler_angles">Quaternion to Euler Angles</a></li>
+<li><a href="#_summary_of_part_2">Summary of Part 2</a></li>
+</ul>
+</li>
+<li><a href="#_appendix">Appendix</a>
+<ul class="sectlevel2">
+<li><a href="#_derive_quaternion_multiplication">Derive Quaternion Multiplication</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -846,7 +880,7 @@ M_{-90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; 1 \\ -\sin{R}\cos{Y}
 </div>
 </div>
 <div class="paragraph">
-<p>The formula we use to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
+<p>The formula we used to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
 </div>
 <div class="paragraph">
 <p>We need to go a different way, recall the conversion from Euler angles to quaternion.</p>
