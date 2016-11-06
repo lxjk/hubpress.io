@@ -532,7 +532,33 @@ q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2}\\
 q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2}\\
 q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
 \end{align*}
-++++  
+++++
+
+=== Euler Angles to Quaternion
+
+Quaternion is an instruction for rotation: rotate angle stem:[θ] along axis stem:[\vec{v}]. Euler angles is a sequence of 3 instructions: rotate yaw angle along world axis Z, then rotate pitch angle along local axis Y, then rotate roll angle along local axis X.
+
+It is very natural to see how Euler angles can be converted to quaternion. If we use stem:[Y,P,R] for angle yaw pitch and roll, then these 3 rotations to can be denoted in quaternion stem:[q_Y=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})], stem:[q_P=(0,\sin\frac{P}{2},0,\cos\frac{P}{2})], stem:[q_R=(\sin\frac{R}{2},0,0,\cos\frac{R}{2})]. Since pitch and roll are local rotations, the combined rotation will be
+
+[stem]
+++++
+q={q_Y}{q_P}{q_R}=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})(0,\sin\frac{P}{2},0,\cos\frac{P}{2})(\sin\frac{R}{2},0,0,\cos\frac{R}{2})
+++++
+
+Solving this we have the conversion from Euler angles to quaternion.
+
+[stem]
+++++
+\begin{align*}
+x&=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}
+++++
+
+Converting quaternion to Euler angles, however, is tricky. It is easier if we convert quaternion to rotation matrix first then convert the rotation matrix to Euler angles, than trying to obtain the conversion directly. We will talk about this after the next section.
+
 
 == Appendix
 
