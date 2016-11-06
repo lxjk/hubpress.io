@@ -661,6 +661,56 @@ R&=\mathrm{atan2}(2yz+2xw,1-2x^{2}-2y^{2})\\
 \end{align*}
 ++++
 
+However we still have a problem when pitch is near stem:[90^{\circ}] or stem:[-90^{\circ}]. This is called singularity. This issue is explained more in http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/[this website]. In this case stem:[\cos{⁡P}=0,\sin{⁡P}=1] or stem:[\cos{⁡P}=0,\sin{⁡}P=-1], and the rotation matrix becomes:
+
+[stem]
+++++
+\begin{align*}
+M_{90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & -1} \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & -1} \\ \sin(R-Y) & \cos(R-Y) & 0 \\ \cos(R-Y) & -\sin(R-Y) & 0 \\ \end{array} \right]\\ 
+M_{-90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & 1} \\ -\sin{R}\cos{Y}-\cos{R}\sin{Y} & -\sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ -\cos{R}\cos{Y}+\sin{R}\sin{Y} & -\cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & 1} \\ -\sin(R+Y) & \cos(R+Y) & 0 \\ -\cos(R+Y) & -\sin(R+Y) & 0 \\ \end{array} \right]\\ 
+\end{align*}
+++++
+
+The formula we use to calculate yaw and roll becomes stem:[\mathrm{atan2}(0,0)], which will give an invalid value.
+
+We need to go a different way, recall the conversion from Euler angles to quaternion.
+
+[stem]
+++++
+\begin{align*}
+x&=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}
+++++
+
+If stem:[P=90^{\circ}], then stem:[x=-z=\frac{\sqrt{2}}{2}\sin\frac{R-Y}{2}], stem:[y=w=\frac{\sqrt{2}}{2}\cos\frac{R-Y}{2}], then we have
+[stem]
+++++
+R-Y=2\mathrm{atan2}(x,w)
+++++
+Similarly, if stem:[P=-90^{\circ}], then stem:[x=z=\frac{\sqrt{2}}{2}\sin\frac{R+Y}{2}], stem:[-y=w=\frac{\sqrt{2}}{2}\cos\frac{R+Y}{2}], then we have
+[stem]
+++++
+R+Y=2\mathrm{atan2}(x,w)
+++++
+Imagine an airplane facing straight up or down, yaw and roll basically means rotating along the same axis. We can simply let yaw be zero, and only calculate roll. So if stem:[P≈±90^{\circ}], then 
+[stem]
+++++
+Y=0, R=2\mathrm{atan2}(x,w)
+++++
+
+Finally, since stem:[\sin{⁡P}=-2xz+2yw], we only need to test stem:[-2xz+2yw≈±1] to test if pitch is near stem:[±90^{\circ}].
+
+=== Summary of Part 2
+
+In Part 2 we talked about different multiplication order for combining world rotations or local rotations.
+
+We derive the formula to calculate the result of rotating a vector by a quaternion. We also find out a quick way to apply rotation along X/Y/Z axis.
+
+We discussed conversion between quaternion, Euler angles and rotation matrix.
+
 == Appendix
 
 === Derive Quaternion Multiplication
