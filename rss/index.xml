@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 18:50:09 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 19:09:28 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -833,6 +833,72 @@ Y&amp;=\mathrm{atan2}(2xy+2zw,1-2y^{2}-2z^{2})\\
 R&amp;=\mathrm{atan2}(2yz+2xw,1-2x^{2}-2y^{2})\\
 \end{align*}\]
 </div>
+</div>
+<div class="paragraph">
+<p>However we still have a problem when pitch is near \(90^{\circ}\) or \(-90^{\circ}\). This is called singularity. This issue is explained more in <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/">this website</a>. In this case \(\cos{⁡P}=0,\sin{⁡P}=1\) or \(\cos{⁡P}=0,\sin{⁡}P=-1\), and the rotation matrix becomes:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+M_{90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; -1} \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} &amp; \sin{R}\sin{Y}+\cos{R}\cos{Y} &amp; 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} &amp; \cos{R}\sin{Y}-\sin{R}\cos{Y} &amp; 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 &amp; 0 &amp; -1} \\ \sin(R-Y) &amp; \cos(R-Y) &amp; 0 \\ \cos(R-Y) &amp; -\sin(R-Y) &amp; 0 \\ \end{array} \right]\\
+M_{-90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; 1} \\ -\sin{R}\cos{Y}-\cos{R}\sin{Y} &amp; -\sin{R}\sin{Y}+\cos{R}\cos{Y} &amp; 0 \\ -\cos{R}\cos{Y}+\sin{R}\sin{Y} &amp; -\cos{R}\sin{Y}-\sin{R}\cos{Y} &amp; 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 &amp; 0 &amp; 1} \\ -\sin(R+Y) &amp; \cos(R+Y) &amp; 0 \\ -\cos(R+Y) &amp; -\sin(R+Y) &amp; 0 \\ \end{array} \right]\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>The formula we use to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
+</div>
+<div class="paragraph">
+<p>We need to go a different way, recall the conversion from Euler angles to quaternion.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+x&amp;=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&amp;=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>If \(P=90^{\circ}\), then \(x=-z=\frac{\sqrt{2}}{2}\sin\frac{R-Y}{2}\), \(y=w=\frac{\sqrt{2}}{2}\cos\frac{R-Y}{2}\), then we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[R-Y=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly, if \(P=-90^{\circ}\), then \(x=z=\frac{\sqrt{2}}{2}\sin\frac{R+Y}{2}\), \(-y=w=\frac{\sqrt{2}}{2}\cos\frac{R+Y}{2}\), then we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[R+Y=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Imagine an airplane facing straight up or down, yaw and roll basically means rotating along the same axis. We can simply let yaw be zero, and only calculate roll. So if \(P≈±90^{\circ}\), then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[Y=0, R=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, since \(\sin{⁡P}=-2xz+2yw\), we only need to test \(-2xz+2yw≈±1\) to test if pitch is near \(±90^{\circ}\).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary_of_part_2">Summary of Part 2</h3>
+<div class="paragraph">
+<p>In Part 2 we talked about different multiplication order for combining world rotations or local rotations.</p>
+</div>
+<div class="paragraph">
+<p>We derive the formula to calculate the result of rotating a vector by a quaternion. We also find out a quick way to apply rotation along X/Y/Z axis.</p>
+</div>
+<div class="paragraph">
+<p>We discussed conversion between quaternion, Euler angles and rotation matrix.</p>
 </div>
 </div>
 </div>
