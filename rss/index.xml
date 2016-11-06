@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 17:58:02 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 18:16:51 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -715,6 +715,68 @@ w&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}
 </div>
 <div class="paragraph">
 <p>Converting quaternion to Euler angles, however, is tricky. It is easier if we convert quaternion to rotation matrix first then convert the rotation matrix to Euler angles, than trying to obtain the conversion directly. We will talk about this after the next section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quaternion_and_rotation_matrix">Quaternion and Rotation Matrix</h3>
+<div class="paragraph">
+<p>If we say quaternion is an instruction, Euler angles are 3 instructions, then the rotation matrix stores the rotation result directly. Remember each row of the rotation matrix is the X, Y, Z axis after this rotation, which means give a rotation \(q=(x,y,z,w)\), it’s corresponding rotation matrix is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} \vec{X'} \\ \vec{Y'} \\ \vec{Z'} \end{array} \right]=\left[ \begin{array}{} q\vec{X}q^{-1} \\ q\vec{Y}q^{-1} \\ q\vec{Z}q^{-1} \end{array}  \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>By calculating the rotation result of the 3 axes, we get the conversion from quaternion to rotation matrix</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M = \left[ \begin{array}{} 1-2y^{2}-2z^{2} &amp; 2xy+2zw &amp; 2xz-2yw \\ 2xy-2zw &amp; 1-2x^{2}-2z^{2} &amp; 2yz+2xw \\ 2xz+2yw &amp; 2yz-2xw &amp; 1-2x^{2}-2y^{2} \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>To convert from rotation matrix to quaternion, we can sum up diagonal elements of the matrix and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}+M_{22}+M_{33}=3-4x^{2}-4y^{2}-4z^{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember as a unit quaternion stem:{x<sup>{2}+y</sup>{2}+z<sup>{2}+w</sup>{2}=1],</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}+M_{22}+M_{33}= 4w^{2}-1\\
+w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly we can obtain \(x,y,z\) by</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}-M_{22}-M_{33}= 4x^{2}-1\\
+M_{22}-M_{33}-M_{11}= 4y^{2}-1\\
+M_{33}-M_{11}-M_{22}= 4z^{2}-1\\
+x=\frac{1}{2}\sqrt{M_{11}-M_{22}-M_{33}+1}\\
+y=\frac{1}{2}\sqrt{M_{22}-M_{33}-M_{11}+1}\\
+z=\frac{1}{2}\sqrt{M_{33}-M_{11}-M_{22}+1}\\\]
+</div>
+</div>
+<div class="paragraph">
+<p>We can avoid calculating square root 4 times, by using the element we already calculated. Say we calculate \(w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}\) first, then we can get \(x,y,z\) by</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[x=\frac{1}{4w}(M_{23}-M_{32})\\
+y=\frac{1}{4w}(M_{31}-M_{13})\\
+z=\frac{1}{4w}(M_{12}-M_{21})\\\]
+</div>
+</div>
+<div class="paragraph">
+<p>You need to be careful if the value of \(w\) is closed to 0 (means \(M_{11}+M_{22}+M_{33}+1\) is closed to 0, no need to do square root).  In this case you want to calculate one of \(x,y,z\) instead. You can simply choose the one has the largest absolute value, and calculate the other 3 elements in a similar fashion.</p>
 </div>
 </div>
 </div>
