@@ -340,14 +340,16 @@ We slightly touched quaternion multiplication, and we proved an important equati
 == Part 2. Application
 
 In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form stem:[q=(\vec{v},w)] even for unit quaternion instead of stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], since it is closed to the actual data format.
-Recall the definition of general quaternion multiplication we mentioned in Part 1. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
+
+Recall the definition of general quaternion multiplication we mentioned in Part 1. Let stem:[q_1=(\vec{v_1},w_1)], stem:[q_2=(\vec{v_2},w_2)] then
 
 [stem]
 ++++
-{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})
+{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})
 ++++
 
 We will be using this a lot in the following sections.
+
 The coordinate system we use is Z up and right-handed.
 
 === Calculation of Vector Rotation
@@ -389,8 +391,8 @@ Remember stem:[q] is unit quaternion, so stem:[\left|\vec{v}\right|^{2}+w^{2}=1]
 [stem]
 ++++
 \begin{align*}
-\vec{v}×(\vec{v}×\vec{p})&=(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}-\vec{p}\\
-(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}&=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
+\vec{v}×(\vec{v}×\vec{p})&=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}-\vec{p}\\
+(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}&=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
 \end{align*}
 ++++  
 
@@ -403,6 +405,56 @@ Now we can simplify our rotation result to get rid of the dot product
 &=\vec{p}+2(\vec{v}×(\vec{v}×\vec{p}+w\vec{p}))
 \end{align*}
 ++++  
+
+=== World Rotation and Local Rotation
+
+Let’s look at rotation composition again. The combined rotation stem:[q={q_2}{q_1}] means rotating stem:[q_1] first then stem:[q_2]. This right to left order only holds when stem:[q_2] is a world rotation, or in another term the rotation axis stem:[\vec{v_2}] of stem:[q_2] is in world space. Then what if stem:[q_2] is a local rotation, which means the rotation axis stem:[\vec{v_2}] of stem:[q_2] is in the local space after stem:[q_1] rotation.
+
+As an example of local rotation, imagine yourself lying down on the ground and facing up, now flip around to face the ground. What you just did is a stem:[180^{\circ}] local rotation along Z axis. The rotation axis is not the world Z axis (which will be the up direction) but your local Z axis.
+
+If we have an object with rotation stem:[{q_1}=(\vec{v_1},{w_1})], now we want to apply a local rotation stem:[{q_2L}=(\vec{v_2},{w_2})]. We can convert the local rotation stem:[{q_2L}] to world rotation stem:[{q_2W}] by converting its rotation axis into world space. Since stem:[\vec{v_2}] is in local space of stem:[q_1], converting it into world space means rotating it by stem:[q_1], so the world space rotation axis is stem:[\vec{v_2W}={q_1}\vec{v_2}{q_1}^(-1)].
+
+(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_2W}\right|=sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
+
+[stem]
+++++
+\begin{align*}
+{q_2W}&=(\vec{v_2W},{w_2})\\
+&=(\vec{v_2W},0)+(\vec{0},{w_2})\\
+&={q_1}(\vec{v_2},0){q_1}^(-1)+{q_1}(\vec{0},{w_2}){q_1}^(-1)\\
+&={q_1}(\vec{v_2},{w_2}){q_1}^(-1)\\
+&={q_1}{q_2L}{q_1}^(-1)\\
+\end{align*}
+++++  
+
+This equation tells us to convert a local rotation to world rotation, we can do the same as rotating a vector by using “sandwich” multiplication stem:[{q_2W}={q_1}{q_2L}{q_1}^{-1}]. It also makes sense in geometric term. If we undo stem:[q_1], now local space and world space are the same, we can then apply stem:[q_2L] and apply stem:[q_1] again to get the world rotation we want.
+
+One thing I need to prove here
+
+[stem]
+++++
+\begin{align*}
+{q_1}(\vec{0},{w_2}){q_1}^(-1)&=(\vec{v_1},{w_1})(\vec{0},{w_2})(-\vec{v_1},{w_1})\\
+&=({w_2}\vec{v_1},{w_1}{w_2})(-\vec{v_1},{w_1})\\
+&=(\vec{0},{w_2}(\left|\vec{v_1}\right|^{2}+{w_1}^{2}))\\
+&=(\vec{0},{w_2})\\
+\end{align*}
+++++  
+
+With the world rotation, we can see the result of combined rotation:
+
+[stem]
+++++
+\begin{align*}
+q&={q_2W}{q_1}\\
+&={q_1}{q_2L}{q_1}^{-1}{q_1}\\
+&={q_1}{q_2L}\\
+\end{align*}
+++++  
+
+This means when we rotate stem:[q_1] then rotate stem:[q_2], if stem:[q_2] is in world space, then combined rotation is stem:[q={q_2}{q_1}] (right to left); if stem:[q_2] is in local space of stem:[q_1], the combined rotation is stem:[q={q_1}{q_2}] (left to right).
+
+
 
 === Appendix: Derive Quaternion Multiplication
 
