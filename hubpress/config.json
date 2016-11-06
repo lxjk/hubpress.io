@@ -7,7 +7,8 @@
   "site": {
     "title": "Eric's Blog",
     "description": "- Game Dev - Tool Dev - Math - Machine Learning -",
-    "googleAnalytics": "UA-86497933-1"
+    "googleAnalytics": "UA-86497933-1",
+    "disqus": "lxjkgithub"
   },
   "socialnetwork": {
     "email": "lxjk001@gmail.com",
