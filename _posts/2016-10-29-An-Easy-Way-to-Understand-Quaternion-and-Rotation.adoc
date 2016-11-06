@@ -654,7 +654,6 @@ Now we can write down the conversion from quaternion to Euler angles
 
 [stem]
 ++++
-\usepackage{amsmath}
 \DeclareMathOperator{\atantwo}{atan2}
 
 \begin{align*}
