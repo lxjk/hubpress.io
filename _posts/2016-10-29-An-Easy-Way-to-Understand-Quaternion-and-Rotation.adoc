@@ -1,6 +1,8 @@
 = An Easy Way to Understand Quaternion and Rotation
-Eric Zhang
+Eric Zhang <lxjk001@gmail.com>
+v1.0, 2016-11-06
 :toc:
+:toc-title!:
 
 :stem: latexmath
 :figure-caption!:
@@ -194,7 +196,7 @@ q&=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\\
 
 This gives stem:[{q_v'}{q_a}={q_a}{q_v}].
 
-(Here stem:[\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=\sin\frac{θ}{2}].If you are not sure what’s going on here, go back “Flip Composition” and read the proof)
+(Here stem:[\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=\sin\frac{θ}{2}].If you are not sure what’s going on here, go back <<Flip Composition>> and read the proof)
 
 Now we need to introduce the inverse of a quaternion. The inverse of stem:[q] is denoted as stem:[q^{-1}], such that stem:[qq^{-1}=q^{-1}q=(\vec{0},1)]. 
 
@@ -716,7 +718,7 @@ We discussed conversion between quaternion, Euler angles and rotation matrix.
 
 === Derive Quaternion Multiplication
 
-We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})] would look like. If you don’t remember this, see “Rotation Composition” section in Part 1.
+We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})] would look like. If you don’t remember this, see <<Rotation Composition>> section in Part 1.
 
 Here are some equations we will be using:
 [stem]
