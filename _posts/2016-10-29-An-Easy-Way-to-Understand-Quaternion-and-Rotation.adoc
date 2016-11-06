@@ -654,12 +654,10 @@ Now we can write down the conversion from quaternion to Euler angles
 
 [stem]
 ++++
-\DeclareMathOperator{\atantwo}{atan2}
-
 \begin{align*}
-P&=\asin{-2xy+2yw)\\
-Y&=\atantwo(2xy+2zw,1-2y^{2}-2z^{2})\\
-R&=\atantwo(2yz+2xw,1-2x^{2}-2y^{2})\\
+P&=\mathrm{asin}(-2xy+2yw)\\
+Y&=\mathrm{atan2}(2xy+2zw,1-2y^{2}-2z^{2})\\
+R&=\mathrm{atan2}(2yz+2xw,1-2x^{2}-2y^{2})\\
 \end{align*}
 ++++
 
