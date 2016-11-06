@@ -666,7 +666,8 @@ However we still have a problem when pitch is near stem:[90^{\circ}] or stem:[-9
 [stem]
 ++++
 \begin{align*}
-M_{90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & -1} \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right]
+M_{90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & -1 \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} & \sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} & \cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & -1 \\ \sin(R-Y) & \cos(R-Y) & 0 \\ \cos(R-Y) & -\sin(R-Y) & 0 \\ \end{array} \right]\\ 
+M_{-90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & 1 \\ -\sin{R}\cos{Y}-\cos{R}\sin{Y} & -\sin{R}\sin{Y}+\cos{R}\cos{Y} & 0 \\ -\cos{R}\cos{Y}+\sin{R}\sin{Y} & -\cos{R}\sin{Y}-\sin{R}\cos{Y} & 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 & 0 & 1 \\ -\sin(R+Y) & \cos(R+Y) & 0 \\ -\cos(R+Y) & -\sin(R+Y) & 0 \\ \end{array} \right]\\ 
 \end{align*}
 ++++
 
