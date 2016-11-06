@@ -1,5 +1,6 @@
 = An Easy Way to Understand Quaternion and Rotation
 Eric Zhang
+:toc:
 
 :stem: latexmath
 :figure-caption!:
@@ -671,7 +672,7 @@ M_{-90^{\circ}}&=\left[ \begin{array}{} 0 & 0 & 1 \\ -\sin{R}\cos{Y}-\cos{R}\sin
 \end{align*}
 ++++
 
-The formula we use to calculate yaw and roll becomes stem:[\mathrm{atan2}(0,0)], which will give an invalid value.
+The formula we used to calculate yaw and roll becomes stem:[\mathrm{atan2}(0,0)], which will give an invalid value.
 
 We need to go a different way, recall the conversion from Euler angles to quaternion.
 
