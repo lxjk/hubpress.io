@@ -1,4 +1,4 @@
-= An Easy Way to Understand Quaternion and Rotation: Part 1. Theory
+= An Easy Way to Understand Quaternion and Rotation
 Eric Zhang
 
 :stem: latexmath
@@ -11,9 +11,11 @@ Quaternion is widely used in game engines to represent 3D rotation. As a game en
 
 Understanding quaternions also leads to more efficient use of quaternion. For example, one common situation in game development is that we need an object to face its opposite direction. What we usually would do is to get the normal or forward vector, negate it, build a rotation out of it, and assign the rotation to the object. Later in this article we will see how much calculation we need to do in this process. However with the understanding of quaternion, we only need to do stem:[q=(q.y,-q.x,q.w,-q.z)], and I will show you why.
 
-In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angle.
+In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angles.
 
 I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.
+
+== Part 1. Theory
 
 === Quaternion Definition
 
@@ -335,11 +337,78 @@ We use quaternion to represent flip stem:[q_a=(\vec{a},0)], and derive the rule 
 
 We slightly touched quaternion multiplication, and we proved an important equation stem:[{q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}].
 
+== Part 2. Application
+
+In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form stem:[q=(\vec{v},w)] even for unit quaternion instead of stem:[q=(sin⁡\frac{θ}{2}\vec{v},cos⁡\frac{θ}{2})], since it is closed to the actual data format.
+Recall the definition of general quaternion multiplication we mentioned in Part 1. Let stem:[q_a=(\vec{a},0)], stem:[q_b=(\vec{b},0)] then
+
+[stem]
+++++
+{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})
+++++
+
+We will be using this a lot in the following sections.
+The coordinate system we use is Z up and right-handed.
+
+=== Calculation of Vector Rotation
+
+In this section we will derive the formula which most game engine are using to rotate a vector with quaternion. Given a rotation stem:[q=(\vec{v},w)] and vector stem:[\vec{p}], the rotation result is
+
+[stem]
+++++
+\begin{align*}
+\vec{p'}&=q\vec{p}q^{-1}\\
+&=(\vec{v},w)(\vec{p},0)(-\vec{v},w)\\
+&=(w\vec{p}+\vec{v}×\vec{p},-\vec{v}·\vec{p})(-\vec{v},w)\\
+&=((\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p}),0)\\
+\end{align*}
+++++  
+
+Since we only want the vector part
+
+[stem]
+++++
+\vec{p'}=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p})
+++++
+
+Here we need to use the following equation of cross product to simplify the result
+
+[stem]
+++++
+\vec{a}×(\vec{b}×\vec{c})=(\vec{a}·\vec{c})\vec{b}-(\vec{a}·\vec{b})\vec{c}
+++++
+
+So in our case
+[stem]
+++++
+\vec{v}×(\vec{v}×\vec{p})=(\vec{v}·\vec{p})\vec{v}-(\vec{v}·\vec{v})\vec{p}=(\vec{v}·\vec{p})\vec{v}-\left|\vec{v}\right|^{2}\vec{p}
+++++
+
+Remember stem:[q] is unit quaternion, so stem:[\left|\vec{v}\right|^{2}+w^{2}=1]. We have
+
+[stem]
+++++
+\begin{align*}
+\vec{v}×(\vec{v}×\vec{p})&=(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}-\vec{p}\\
+(\vec{v}·\vec{p})\vec{v}++w^{2}\vec{p}&=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
+\end{align*}
+++++  
+
+Now we can simplify our rotation result to get rid of the dot product
+
+[stem]
+++++
+\begin{align*}
+\vec{p'}&=\vec{p}+2w(\vec{v}×\vec{p})+2\vec{v}×(\vec{v}×\vec{p})\\
+&=\vec{p}+2(\vec{v}×(\vec{v}×\vec{p}+w\vec{p}))
+\end{align*}
+++++  
+
 === Appendix: Derive Quaternion Multiplication
 
 This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.
 
-We can actually derive the general quaternion multiplication from this special flip break down. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})] would look like.
+We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(sin⁡\frac{θ_1}{2}\vec{v_1},cos⁡\frac{θ_1}{2})(sin⁡\frac{θ_2}{2}\vec{v_2},cos⁡\frac{θ_2}{2})] would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.
 
 Here are some equations we will be using:
 [stem]
