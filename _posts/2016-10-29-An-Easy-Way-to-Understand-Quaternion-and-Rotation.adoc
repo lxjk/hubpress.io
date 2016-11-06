@@ -36,7 +36,7 @@ It is easy to see the length of this quaternion stem:[\left|q\right|=\sqrt{\sin^
 ****
 This claim actually has 2 sides. Let me go a little be more in details in math term: 
 (1). For any 3D rotation equivalent to a rotation angle stem:[θ] along axis stem:[\vec{v}], there exists a unit quaternion stem:[q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})] to describe this rotation. 
-(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2\cos^{-1}w] along axis stem:[\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}].
+(2). For any unit quaternion stem:[q=(x,y,z,w)], it describes a rotation of angle stem:[θ=2\cos^{-1}w] along axis stem:[\vec{v}=\frac{1}{\sqrt{1-w^{2}}}(x,y,z)].
 
 ****
 ---
@@ -538,9 +538,7 @@ q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
 
 === Derive Quaternion Multiplication
 
-This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.
-
-We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})] would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.
+We can actually derive the general quaternion multiplication from the special flip break down stem:[q_1=-{q_c}{q_a}], stem:[q_2=-{q_b}{q_c}], we used to visualize the result of rotation composition. That is if we define flip multiplication stem:[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})] directly, we can proof what general quaternion multiplication stem:[{q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})] would look like. If you don’t remember this, see “Rotation Composition” section in Part 1.
 
 Here are some equations we will be using:
 [stem]
