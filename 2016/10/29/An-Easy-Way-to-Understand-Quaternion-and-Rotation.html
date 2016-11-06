@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478412085354" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478412085354"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478412445672" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478412445672"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -181,7 +181,7 @@ null
 <div class="paragraph">
 <p>This claim actually has 2 sides. Let me go a little be more in details in math term:
 (1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\) to describe this rotation.
-(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2\cos^{-1}w\) along axis \(\vec{v}=\frac{(x,y,z)}{\sqrt{1-w^{2}}}\).</p>
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2\cos^{-1}w\) along axis \(\vec{v}=\frac{1}{\sqrt{1-w^{2}}}(x,y,z)\).</p>
 </div>
 </div>
 </div>
@@ -833,10 +833,7 @@ q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
 <div class="sect2">
 <h3 id="_derive_quaternion_multiplication">Derive Quaternion Multiplication</h3>
 <div class="paragraph">
-<p>This part is not very important for understanding quaternion. It is a bit calculation heavy and is more for fun. Feel free to skip.</p>
-</div>
-<div class="paragraph">
-<p>We can actually derive the general quaternion multiplication from the special flip break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\), we used to visualize the result of rotation composition. That is if we define flip multiplication \({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\) directly, we can proof what general quaternion multiplication \({q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})\) would look like.If you don’t remember this, see “Rotation Composition” section in Part 1.</p>
+<p>We can actually derive the general quaternion multiplication from the special flip break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\), we used to visualize the result of rotation composition. That is if we define flip multiplication \({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\) directly, we can proof what general quaternion multiplication \({q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})\) would look like. If you don’t remember this, see “Rotation Composition” section in Part 1.</p>
 </div>
 <div class="paragraph">
 <p>Here are some equations we will be using:</p>
@@ -973,7 +970,7 @@ q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478412085354"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478412445672"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
