@@ -1,4 +1,4 @@
-= An Easy Way to Understand Quaternion and Rotation
+= A Different Way to Understand Quaternion and Rotation
 Eric Zhang
 v1.0, 2016-11-06
 :toc: macro
