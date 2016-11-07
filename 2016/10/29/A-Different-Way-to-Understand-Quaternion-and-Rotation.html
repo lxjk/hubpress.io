@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>A Different Way to Understand Quaternion and Rotation - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="A Different Way to Understand Quaternion and Rotation">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="A Different Way to Understand Quaternion and Rotation">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1478490315590" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1478490315590"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+    <link rel="canonical" href="https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="A Different Way to Understand Quaternion and Rotation" />
+    <meta property="og:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
+    <meta property="og:url" content="https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="A Different Way to Understand Quaternion and Rotation" />
+    <meta name="twitter:description" content="Before We Start Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or" />
+    <meta name="twitter:url" content="https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+
+</head>
+<body class="post-template no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game Dev - Tool Dev - Math - Machine Learning -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Oct 29 2016" class="post-meta__date date">Oct 29 2016</time> &#8226; <span class="post-meta__tags tags"></span>
+        <span class="post-meta__author author"><img src="https://avatars.githubusercontent.com/u/3803294?v&#x3D;3" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">A Different Way to Understand Quaternion and Rotation</h1>
+    </header>
+
+    <section class="post">
+      <div class="sect2">
+<h3 id="_before_we_start">Before We Start</h3>
+<div class="paragraph">
+<p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
+</div>
+<div class="paragraph">
+<p>Understanding quaternions also leads to more efficient use of quaternion. For example, one common situation in game development is that we need an object to face its opposite direction. What we usually would do is to get the normal or forward vector, negate it, build a rotation out of it, and assign the rotation to the object. Later in this article we will see how much calculation we need to do in this process. However with the understanding of quaternion, we only need to do \(q=(q.y,-q.x,q.w,-q.z)\), and I will show you why.</p>
+</div>
+<div class="paragraph">
+<p>In this article, I will try to avoid touching the algebra structure of quaternion, or having to imagine a 4 dimensional hyper sphere. I will start with a special rotation operation: flip, and use that to visualize quaternion in a more accessible and geometrical way. This article will be split into 2 parts. In Part 1 we will talk about the idea of quaternion, understand and visualize how it rotates a vector and how to compose rotations. In Part 2 we will talk about how to make use of our understanding in Part 1, and how it is used in game engine versus rotation matrix and Euler angles.</p>
+</div>
+<div class="paragraph">
+<p>I would assume you are comfortable with 3D math (vector dot product and cross product) and basic trigonometry.</p>
+</div>
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel2">
+<li><a href="#_before_we_start">Before We Start</a></li>
+<li><a href="#_part_1_theory">Part 1. Theory</a>
+<ul class="sectlevel2">
+<li><a href="#_quaternion_definition">Quaternion Definition</a></li>
+<li><a href="#_rotation_and_flip">Rotation and Flip</a></li>
+<li><a href="#_quaternion_and_flip">Quaternion and Flip</a></li>
+<li><a href="#_flip_composition">Flip Composition</a></li>
+<li><a href="#_flip_vector">Flip Vector</a></li>
+<li><a href="#_rotate_vector">Rotate Vector</a></li>
+<li><a href="#_rotation_composition">Rotation Composition</a></li>
+<li><a href="#_summary_of_part_1">Summary of Part 1</a></li>
+</ul>
+</li>
+<li><a href="#_part_2_application">Part 2. Application</a>
+<ul class="sectlevel2">
+<li><a href="#_calculation_of_vector_rotation">Calculation of Vector Rotation</a></li>
+<li><a href="#_world_rotation_and_local_rotation">World Rotation and Local Rotation</a></li>
+<li><a href="#_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</a></li>
+<li><a href="#_euler_angles_to_quaternion">Euler Angles to Quaternion</a></li>
+<li><a href="#_quaternion_and_rotation_matrix">Quaternion and Rotation Matrix</a></li>
+<li><a href="#_quaternion_to_euler_angles">Quaternion to Euler Angles</a></li>
+<li><a href="#_summary_of_part_2">Summary of Part 2</a></li>
+</ul>
+</li>
+<li><a href="#_appendix">Appendix</a>
+<ul class="sectlevel2">
+<li><a href="#_derive_quaternion_multiplication">Derive Quaternion Multiplication</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_part_1_theory">Part 1. Theory</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_quaternion_definition">Quaternion Definition</h3>
+<div class="paragraph">
+<p>Quaternion is a 4-tuple denoted as \(q=(x,y,z,w)\). The length of a quaternion is defined as \(\left|q\right| =\sqrt{x^{2}+y^{2}+z^{2}+w^{2}}\), just as you would expected from a 4D vector.</p>
+</div>
+<div class="paragraph">
+<p>In order to represent 3D rotation, we have a constraint on the quaternions we use. But before that I want to introduce Euler’s rotation theorem:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any rotation in 3D space is equivalent to a single rotation of angle \(θ\) along some axis \(\vec{v}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>We can use quaternion to describe this angle-axis rotation : \(q=(\sin⁡\frac{θ}{2}\vec{v}.x,\sin⁡\frac{θ}{2}\vec{v}.y,\sin⁡\frac{θ}{2}\vec{v}.z,\cos⁡\frac{θ}{2})\), or in a more compact form \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\). We call this form the vector form of a quaternion, and we will use this form throughout this article. You might be thinking why we are using \(\frac{θ}{2}\) other than using \(θ\) directly. I will explain that in a later section.</p>
+</div>
+<div class="paragraph">
+<p>It is easy to see the length of this quaternion \(\left|q\right|=\sqrt{\sin^{2}\frac{θ}{2}\left|\vec{v}\right|^{2}+\cos^{2}\frac{θ}{2}}=1\). (Remember the axis \(\vec{v}\) is a unit vector that \(\left|\vec{v}\right|=1\)). We call it a unit quaternion if the length \(\left|q\right|=1\). So we can rewrite Euler’s rotation theorem in quaternion term:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation is equivalent a unit quaternion \(q\) that \(\left|q\right|=1\).</em></strong></p>
+</div>
+<hr>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Side Note</div>
+<div class="paragraph">
+<p>This claim actually has 2 sides. Let me go a little be more in details in math term:
+(1). For any 3D rotation equivalent to a rotation angle \(θ\) along axis \(\vec{v}\), there exists a unit quaternion \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\) to describe this rotation.
+(2). For any unit quaternion \(q=(x,y,z,w)\), it describes a rotation of angle \(θ=2\cos^{-1}w\) along axis \(\vec{v}=\frac{1}{\sqrt{1-w^{2}}}(x,y,z)\).</p>
+</div>
+</div>
+</div>
+<hr>
+<div class="paragraph">
+<p>From now on, any quaternion \(q\) used in this article is by default a unit quaternion, and we will use \(q\) to describe rotations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_and_flip">Rotation and Flip</h3>
+<div class="paragraph">
+<p>Now let’s forget quaternion for a minute, and focus on the nature of rotations. This part is the key to understand quaternion calculation in an easier way.</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation can be composed by 2 flips along some axes.</em></strong></p>
+</div>
+<div class="paragraph">
+<p>The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
+Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation \(q\), which rotates  \(+90^{\circ}\) along axis Z. Now I can say this rotation is the same as 2 flips along axis \(\vec{a}\) and \(\vec{b}\), both of them are on XY plane, and the angle from \(\vec{a}\) to \(\vec{b}\) is \(+45^{\circ}\).</p>
+</div>
+<div class="imageblock" style="text-align: center;float: right">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png" alt="fig1 b.png" width="300">
+</div>
+<div class="title">Figure 1 (b)</div>
+</div>
+<div class="imageblock" style="text-align: center;float: right">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1.png" alt="fig1.png" width="300">
+</div>
+<div class="title">Figure 1 (a)</div>
+</div>
+<div class="paragraph">
+<p>We demonstrate this through Figure 1. For any vector \(\vec{v}\), the result of this rotation is \(\vec{v''}\) , which is the same as flip \(\vec{v}\) along axis \(\vec{a}\) and get \(\vec{v'}\), and then flip \(\vec{v'}\) along axis \(\vec{b}\) and get \(\vec{v''}\).</p>
+</div>
+<div class="paragraph">
+<p>It doesn’t matter where \(\vec{a}\) and \(\vec{b}\) are on the XY plane, but the order must be kept. If we choose \(\vec{b}\) by rotating \(\vec{a}\) along axis Z by \(+45^{\circ}\) with the positive direction we defined above, then we must flip along \(\vec{a}\) first then along \(\vec{b}\) to get our target rotation. The order and the sign of angle is important, as you can easily see flip along \(\vec{b}\) first then along \(\vec{a}\) will give a different result.</p>
+</div>
+<div class="paragraph">
+<p>It’s not hard to generalize to a rotation of any angle \(θ\) along Z axis. And in this case, the angle from \(\vec{a}\) to \(\vec{b}\) is \(\frac{θ}{2}\).</p>
+</div>
+<div class="paragraph">
+<p>What if the axis is not Z axis but any unit vector \(\vec{u}\) ? It turns out to be very straight forward. \(\vec{a}\) and \(\vec{b}\) are no longer on XY plane but on a plane cross the origin and perpendicular to \(\vec{u}\), as in Figure 2.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig2.png" alt="fig2.png" width="400">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>Now we can rewrite our flip composition rule in a more specific form:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation equivalent to rotating angle \(θ\) along axis \(\vec{v}\) can be represented as a sequence of 2 flips along axis \(\vec{a}\) and \(\vec{b}\), such that \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>This representation means if we fully understand flip, which is easier to visualize, we can fully understand rotation and quaternions, since any quaternion can be broken down to flips.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quaternion_and_flip">Quaternion and Flip</h3>
+<div class="paragraph">
+<p>Now let’s recall the quaternion vector form \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\). With the discussion of flips above, you can almost immediately see why we are using \(\frac{θ}{2}\) here.</p>
+</div>
+<div class="paragraph">
+<p>Think about flips again. A flip along axis \(\vec{a}\) is also a \(180^{\circ}\) rotation along axis \(\vec{a}\). So this flip can be represented in quaternion term</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_a=(\sin⁡\frac{180^{\circ}}{2}\vec{a},\cos⁡\frac{180^{\circ}}{2})=(\vec{a},0)\]
+</div>
+</div>
+<div class="paragraph">
+<p>From now on we will use quaternion to represent flip. Actually any unit quaternion with \(q.w=0\) is a flip along axis \((q.x,q.y,q.z)\).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flip_composition">Flip Composition</h3>
+<div class="paragraph">
+<p>Here we need to introduce the multiplication of general quaternion. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>Note here \(q_1\) and \(q_2\) are not necessarily unit quaternion, so even I’m using vector form, there’s no need to put \(\sin⁡\frac{θ}{2}\) and \(\cos⁡\frac{θ}{2}\) as we did for unit quaternions. It’s hard to explain this definition without introducing the algebra structure of quaternions, so I will skip that. If you are interesting to know how this is derived, quaternion <a href="https://en.wikipedia.org/wiki/Quaternion#Definition">Wiki page</a> has a very straight forward introduction.</p>
+</div>
+<div class="paragraph">
+<p>We are not going to use this general quaternion multiplication in Part 1. Here we only need to know a simpler form, the multiplication of flips. Let \(q_a=(\vec{a},0)\), \(q_b=(\vec{b},0)\) then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\]
+</div>
+</div>
+<div class="paragraph">
+<p>It is naturally derived from the general form, and we will be only using this multiplication in Part 1.</p>
+</div>
+<div class="paragraph">
+<p>With flip multiplication defined, we can rewrite our flip composition rule again:</p>
+</div>
+<div class="paragraph">
+<p><strong><em>Any 3D rotation \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that</em></strong></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q=-{q_b}{q_a}\]
+</div>
+</div>
+<div class="paragraph">
+<p><strong><em>where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}\).</em></strong></p>
+</div>
+<div class="paragraph">
+<p>You might be thinking why it is not \(q= {q_a}{q_b}\) instead. We will show where the order and the negative sign coming from in the proof.</p>
+</div>
+<div class="paragraph">
+<p>\(\vec{a}·\vec{b}=\cos&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|=\cos\frac{θ}{2}\). Since \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and \(\left|\vec{v}\right|=1\), we have \(\vec{a}×\vec{b}=\sin&lt;\vec{a},\vec{b}&gt;\left|\vec{a}\right|\left|\vec{b}\right|\vec{v}=\sin\frac{θ}{2}\vec{v}\).</p>
+</div>
+<div class="paragraph">
+<p>If you are not sure about the direction of the cross product, see Figure 2.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\\
+&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&amp;=-(-\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&amp;=(\vec{b}×\vec{a},-\vec{a}·\vec{b})\\
+&amp;=-{q_b}{q_a}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here you can also clearly see why we are using \(\sin⁡\frac{θ}{2}\) and \(\cos⁡\frac{θ}{2}\) in quaternions.</p>
+</div>
+<div class="paragraph">
+<p>One thing I need to mention here is the negation of a quaternion. \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\), then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{-q}&amp;=(-\sin⁡\frac{θ}{2}\vec{v},-\cos⁡\frac{θ}{2})\\
+&amp;=(-\sin⁡\frac{2π-θ}{2}\vec{v},\cos⁡\frac{2π-θ}{2})\\
+&amp;=(\sin⁡\frac{-(2π-θ)}{2}\vec{v},\cos⁡\frac{-(2π-θ)}{2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Recall that \(\sin⁡θ=\sin(π-θ)\) and \(-\cos⁡θ=\cos(π-θ)\), then \(-\sin⁡θ=\sin(-θ)\) and \(\cos⁡θ=\cos(-θ)\).</p>
+</div>
+<div class="paragraph">
+<p>It shows that \(-q\) is a rotation along axis \(\vec{v}\) of angle \(-(2π-θ)\), which is exactly the same rotation as \(q\). For example if \(θ=90^{\circ}\) then \(-(2π-θ)=-270^{\circ}\), rotate \(90^{\circ}\) along axis \(\vec{v}\) is the same as rotate \(270^{\circ}\) degree but in the opposite direction along the same axis \(\vec{v}\).</p>
+</div>
+<div class="paragraph">
+<p>The fact that \(q\) and \(–q\) represents the same rotation is usually called double-cover. However in our calculation I don’t want you to simply think \(q\) and \(–q\) are the same. They are different in quaternion space, even though they map to the same 3D rotation. The negative sign of the flip composition needs to be there.</p>
+</div>
+<div class="paragraph">
+<p>The order of \(q=-{q_b}{q_a}\) on the right hand side is important. It means flip along \(\vec{a}\) first and then \(\vec{b}\). Actually all unit quaternion multiplication needs to be “read” from right to left when we are thinking about the order of applying those rotations.</p>
+</div>
+<hr>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Side Note</div>
+<div class="paragraph">
+<p>We can however get rid of the negative sign by choosing \(\vec{a}\) and \(\vec{b}\) differently.</p>
+</div>
+<div class="paragraph">
+<p><em>Any 3D rotation \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\) can be represented as a sequence of 2 flips \(q_a=(\vec{a},0)\) and \(q_b=(\vec{b},0)\), such that
+\(q={q_b}{q_a}\)
+where \(\vec{a}·\vec{v}=0\), \(\vec{b}·\vec{v}=0\) and the angle from \(\vec{a}\) to \(\vec{b}\): \(&lt;\vec{a},\vec{b}&gt;=\frac{θ}{2}-π\).</em></p>
+</div>
+<div class="paragraph">
+<p>It becomes harder to visualize \(\vec{a}\) and \(\vec{b}\) if we go this way, and the negative sign does not really introduce a lot of difficulties, so we will stick with that negative sign in this article.</p>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div class="sect2">
+<h3 id="_flip_vector">Flip Vector</h3>
+<div class="paragraph">
+<p>Given a flip \(q_a=(\vec{a},0)\) and vector \(\vec{v}\), we are ready to calculate the result of the flip \(\vec{v'}\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig3.png" alt="fig3.png" width="400">
+</div>
+<div class="title">Figure 3</div>
+</div>
+<div class="paragraph">
+<p>According to flip definition, \(\vec{v}\), \(\vec{a}\) and \(\vec{v'}\) are on the same plane, and the angle \(&lt;\vec{v},\vec{a}&gt;=&lt;\vec{a},\vec{v'}&gt;\).</p>
+</div>
+<div class="paragraph">
+<p>If we treat \(\vec{v}\) and \(\vec{v'}\) as the axis of flip \(q_v=(\vec{v},0)\) and \(q_v'=(\vec{v'},0)\). From our flip composition rule, flipping along axis \(\vec{v}\) then \(\vec{a}\) should give us the same rotation as flipping along axis \(\vec{a}\) then \(\vec{v'}\).</p>
+</div>
+<div class="paragraph">
+<p>We can actually calculate the result rotation. Let \(&lt;\vec{v},\vec{a}&gt;=&lt;\vec{a},\vec{v'}&gt;=\frac{θ}{2}\), \(\vec{u}=\frac{\vec{v}×\vec{a}}{\left|\vec{v}×\vec{a}\right|}=\frac{\vec{a}×\vec{v'}}{\left|\vec{a}×\vec{v'}\right|}\). Then the result rotation is of angle \(θ\) along axis \(\vec{u}\).</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\\
+&amp;=-{q_a}{q_v}\\
+&amp;=-{q_v'}{q_a}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This gives \({q_v'}{q_a}={q_a}{q_v}\).</p>
+</div>
+<div class="paragraph">
+<p>(Here \(\left|\vec{v}×\vec{a}\right|=\left|\vec{a}×\vec{v'}\right|=\sin\frac{θ}{2}\).If you are not sure what’s going on here, go back <a href="#_flip_composition">Flip Composition</a> and read the proof)</p>
+</div>
+<div class="paragraph">
+<p>Now we need to introduce the inverse of a quaternion. The inverse of \(q\) is denoted as \(q^{-1}\), such that \(qq^{-1}=q^{-1}q=(\vec{0},1)\).</p>
+</div>
+<div class="paragraph">
+<p>\(I=(\vec{0},1)\) is called identity quaternion, means no rotation at all. You can think of \(I=(\sin⁡0\vec{v},\cos⁡0)\), which means rotating \(0^{\circ}\) along any axis \(\vec{v}\). We haven’t gone into quaternion multiplication or rotation composition, but it’s not hard to see for any quaternion \(q\), \(qI=Iq=q\).</p>
+</div>
+<div class="paragraph">
+<p>In the case of unit quaternion, the idea of inversed quaternion is if you apply a rotation, then apply its inverse, the result should be no rotation at all. And it is the same if you apply an inversed rotation then apply the original one.</p>
+</div>
+<div class="paragraph">
+<p>For any unit quaternion \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\), then \(q^{-1}=(-\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\). You can understand this in two ways, either \(q^{-1}=(\sin⁡\frac{θ}{2}(-\vec{v}),\cos⁡\frac{θ}{2})\) or \(q^{-1}=(\sin⁡\frac{-θ}{2}\vec{v},\cos⁡\frac{-θ}{2})\). \(q^{-1}\) is either a rotation of angle \(θ\) along axis \(-\vec{v}\), or a rotation of angle \(–θ\) along axis \(\vec{v}\). Either way it will cancel out the original rotation.</p>
+</div>
+<div class="paragraph">
+<p>I will give a quick proof in the case of flip. You can try extend this proof to general unit quaternion. If \(q_a=(\vec{a},0)\), \(q_a^{-1}=(-\vec{a},0)\), we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_a}{q_a^{-1}}=(\vec{a}×-\vec{a},-(\vec{a}·-\vec{a}))=(\vec{0},1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>(Make sure you understand the difference between \(q^{-1}\) and \(–q\). Read <a href="#_flip_composition">Flip Composition</a> about quaternion negation if you are not sure.)</p>
+</div>
+<div class="paragraph">
+<p>We can go back to previous result of flipping vector \({q_v'}{q_a}={q_a}{q_v}\). Apply inverse flip of \(q_a\) on both side, the equation becomes</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_v'}{q_a}{q_a^{-1}}&amp;={q_a}{q_v}{q_a^{-1}}\\
+q_v'&amp;={q_a}{q_v}{q_a^{-1}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This provides us a way to calculate the result of flip. Since we only need the vector part of the result, we can denote this as</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v'}={q_a}\vec{v}{q_a^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>When we put a vector \(\vec{v}\) in quaternion multiplication, we are implicitly making that vector the axis of a flip to stuff it into a quaternion \((\vec{v},0)\). This is how the “sandwich” multiplication form comes from, but only in the form of flip. We will prove that our result holds the same for any rotation in the next section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotate_vector">Rotate Vector</h3>
+<div class="paragraph">
+<p>We know any 3D rotation \(q\) can be broken down into 2 flips \(q= -{q_b}{q_a}\), which means flipping along \(\vec{a}\) first and then \(\vec{b}\). So for a vector \(\vec{v}\), we apply the first flip and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v'}={q_a}\vec{v}{q_a^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Then we apply the second flip \(\vec{v'}\) and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v''}={q_b}\vec{v'}{q_b^{-1}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>So the final result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v''}&amp;={q_b}{q_a}\vec{v}{q_a^{-1}}{q_b^{-1}}\\
+&amp;=({q_b}{q_a})\vec{v}({q_b}{q_a})^{-1}\\
+&amp;=(-q)\vec{v}(-q^{-1})\\
+&amp;=q\vec{v}q^{-1}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here you can see why \(q= -{q_b}{q_a}\) needs to be in this order.</p>
+</div>
+<div class="paragraph">
+<p>One thing we need to prove</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_a^{-1}}{q_b^{-1}}&amp;=(-\vec{a},0)(-\vec{b},0)\\
+&amp;=(-\vec{a}×-\vec{b},-(-\vec{a})·(-\vec{b}))\\
+&amp;=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\\
+&amp;=(-\vec{b}×\vec{a},-\vec{b}·\vec{a})\\
+&amp;=({q_b}{q_a})^{-1}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>At this point, we fully explained how to rotate a vector using quaternion.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_composition">Rotation Composition</h3>
+<div class="paragraph">
+<p>Given rotation \(q_1\) and \(q_2\), from the formula in the previous section, if we rotate vector \(\vec{v}\) by \(q_1\) first then by \(q_2\), we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v'}&amp;={q_1}\vec{v}{q_1^{-1}}\\
+\vec{v''}&amp;={q_2}\vec{v'}{q_2^{-1}}\\
+&amp;={q_2}{q_1}\vec{v}{q_1^{-1}}{q_2^{-1}}\\
+&amp;=({q_2}{q_1})\vec{v}({q_2}{q_1})^{-1}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>It is the same as apply the combined rotation \(q={q_2}{q_1}\). Be careful about the multiplication order.</p>
+</div>
+<div class="paragraph">
+<p>Again we need to prove \({q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}\), but we will do this later. This equation is actually very easy to understand in geometric term. We have a combined rotation \(q={q_2}{q_1}\) that rotates \(q_1\) first then rotates \(q_2\). If we want to undo this rotation, which means apply the inverse \(q^{-1}=({q_2}{q_1})^{-1}\), we need to undo \(q_2\) first then undo \(q_1\), that is effectively \(q_1^{-1}q_2^{-1}\).</p>
+</div>
+<div class="paragraph">
+<p>What does it really mean to combine 2 rotations, can we visualize the rotation axis and angle of the result? By converting rotations to flips we actually do that.</p>
+</div>
+<div class="paragraph">
+<p>Let \(q_1=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})\), \(q_2=(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})\), we need to choose a special flip break down, such that they share one flip: \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\).</p>
+</div>
+<div class="paragraph">
+<p>Can we find such a break down? Remember the rule of flip composition requires the flip axis to be perpendicular to the rotation axis, that is \(\vec{c}·\vec{v_1}=0\), \(\vec{c}·\vec{v_2}=0\), we can choose \(\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}\).</p>
+</div>
+<div class="paragraph">
+<p>Based on \(\vec{c}\) we can find out the other two axes: rotate \(\vec{c}\) along axis \(\vec{v_1}\) by angle \(-\frac{θ_1}{2}\) results in \(\vec{a}\); rotate \(\vec{c}\) along axis \(\vec{v_2}\) by angle \(\frac{θ_2}{2}\) results in \(\vec{b}\). This process is demonstrated in Figure 4.</p>
+</div>
+<div class="paragraph">
+<p>Now we have \(\vec{a}·\vec{v_1}=0\), \(\vec{c}·\vec{v_1}=0\), \(&lt;\vec{a},\vec{c}&gt;=\frac{θ_1}{2}\) and \(\vec{c}·\vec{v_2}=0\), \(\vec{b}·\vec{v_2}=0\), \(&lt;\vec{c},\vec{b}&gt;=\frac{θ_2}{2}\). Our break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\) is valid. The combined rotation can be written as</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;={q_2}{q_1}\\
+&amp;=(-{q_b}{q_c})(-{q_c}{q_a})\\
+&amp;={q_b}({q_c}{q_c}){q_a}\\
+&amp;=-{q_b}{q_a}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here we need to prove this</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_c}{q_c}=(\vec{c},0)(\vec{c},0)=(\vec{c}×\vec{c},-(\vec{c}·\vec{c}))=(\vec{0},-1)=-I\]
+</div>
+</div>
+<div class="paragraph">
+<p>It shows that the combined rotation can be composed by flip \(q_a\) and \(q_b\), which tells the combined rotation is a rotation of angle \(2&lt;\vec{a},\vec{b}&gt;\) along axis \(\vec{u}=\frac{\vec{a}×\vec{b}}{\left|\vec{a}×\vec{b}\right|}\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig4.png" alt="fig4.png" width="400">
+</div>
+<div class="title">Figure 4</div>
+</div>
+<div class="paragraph">
+<p>In Figure 4, Blue plane is based on \(\vec{v_1}\) and \(\vec{v_1}\), \(\vec{c}\) is perpendicular to that plane.
+Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \(\vec{u}\) is perpendicular to that plane.</p>
+</div>
+<div class="paragraph">
+<p>With the same method, let’s prove the thing we left out:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_1^{-1}}{q_2^{-1}}&amp;=(-{q_c}{q_a})^{-1}(-{q_b}{q_c})^{-1}\\
+&amp;={q_a^{-1}}{q_c^{-1}}{q_c^{-1}}{q_b^{-1}}\\
+&amp;=-{q_a^{-1}}{q_b^{-1}}\\
+&amp;=(-{q_b}{q_a})^{-1}\\
+&amp;=({q_b}{q_c}{q_c}{q_a})^{-1}\\
+&amp;=({q_2}{q_1})^{-1}\\
+\end{align*}\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary_of_part_1">Summary of Part 1</h3>
+<div class="paragraph">
+<p>In Part 1, we covered the definition of quaternion \(q=(x,y,z,w)\), the vector form of quaternion \(q=(\vec{v},w)\), unit quaternion \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\) and how it is used to represent a rotation.</p>
+</div>
+<div class="paragraph">
+<p>We also talked about negation of quaternion \(–q\), and its double cover property; the inverse of quaternion \(q^{-1}\) and identity quaternion \(I=(\vec{0},1)\).</p>
+</div>
+<div class="paragraph">
+<p>We use quaternion to represent flip \(q_a=(\vec{a},0)\), and derive the rule of flip composition \(q=-{q_b}{q_a}\). Based on this rule, we visualized and proved how quaternion rotates a vector by \(\vec{v'}=q\vec{v}q^{-1}\) and how rotation gets composed by \(q={q_2}{q_1}\).</p>
+</div>
+<div class="paragraph">
+<p>We slightly touched quaternion multiplication, and we proved an important equation \({q_1^{-1}}{q_2^{-1}}=({q_2}{q_1})^{-1}\).</p>
+</div>
+<div class="paragraph">
+<p>Hopefully you have a clear idea to think in quaternions now before we head to the application part. Although I’m not going to discuss quaternion’s algebra structure, it definitely helps deepening your understanding. If you are interested to know, quaternion <a href="https://en.wikipedia.org/wiki/Quaternion#Definition">Wiki page</a> is a good resource.</p>
+</div>
+<div class="paragraph">
+<p>It also provides a good way to visualize a quaternion in 4D <a href="https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Quaternion_rotation_operations">here</a>. Our idea of breaking down rotations into 2 flips essentially means all quaternions in 4D space can be generated by elements in it’s largest 3D sub-space  \(\left\{q.w=0\right\}\), and all elements in this sub-space are flips.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_part_2_application">Part 2. Application</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In Part 2 we will be talking about using quaternion to solve real problems in programming. I will be using general vector form \(q=(\vec{v},w)\) even for unit quaternion instead of \(q=(\sin⁡\frac{θ}{2}\vec{v},\cos⁡\frac{θ}{2})\), since it is closed to the actual data format.</p>
+</div>
+<div class="paragraph">
+<p>Recall the definition of general quaternion multiplication we mentioned in Part 1. Let \(q_1=(\vec{v_1},w_1)\), \(q_2=(\vec{v_2},w_2)\) then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{q_1}{q_2}=(\vec{v_1},w_1)(\vec{v_2},w_2)=(w_1\vec{v_2} + w_2\vec{v_1} + \vec{v_1}×\vec{v_2}, {w_1}{w_2}-\vec{v_1}·\vec{v_2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>We will be using this a lot in the following sections.</p>
+</div>
+<div class="paragraph">
+<p>The coordinate system we use is Z up and right-handed.</p>
+</div>
+<div class="sect2">
+<h3 id="_calculation_of_vector_rotation">Calculation of Vector Rotation</h3>
+<div class="paragraph">
+<p>In this section we will derive the formula which most game engine are using to rotate a vector with quaternion. Given a rotation \(q=(\vec{v},w)\) and vector \(\vec{p}\), the rotation result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{p'}&amp;=q\vec{p}q^{-1}\\
+&amp;=(\vec{v},w)(\vec{p},0)(-\vec{v},w)\\
+&amp;=(w\vec{p}+\vec{v}×\vec{p},-\vec{v}·\vec{p})(-\vec{v},w)\\
+&amp;=((\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p}),0)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Since we only want the vector part</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{p'}=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}+2w(\vec{v}×\vec{p})+\vec{v}×(\vec{v}×\vec{p})\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here we need to use the following equation of cross product to simplify the result</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{a}×(\vec{b}×\vec{c})=(\vec{a}·\vec{c})\vec{b}-(\vec{a}·\vec{b})\vec{c}\]
+</div>
+</div>
+<div class="paragraph">
+<p>So in our case</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{v}×(\vec{v}×\vec{p})=(\vec{v}·\vec{p})\vec{v}-(\vec{v}·\vec{v})\vec{p}=(\vec{v}·\vec{p})\vec{v}-\left|\vec{v}\right|^{2}\vec{p}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember \(q\) is unit quaternion, so \(\left|\vec{v}\right|^{2}+w^{2}=1\). We have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{v}×(\vec{v}×\vec{p})&amp;=(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}-\vec{p}\\
+(\vec{v}·\vec{p})\vec{v}+w^{2}\vec{p}&amp;=\vec{v}×(\vec{v}×\vec{p})+\vec{p}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can simplify our rotation result to get rid of the dot product</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{p'}&amp;=\vec{p}+2w(\vec{v}×\vec{p})+2\vec{v}×(\vec{v}×\vec{p})\\
+&amp;=\vec{p}+2(\vec{v}×(\vec{v}×\vec{p}+w\vec{p}))
+\end{align*}\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_world_rotation_and_local_rotation">World Rotation and Local Rotation</h3>
+<div class="paragraph">
+<p>Let’s look at rotation composition again. The combined rotation \(q={q_2}{q_1}\) means rotating \(q_1\) first then \(q_2\). This right to left order only holds when \(q_2\) is a world rotation, or in another term the rotation axis \(\vec{v_2}\) of \(q_2\) is in world space. Then what if \(q_2\) is a local rotation, which means the rotation axis \(\vec{v_2}\) of \(q_2\) is in the local space after \(q_1\) rotation.</p>
+</div>
+<div class="paragraph">
+<p>As an example of local rotation, imagine yourself lying down on the ground and facing up, now flip around to face the ground. What you just did is a \(180^{\circ}\) local rotation along Z axis. The rotation axis is not the world Z axis (which will be the up direction) but your local Z axis.</p>
+</div>
+<div class="paragraph">
+<p>If we have an object with rotation \({q_1}=(\vec{v_1},{w_1})\), now we want to apply a local rotation \({q_{2L}}=(\vec{v_2},{w_2})\). We can convert the local rotation \(q_{2L}\) to world rotation \(q_{2W}\) by converting its rotation axis into world space. Since \(\vec{v_2}\) is in local space of \(q_1\), converting it into world space means rotating it by \(q_1\), so the world space rotation axis is \(\vec{v_{2W}}={q_1}\vec{v_2}{q_1}^{-1}\).</p>
+</div>
+<div class="paragraph">
+<p>(Technically the rotation axis is \(\frac{\vec{v_2}}{\left|\vec{v_2}\right|}\), but since rotation angle is the same for local and world space, \(\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}\), we can just use \(\vec{v_2}\) in the calculation).</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_{2W}}&amp;=(\vec{v_{2W}},{w_2})\\
+&amp;=(\vec{v_{2W}},0)+(\vec{0},{w_2})\\
+&amp;={q_1}(\vec{v_2},0){q_1}^{-1}+{q_1}(\vec{0},{w_2}){q_1}^{-1}\\
+&amp;={q_1}(\vec{v_2},{w_2}){q_1}^{-1}\\
+&amp;={q_1}{q_{2L}}{q_1}^{-1}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This equation tells us to convert a local rotation to world rotation, we can do the same as rotating a vector by using “sandwich” multiplication \({q_{2W}}={q_1}{q_{2L}}{q_1}^{-1}\). It also makes sense in geometric term. If we undo \(q_1\), now local space and world space are the same, we can then apply \(q_{2L}\) and apply \(q_1\) again to get the world rotation we want.</p>
+</div>
+<div class="paragraph">
+<p>One thing I need to prove here</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{q_1}(\vec{0},{w_2}){q_1}^{-1}&amp;=(\vec{v_1},{w_1})(\vec{0},{w_2})(-\vec{v_1},{w_1})\\
+&amp;=({w_2}\vec{v_1},{w_1}{w_2})(-\vec{v_1},{w_1})\\
+&amp;=(\vec{0},{w_2}(\left|\vec{v_1}\right|^{2}+{w_1}^{2}))\\
+&amp;=(\vec{0},{w_2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>With the world rotation \(q_{2W}\) calculated, result of combined rotation is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;={q_{2W}}{q_1}\\
+&amp;={q_1}{q_{2L}}{q_1}^{-1}{q_1}\\
+&amp;={q_1}{q_{2L}}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This means when we rotate \(q_1\) then rotate \(q_2\), if \(q_2\) is in world space, then combined rotation is \(q={q_2}{q_1}\) (right to left); if \(q_2\) is in local space of \(q_1\), the combined rotation is \(q={q_1}{q_2}\) (left to right).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_rotation_along_x_y_z_axis">Rotation along X/Y/Z Axis</h3>
+<div class="paragraph">
+<p>We can now go back to the problem I mentioned at the very beginning: we need an object to face its opposite direction. More clearly we have an object with rotation \(q=((x,y,z),w)\), and we want to flip it along local Z axis, that is rotate it \(180^{\circ}\) along its local Z axis. This extra rotation is denoted as \(q'=((0,0,\sin\frac{180^{\circ}}{2}),\cos\frac{180^{\circ}}{2})=((0,0,1),0)\). Based on local rotation composition we proved in previous section, the result is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_Z=qq'=((x,y,z),w)((0,0,1),0)=((y,-x,w),-z)\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we generalize the angle to \(θ\), then \(q'=((0,0,\sin\frac{θ}{2}),\cos\frac{θ}{2})\), then the result is:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(Z,θ)}=qq'&amp;=((x,y,z),w)((0,0,\sin\frac{θ}{2},\cos\frac{θ}{2})\\
+&amp;=((x,y,z),w)(((0,0,0),1)\cos\frac{θ}{2}+((0,0,1),0)\sin\frac{θ}{2})\\
+&amp;=((x,y,z),w)\cos\frac{θ}{2}+((y,-x,w),-z)\sin\frac{θ}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we want to flip along world Z axis instead, we just need to change the multiplication order:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_Z=q'q=((0,0,1),0)((x,y,z),w)=((-y,x,w),-z)\]
+</div>
+</div>
+<div class="paragraph">
+<p>We can use the same method to generalize the angle to \(θ\), and let \(q'=((0,0,\sin\frac{θ}{2}),\cos\frac{θ}{2})\),</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q_{(Z,θ)}=q'q=((x,y,z),w)\cos\frac{θ}{2}+((-y,x,w),-z)\sin\frac{θ}{2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>It is easy to extend the result to X and Y axis. I list the result summary as the following.</p>
+</div>
+<div class="paragraph">
+<p>Flip along local axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_X&amp;=(w,z,-y,-x)\\
+q_Y&amp;=(-z,w,x,-y)\\
+q_Z&amp;=(y,-x,w,-z)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Rotate \(θ\) along local axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,z,-y,-x)\sin\frac{θ}{2}\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-z,w,x,-y)\sin\frac{θ}{2}\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(y,-x,w,-z)\sin\frac{θ}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Flip along world axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_X&amp;=(w,-z,y,-x)\\
+q_Y&amp;=(z,w,-x,-y)\\
+q_Z&amp;=(-y,x,w,-z)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Rotate \(θ\) along world axis:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q_{(X,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(w,-z,y,-x)\sin\frac{θ}{2}\\
+q_{(Y,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(z,w,-x,-y)\sin\frac{θ}{2}\\
+q_{(Z,θ)}=(x,y,z,w)\cos\frac{θ}{2}+(-y,x,w,-z)\sin\frac{θ}{2}\\
+\end{align*}\]
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_euler_angles_to_quaternion">Euler Angles to Quaternion</h3>
+<div class="paragraph">
+<p>Quaternion is an instruction for rotation: rotate angle \(θ\) along axis \(\vec{v}\). Euler angles is a sequence of 3 instructions: rotate yaw angle along world axis Z, then rotate pitch angle along local axis Y, then rotate roll angle along local axis X.</p>
+</div>
+<div class="paragraph">
+<p>It is very natural to see how Euler angles can be converted to quaternion. If we use \(Y,P,R\) for angle yaw pitch and roll, then these 3 rotations to can be denoted in quaternion \(q_Y=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})\), \(q_P=(0,\sin\frac{P}{2},0,\cos\frac{P}{2})\), \(q_R=(\sin\frac{R}{2},0,0,\cos\frac{R}{2})\). Since pitch and roll are local rotations, the combined rotation will be</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[q={q_Y}{q_P}{q_R}=(0,0,\sin\frac{Y}{2},\cos\frac{Y}{2})(0,\sin\frac{P}{2},0,\cos\frac{P}{2})(\sin\frac{R}{2},0,0,\cos\frac{R}{2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>Solving this we have the conversion from Euler angles to quaternion.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+x&amp;=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&amp;=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Converting quaternion to Euler angles, however, is tricky. It is easier if we convert quaternion to rotation matrix first then convert the rotation matrix to Euler angles, than trying to obtain the conversion directly. We will talk about this after the next section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quaternion_and_rotation_matrix">Quaternion and Rotation Matrix</h3>
+<div class="paragraph">
+<p>If we say quaternion is an instruction, Euler angles are 3 instructions, then the rotation matrix stores the rotation result directly. Remember each row of the rotation matrix is the X, Y, Z axis after this rotation, which means given a rotation \(q=(x,y,z,w)\), it’s corresponding rotation matrix is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} \vec{X'} \\ \vec{Y'} \\ \vec{Z'} \end{array} \right]=\left[ \begin{array}{} q\vec{X}q^{-1} \\ q\vec{Y}q^{-1} \\ q\vec{Z}q^{-1} \end{array}  \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>By calculating the rotation result of the 3 axes, we get the conversion from quaternion to rotation matrix</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M = \left[ \begin{array}{} 1-2y^{2}-2z^{2} &amp; 2xy+2zw &amp; 2xz-2yw \\ 2xy-2zw &amp; 1-2x^{2}-2z^{2} &amp; 2yz+2xw \\ 2xz+2yw &amp; 2yz-2xw &amp; 1-2x^{2}-2y^{2} \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>To convert from rotation matrix to quaternion, we can sum up diagonal elements of the matrix and get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}+M_{22}+M_{33}=3-4x^{2}-4y^{2}-4z^{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember as a unit quaternion \(x^{2}+y^{2}+z^{2}+w^{2}=1\),</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}+M_{22}+M_{33}= 4w^{2}-1\\
+w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly we can obtain \(x,y,z\) by</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_{11}-M_{22}-M_{33}= 4x^{2}-1\\
+M_{22}-M_{33}-M_{11}= 4y^{2}-1\\
+M_{33}-M_{11}-M_{22}= 4z^{2}-1\\
+x=\frac{1}{2}\sqrt{M_{11}-M_{22}-M_{33}+1}\\
+y=\frac{1}{2}\sqrt{M_{22}-M_{33}-M_{11}+1}\\
+z=\frac{1}{2}\sqrt{M_{33}-M_{11}-M_{22}+1}\\\]
+</div>
+</div>
+<div class="paragraph">
+<p>We can avoid calculating square root 4 times, by using the element we already calculated. Say we calculate \(w=\frac{1}{2}\sqrt{M_{11}+M_{22}+M_{33}+1}\) first, then we can get \(x,y,z\) by</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[x=\frac{1}{4w}(M_{23}-M_{32})\\
+y=\frac{1}{4w}(M_{31}-M_{13})\\
+z=\frac{1}{4w}(M_{12}-M_{21})\\\]
+</div>
+</div>
+<div class="paragraph">
+<p>You need to be careful if the value of \(w\) is closed to 0 (means \(M_{11}+M_{22}+M_{33}+1\) is closed to 0, no need to do square root).  In this case you want to calculate one of \(x,y,z\) instead. You can simply choose the one has the largest absolute value, and calculate the other 3 elements in a similar fashion.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quaternion_to_euler_angles">Quaternion to Euler Angles</h3>
+<div class="paragraph">
+<p>Before we try to convert quaternion to Euler angles, let’s review how Euler angles can be converted to rotation matrix. As we know Euler angles are 3 instructions, it could be viewed as 3 rotation matrix:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M_R = \left[ \begin{array}{} 1 &amp; 0 &amp; 0 \\ 0 &amp; \cos{R} &amp; \sin{R} \\ 0 &amp; -\sin{R} &amp; \cos{R} \\ \end{array} \right],
+M_P = \left[ \begin{array}{} \cos{P} &amp; 0 &amp; -\sin{P} \\ 0 &amp; 1 &amp; 0 \\ \sin{P} &amp; 0 &amp; \cos{P} \\ \end{array} \right],
+M_Y = \left[ \begin{array}{} \cos{Y} &amp; \sin{Y} &amp; 0 \\ -\sin{Y} &amp; \cos{Y} &amp; 0 \\ 0 &amp; 0 &amp; 1 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>The result rotation matrix is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M={M_R}{M_P}{M_Y}=\left[ \begin{array}{} \cos{P}\cos{Y} &amp; \cos{P}\sin{Y} &amp; -\sin{P} \\ \sin{R}\sin{P}\cos{Y}-\cos{R}\sin{Y} &amp; \sin{R}\sin{P}\sin{Y}+\cos{R}\cos{Y} &amp; \sin{R}\cos{P} \\ \cos{R}\sin{P}\cos{Y}+\sin{R}\sin{Y} &amp; \cos{R}\sin{P}\sin{Y}-\sin{R}\cos{Y} &amp; \cos{R}\cos{P} \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>You can also derive this by converting Euler angles to quaternion, then quaternion to rotation matrix, and by applying trigonometric double-angle formula you should get the same result.</p>
+</div>
+<div class="paragraph">
+<p>If you put this result side by side with our quaternion to rotation matrix conversion, which I put here again for reference.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M = \left[ \begin{array}{} 1-2y^{2}-2z^{2} &amp; 2xy+2zw &amp; 2xz-2yw \\ 2xy-2zw &amp; 1-2x^{2}-2z^{2} &amp; 2yz+2xw \\ 2xz+2yw &amp; 2yz-2xw &amp; 1-2x^{2}-2y^{2} \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>You can easily spot this:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\cos{P}\cos{Y}&amp;=1-2y^{2}-2z^{2}\\
+\cos{P}\sin{Y}&amp;=2xy+2zw\\
+-\sin{P}&amp;=2xz-2yw\\
+\sin{R}\cos{P}&amp;=2yz+2xw\\
+\cos{R}\cos{P}&amp;=1-2x^{2}-2y^{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can write down the conversion from quaternion to Euler angles</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+P&amp;=\mathrm{asin}(-2xy+2yw)\\
+Y&amp;=\mathrm{atan2}(2xy+2zw,1-2y^{2}-2z^{2})\\
+R&amp;=\mathrm{atan2}(2yz+2xw,1-2x^{2}-2y^{2})\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>However we still have a problem when pitch is near \(90^{\circ}\) or \(-90^{\circ}\). This is called singularity. This issue is explained more in <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/">this website</a>. In this case \(\cos{⁡P}=0,\sin{⁡P}=1\) or \(\cos{⁡P}=0,\sin{⁡}P=-1\), and the rotation matrix becomes:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+M_{90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; -1 \\ \sin{R}\cos{Y}-\cos{R}\sin{Y} &amp; \sin{R}\sin{Y}+\cos{R}\cos{Y} &amp; 0 \\ \cos{R}\cos{Y}+\sin{R}\sin{Y} &amp; \cos{R}\sin{Y}-\sin{R}\cos{Y} &amp; 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 &amp; 0 &amp; -1 \\ \sin(R-Y) &amp; \cos(R-Y) &amp; 0 \\ \cos(R-Y) &amp; -\sin(R-Y) &amp; 0 \\ \end{array} \right]\\
+M_{-90^{\circ}}&amp;=\left[ \begin{array}{} 0 &amp; 0 &amp; 1 \\ -\sin{R}\cos{Y}-\cos{R}\sin{Y} &amp; -\sin{R}\sin{Y}+\cos{R}\cos{Y} &amp; 0 \\ -\cos{R}\cos{Y}+\sin{R}\sin{Y} &amp; -\cos{R}\sin{Y}-\sin{R}\cos{Y} &amp; 0 \\ \end{array} \right] = \left[ \begin{array}{} 0 &amp; 0 &amp; 1 \\ -\sin(R+Y) &amp; \cos(R+Y) &amp; 0 \\ -\cos(R+Y) &amp; -\sin(R+Y) &amp; 0 \\ \end{array} \right]\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>The formula we used to calculate yaw and roll becomes \(\mathrm{atan2}(0,0)\), which will give an invalid value.</p>
+</div>
+<div class="paragraph">
+<p>We need to go a different way, recall the conversion from Euler angles to quaternion.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+x&amp;=\sin\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}-\cos\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+y&amp;=\cos\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}\\
+z&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\sin\frac{Y}{2}-\sin\frac{R}{2}\sin\frac{P}{2}\cos\frac{Y}{2}\\
+w&amp;=\cos\frac{R}{2}\cos\frac{P}{2}\cos\frac{Y}{2}+\sin\frac{R}{2}\sin\frac{P}{2}\sin\frac{Y}{2}\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>If \(P=90^{\circ}\), then \(x=-z=\frac{\sqrt{2}}{2}\sin\frac{R-Y}{2}\), \(y=w=\frac{\sqrt{2}}{2}\cos\frac{R-Y}{2}\), then we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[R-Y=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly, if \(P=-90^{\circ}\), then \(x=z=\frac{\sqrt{2}}{2}\sin\frac{R+Y}{2}\), \(-y=w=\frac{\sqrt{2}}{2}\cos\frac{R+Y}{2}\), then we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[R+Y=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Imagine an airplane facing straight up or down, yaw and roll basically means rotating along the same axis. We can simply let yaw be zero, and only calculate roll. So if \(P≈±90^{\circ}\), then</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[Y=0, R=2\mathrm{atan2}(x,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Finally, since \(\sin{⁡P}=-2xz+2yw\), we only need to test \(-2xz+2yw≈±1\) to test if pitch is near \(±90^{\circ}\).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_summary_of_part_2">Summary of Part 2</h3>
+<div class="paragraph">
+<p>In Part 2 we talked about different multiplication order for combining world rotations or local rotations.</p>
+</div>
+<div class="paragraph">
+<p>We derive the formula to calculate the result of rotating a vector by a quaternion. We also find out a quick way to apply rotation along X/Y/Z axis.</p>
+</div>
+<div class="paragraph">
+<p>We discussed conversion between quaternion, Euler angles and rotation matrix.</p>
+</div>
+<div class="paragraph">
+<p>As you can see whenever you get or set Euler angles in the game engine, you are doing a conversion from or to quaternion, and there will be trigonometric calculation involved. Try to avoid them if you can do quaternion calculation directly.</p>
+</div>
+<div class="paragraph">
+<p>Also some systems use left-handed or Y up coordinate, or have different Euler angles convention. Be sure you understand the system you are using, since quaternion and Euler angles conversion will be very different.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_appendix">Appendix</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_derive_quaternion_multiplication">Derive Quaternion Multiplication</h3>
+<div class="paragraph">
+<p>We can actually derive the general quaternion multiplication from the special flip break down \(q_1=-{q_c}{q_a}\), \(q_2=-{q_b}{q_c}\), we used to visualize the result of rotation composition. That is if we define flip multiplication \({q_a}{q_b}=(\vec{a},0)(\vec{b},0)=(\vec{a}×\vec{b},-\vec{a}·\vec{b})\) directly, we can proof what general quaternion multiplication \({q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})\) would look like. If you don’t remember this, see <a href="#_rotation_composition">Rotation Composition</a> section in Part 1.</p>
+</div>
+<div class="paragraph">
+<p>Here are some equations we will be using:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{a}×(\vec{b}×\vec{c})&amp;=(\vec{a}·\vec{c})\vec{b}-(\vec{a}·\vec{b})\vec{c}\\
+(\vec{a}×\vec{b})·(\vec{c}×\vec{d})&amp;=(\vec{a}·\vec{c})(\vec{b}·\vec{d})-(\vec{a}·\vec{d})(\vec{b}·\vec{c})\\
+(\vec{a}×\vec{b})×(\vec{a}×\vec{c})&amp;=(\vec{a}·(\vec{b}×\vec{c}))\vec{a}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Recall how we choose the flip break down \(\vec{c}=\frac{\vec{v_1}×\vec{v_2}}{\left|\vec{v_1}×\vec{v_2}\right|}\).</p>
+</div>
+<div class="paragraph">
+<p>Rotate \(\vec{c}\) along axis \(\vec{v_1}\) by angle \(-\frac{θ_1}{2}\) we get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{a}=\cos\frac{-θ_1}{2}\vec{c} + \sin\frac{-θ_1}{2}(\vec{v_1}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(\cos\frac{θ_1}{2}(\vec{v_1}×\vec{v_2}) - \sin\frac{θ_1}{2}(\vec{v_1}×(\vec{v_1}×\vec{v_2})))\]
+</div>
+</div>
+<div class="paragraph">
+<p>Rotate \(\vec{c}\) along axis \(\vec{v_2}\) by angle \(\frac{θ_2}{2}\) we get</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{b}=\cos\frac{θ_2}{2}\vec{c} + \sin\frac{θ_2}{2}(\vec{v_2}×\vec{c})=\frac{1}{\left|\vec{v_1}×\vec{v_2}\right|}(\cos\frac{θ_2}{2}(\vec{v_1}×\vec{v_2}) + \sin\frac{θ_2}{2}(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\]
+</div>
+</div>
+<div class="paragraph">
+<p>And we will have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{a}·\vec{b}&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))·(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2}){\left|\vec{v_1}×\vec{v_2}\right|}^{2})\\
+&amp;=\cos\frac{θ_1}{2}\cos\frac{θ_2}{2} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}·\vec{v_2})
+\end{align*}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{a}×\vec{b}&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×\vec{v_2})×(\vec{v_2}×(\vec{v_1}×\vec{v_2})))\\
+&amp;- \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_1}×\vec{v_2})\\
+&amp;- \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}((\vec{v_1}×(\vec{v_1}×\vec{v_2}))×(\vec{v_2}×(\vec{v_1}×\vec{v_2}))))\\
+&amp;=\frac{1}{{\left|\vec{v_1}×\vec{v_2}\right|}^{2}}(\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_2} + \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}\vec{v_1} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}{\left|\vec{v_1}×\vec{v_2}\right|}^{2}(\vec{v_1}×\vec{v_2}))\\
+&amp;=\cos\frac{θ_1}{2}\sin\frac{θ_2}{2}\vec{v_2} + \sin\frac{θ_1}{2}\cos\frac{θ_2}{2}\vec{v_1} - \sin\frac{θ_1}{2}\sin\frac{θ_2}{2}(\vec{v_1}×\vec{v_2})
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>From the previous proof of rotation composition we know \(q={q_2}{q_1}=-{q_b}{q_a}\), that is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+q&amp;=(\vec{a}×\vec{b},\vec{a}·\vec{b})\\
+&amp;=(\cos\frac{θ_1}{2}(\sin\frac{θ_2}{2}\vec{v_2}) + \cos\frac{θ_2}{2}(\sin\frac{θ_1}{2}\vec{v_1}) - (\sin\frac{θ_1}{2}\vec{v_1})×(\sin\frac{θ_2}{2}\vec{v_2}), \cos\frac{θ_1}{2}\cos\frac{θ_2}{2} - (\sin\frac{θ_1}{2}\vec{v_1})·(\sin\frac{θ_2}{2}\vec{v_2}))
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>which is the definition of quaternion multiplication of \({q_1}{q_2}=(\sin⁡\frac{θ_1}{2}\vec{v_1},\cos⁡\frac{θ_1}{2})(\sin⁡\frac{θ_2}{2}\vec{v_2},\cos⁡\frac{θ_2}{2})\).</p>
+</div>
+</div>
+</div>
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars.githubusercontent.com/u/3803294?v&#x3D;3)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=A%20Different%20Way%20to%20Understand%20Quaternion%20and%20Rotation&amp;url=https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2016/10/29/A-Different-Way-to-Understand-Quaternion-and-Rotation.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2016. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1478490315590"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
