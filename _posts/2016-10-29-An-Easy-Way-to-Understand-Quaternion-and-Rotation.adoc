@@ -423,7 +423,7 @@ As an example of local rotation, imagine yourself lying down on the ground and f
 
 If we have an object with rotation stem:[{q_1}=(\vec{v_1},{w_1})], now we want to apply a local rotation stem:[{q_{2L}}=(\vec{v_2},{w_2})]. We can convert the local rotation stem:[q_{2L}] to world rotation stem:[q_{2W}] by converting its rotation axis into world space. Since stem:[\vec{v_2}] is in local space of stem:[q_1], converting it into world space means rotating it by stem:[q_1], so the world space rotation axis is stem:[\vec{v_{2W}}={q_1}\vec{v_2}{q_1}^{-1}].
 
-(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}], we can just use stem:[{v_2}] in the calculation).
+(Technically the rotation axis is stem:[\frac{\vec{v_2}}{\left|\vec{v_2}\right|}], but since rotation angle is the same for local and world space, stem:[\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}], we can just use stem:[\vec{v_2}] in the calculation).
 
 [stem]
 ++++
@@ -450,7 +450,7 @@ One thing I need to prove here
 \end{align*}
 ++++  
 
-With the world rotation, we can see the result of combined rotation:
+With the world rotation stem:[q_{2W}] calculated, result of combined rotation is
 
 [stem]
 ++++
@@ -639,6 +639,7 @@ M={M_R}{M_P}{M_Y}=\left[ \begin{array}{} \cos{P}\cos{Y} & \cos{P}\sin{Y} & -\sin
 ++++
 
 You can also derive this by converting Euler angles to quaternion, then quaternion to rotation matrix, and by applying trigonometric double-angle formula you should get the same result.
+
 If you put this result side by side with our quaternion to rotation matrix conversion, which I put here again for reference.
 
 [stem]
