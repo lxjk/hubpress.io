@@ -54,7 +54,7 @@ Now let’s forget quaternion for a minute, and focus on the nature of rotations
 *_Any 3D rotation can be composed by 2 flips along some axes._*
 
 The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
-Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation stem:[q], which rotates  stem:[+90^{\circ}] along axis stem:[\vec{Z}]. Now I can say this rotation is the same as 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], both of them are on XY plane, and the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[+45^{\circ}].
+Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation stem:[q], which rotates  stem:[+90^{\circ}] along axis Z. Now I can say this rotation is the same as 2 flips along axis stem:[\vec{a}] and stem:[\vec{b}], both of them are on XY plane, and the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[+45^{\circ}].
 
 .Figure 1 (b)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1_b.png[, 300,float="right",align="center"]
@@ -63,11 +63,11 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig1
 
 We demonstrate this through Figure 1. For any vector stem:[\vec{v}], the result of this rotation is stem:[\vec{v''}] , which is the same as flip stem:[\vec{v}] along axis stem:[\vec{a}] and get stem:[\vec{v'}], and then flip stem:[\vec{v'}] along axis stem:[\vec{b}] and get stem:[\vec{v''}]. 
 
-It doesn’t matter where stem:[\vec{a}] and stem:[\vec{b}] are on the XY plane, but the order must be kept. If we choose stem:[\vec{b}] by rotating stem:[\vec{a}] along axis stem:[\vec{Z}] by stem:[+45^{\circ}] with the positive direction we defined above, then we must flip along stem:[\vec{a}] first then along stem:[\vec{b}] to get our target rotation. The order and the sign of angle is important, as you can easily see flip along stem:[\vec{b}] first then along stem:[\vec{a}] will give a different result.
+It doesn’t matter where stem:[\vec{a}] and stem:[\vec{b}] are on the XY plane, but the order must be kept. If we choose stem:[\vec{b}] by rotating stem:[\vec{a}] along axis Z by stem:[+45^{\circ}] with the positive direction we defined above, then we must flip along stem:[\vec{a}] first then along stem:[\vec{b}] to get our target rotation. The order and the sign of angle is important, as you can easily see flip along stem:[\vec{b}] first then along stem:[\vec{a}] will give a different result.
 
-It’s not hard to generalize to a rotation of any angle stem:[θ] along stem:[\vec{Z}] axis. And in this case, the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[\frac{θ}{2}].
+It’s not hard to generalize to a rotation of any angle stem:[θ] along Z axis. And in this case, the angle from stem:[\vec{a}] to stem:[\vec{b}] is stem:[\frac{θ}{2}].
 
-What if the axis is not stem:[\vec{Z}] axis but any unit vector stem:[\vec{u}] ? It turns out to be very straight forward. stem:[\vec{a}] and stem:[\vec{b}] are no longer on XY plane but on a plane cross the origin and perpendicular to stem:[\vec{u}], as in Figure 2.
+What if the axis is not Z axis but any unit vector stem:[\vec{u}] ? It turns out to be very straight forward. stem:[\vec{a}] and stem:[\vec{b}] are no longer on XY plane but on a plane cross the origin and perpendicular to stem:[\vec{u}], as in Figure 2.
 
 .Figure 2
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/quaternions/fig2.png[, 400,align="center"]
