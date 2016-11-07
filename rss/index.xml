@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 07 Nov 2016 00:21:15 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 07 Nov 2016 00:43:11 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -592,7 +592,7 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 <p>If we have an object with rotation \({q_1}=(\vec{v_1},{w_1})\), now we want to apply a local rotation \({q_{2L}}=(\vec{v_2},{w_2})\). We can convert the local rotation \(q_{2L}\) to world rotation \(q_{2W}\) by converting its rotation axis into world space. Since \(\vec{v_2}\) is in local space of \(q_1\), converting it into world space means rotating it by \(q_1\), so the world space rotation axis is \(\vec{v_{2W}}={q_1}\vec{v_2}{q_1}^{-1}\).</p>
 </div>
 <div class="paragraph">
-<p>(Technically the rotation axis is \(\frac{\vec{v_2}}{\left|\vec{v_2}\right|}\), but since rotation angle is the same for local and world space, \(\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}\), we can just use \({v_2}\) in the calculation).</p>
+<p>(Technically the rotation axis is \(\frac{\vec{v_2}}{\left|\vec{v_2}\right|}\), but since rotation angle is the same for local and world space, \(\left|\vec{v_2}\right|=\left|\vec{v_{2W}}\right|=\sin⁡\frac{θ}{2}\), we can just use \(\vec{v_2}\) in the calculation).</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -622,7 +622,7 @@ Orange plane is based on \(\vec{a}\) and \(\vec{b}\), the result rotation axis \
 </div>
 </div>
 <div class="paragraph">
-<p>With the world rotation, we can see the result of combined rotation:</p>
+<p>With the world rotation \(q_{2W}\) calculated, result of combined rotation is</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -840,8 +840,10 @@ M_Y = \left[ \begin{array}{} \cos{Y} &amp; \sin{Y} &amp; 0 \\ -\sin{Y} &amp; \co
 </div>
 </div>
 <div class="paragraph">
-<p>You can also derive this by converting Euler angles to quaternion, then quaternion to rotation matrix, and by applying trigonometric double-angle formula you should get the same result.
-If you put this result side by side with our quaternion to rotation matrix conversion, which I put here again for reference.</p>
+<p>You can also derive this by converting Euler angles to quaternion, then quaternion to rotation matrix, and by applying trigonometric double-angle formula you should get the same result.</p>
+</div>
+<div class="paragraph">
+<p>If you put this result side by side with our quaternion to rotation matrix conversion, which I put here again for reference.</p>
 </div>
 <div class="stemblock">
 <div class="content">
