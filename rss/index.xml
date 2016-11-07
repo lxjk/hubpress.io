@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 06 Nov 2016 20:51:17 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 07 Nov 2016 00:11:01 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[An Easy Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
@@ -96,7 +96,7 @@
 </div>
 <div class="paragraph">
 <p>The reason we want to break down a rotation into flips, is that flips are much easier to think and calculate than general 3D rotation. We will start from flip and build our way to understand rotation.
-Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation \(q\), which rotates  \(+90^{\circ}\) along axis \(\vec{Z}\). Now I can say this rotation is the same as 2 flips along axis \(\vec{a}\) and \(\vec{b}\), both of them are on XY plane, and the angle from \(\vec{a}\) to \(\vec{b}\) is \(+45^{\circ}\).</p>
+Here is a loose proof of this idea. We define counter-clockwise as the positive direction of rotation. First consider a special case. We have a rotation \(q\), which rotates  \(+90^{\circ}\) along axis Z. Now I can say this rotation is the same as 2 flips along axis \(\vec{a}\) and \(\vec{b}\), both of them are on XY plane, and the angle from \(\vec{a}\) to \(\vec{b}\) is \(+45^{\circ}\).</p>
 </div>
 <div class="imageblock" style="text-align: center;float: right">
 <div class="content">
@@ -114,13 +114,13 @@ Here is a loose proof of this idea. We define counter-clockwise as the positive 
 <p>We demonstrate this through Figure 1. For any vector \(\vec{v}\), the result of this rotation is \(\vec{v''}\) , which is the same as flip \(\vec{v}\) along axis \(\vec{a}\) and get \(\vec{v'}\), and then flip \(\vec{v'}\) along axis \(\vec{b}\) and get \(\vec{v''}\).</p>
 </div>
 <div class="paragraph">
-<p>It doesn’t matter where \(\vec{a}\) and \(\vec{b}\) are on the XY plane, but the order must be kept. If we choose \(\vec{b}\) by rotating \(\vec{a}\) along axis \(\vec{Z}\) by \(+45^{\circ}\) with the positive direction we defined above, then we must flip along \(\vec{a}\) first then along \(\vec{b}\) to get our target rotation. The order and the sign of angle is important, as you can easily see flip along \(\vec{b}\) first then along \(\vec{a}\) will give a different result.</p>
+<p>It doesn’t matter where \(\vec{a}\) and \(\vec{b}\) are on the XY plane, but the order must be kept. If we choose \(\vec{b}\) by rotating \(\vec{a}\) along axis Z by \(+45^{\circ}\) with the positive direction we defined above, then we must flip along \(\vec{a}\) first then along \(\vec{b}\) to get our target rotation. The order and the sign of angle is important, as you can easily see flip along \(\vec{b}\) first then along \(\vec{a}\) will give a different result.</p>
 </div>
 <div class="paragraph">
-<p>It’s not hard to generalize to a rotation of any angle \(θ\) along \(\vec{Z}\) axis. And in this case, the angle from \(\vec{a}\) to \(\vec{b}\) is \(\frac{θ}{2}\).</p>
+<p>It’s not hard to generalize to a rotation of any angle \(θ\) along Z axis. And in this case, the angle from \(\vec{a}\) to \(\vec{b}\) is \(\frac{θ}{2}\).</p>
 </div>
 <div class="paragraph">
-<p>What if the axis is not \(\vec{Z}\) axis but any unit vector \(\vec{u}\) ? It turns out to be very straight forward. \(\vec{a}\) and \(\vec{b}\) are no longer on XY plane but on a plane cross the origin and perpendicular to \(\vec{u}\), as in Figure 2.</p>
+<p>What if the axis is not Z axis but any unit vector \(\vec{u}\) ? It turns out to be very straight forward. \(\vec{a}\) and \(\vec{b}\) are no longer on XY plane but on a plane cross the origin and perpendicular to \(\vec{u}\), as in Figure 2.</p>
 </div>
 <div class="imageblock" style="text-align: center">
 <div class="content">
