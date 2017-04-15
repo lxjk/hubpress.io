@@ -1,0 +1,8 @@
+= Calculate Minimal Bounding Sphere of Frustum
+Eric Zhang
+v1.0, 2017-04-15
+
+:stem: latexmath
+:figure-caption!:
+
+I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane stem:[n], far plane stem:[f], and field of view angle stem:[fov], we need to calculate the center stem:[C] and radius stem:[R] of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as stem:[α=\frac{fov}{2}].
