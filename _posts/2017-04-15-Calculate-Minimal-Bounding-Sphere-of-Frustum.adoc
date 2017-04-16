@@ -48,7 +48,7 @@ Now we can get the radius:
 \begin{align*}
 R&=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}}\\
 &=\sqrt{x^{2}+n^{2}\tan^{2}α}\\
-&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})\tan^{2}α+(f+n)^{2}\tan^{4}α}
 \end{align*}
 ++++
 
@@ -56,7 +56,7 @@ And the center will be
 
 [stem]
 ++++
-C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))
+C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+\tan^{2}α))
 ++++
 
 However there is a catch. As shown in figure 3, if the near plane is close to far plane, we might end up with a bounding sphere larger than we need. Sphere stem:[C] is the sphere we calculated, but sphere stem:[C'={F_0}] is the minimal sphere. This is because based on our calculation, we want to fit all 4 vertices on the sphere. In the normal case this will give us the minimal sphere, but when near plane is close to far plane, it is better to give up near plane since it is already inside the bounding sphere based on far plane only.
@@ -69,14 +69,14 @@ What is the condition we should give up? Take another look at the sphere center 
 [stem]
 ++++
 \begin{align*}
--\frac{1}{2}(f+n)(1+tan^{2}α)&\leqslant-f\\
-tan^{2}α&\geqslant\frac{f-n}{f+n}
+-\frac{1}{2}(f+n)(1+\tan^{2}α)&\leqslant-f\\
+\tan^{2}α&\geqslant\frac{f-n}{f+n}
 \end{align*}
 ++++
 
 To rewrite our result
 
-If stem:[tan^{2}α&\geqslant\frac{f-n}{f+n}]
+If stem:[\tan^{2}α\geqslant\frac{f-n}{f+n}]
 
 [stem]
 ++++
@@ -91,19 +91,19 @@ Else
 [stem]
 ++++
 \begin{align*}
-C&=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\\
-R&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+C&=(0, -\frac{1}{2}(f+n)(1+\tan^{2}α))\\
+R&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})\tan^{2}α+(f+n)^{2}\tan^{4}α}
 \end{align*}
 ++++
 
-We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by stem:[{N_1}{N_3}{F_1}{F_3}]. Similarly, based on symmetricity of frustum, if we find a bonding sphere that stem:[N_1] and stem:[F_1] is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate stem:[\left|\vec{{N_0}{N_1}}\right|] and stem:[\left|\vec{{F_0}{F_1}}\right|]. It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let stem:[w] be viewport width, stem:[h] be viewport height, we have stem:[{N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α), \left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α], similarly stem:[\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α].
+We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by stem:[{N_1}{N_3}{F_1}{F_3}]. Similarly, based on symmetricity of frustum, if we find a bonding sphere that stem:[N_1] and stem:[F_1] is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate stem:[\left|\vec{{N_0}{N_1}}\right|] and stem:[\left|\vec{{F_0}{F_1}}\right|]. It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let stem:[w] be viewport width, stem:[h] be viewport height, we have stem:[{N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α)], stem:[\left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α], similarly stem:[\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α].
 
 .Figure 4
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig4.png[, 400,align="center"]
 
 Here is our collusion. For 3D frustum with viewport width stem:[w], height stem:[h], near plane stem:[n], far plane stem:[f], X axis field of view angle stem:[fov], let stem:[k=\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡{\frac{fov}{2}}], then the minimal bounding sphere is:
 
-If stem:[k^{2}&\geqslant\frac{f-n}{f+n}]
+If stem:[k^{2}\geqslant\frac{f-n}{f+n}]
 
 [stem]
 ++++
