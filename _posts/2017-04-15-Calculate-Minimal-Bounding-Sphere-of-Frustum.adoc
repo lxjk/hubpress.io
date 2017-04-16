@@ -33,7 +33,7 @@ Remember our half FOV angle is denoted as stem:[α], we have stem:[\left|\vec{{N
 
 [stem]
 ++++
-\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}
+\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}\\
 \begin{align*}
 x^{2}+n^{2}\tan^{2}α&=(f-n-x)^{2}+f^{2}\tan^{2}α\\
 x^{2}+n^{2}\tan^{2}α&=(f-n)^{2}-2(f-n)x+x^{2}+f^{2}\tan^{2}α\\
