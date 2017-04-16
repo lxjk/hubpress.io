@@ -29,11 +29,11 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig2.png
 
 Now let’s go back to the normal case as shown in figure 2. Intuitively we can guess the minimal bounding sphere should sits on somewhere between near plane center stem:[{N_0}(0,-n)] and far plane center stem:[{F_0}(0,-f)], and it should have the same distance to all 4 vertices of the frustum, that is stem:[\left|\vec{C{N_1}}\right|=\left|\vec{C{N_2}}\right|=\left|\vec{C{F_1}}\right|=\left|\vec{C{F_2}}\right|=R]. Can we actually find such a point? Since frustum is symmetrical along Y axis, if we found a point stem:[C] such that stem:[\left|\vec{C{N_1}}\right|=\left|\vec{C{F_1}}\right|=R], it is guaranteed we will have stem:[\left|\vec{C{N_2}}\right|=\left|\vec{C{F_2}}\right|=R] as well. Now we just need to calculate that point.
 
-Remember our half FOV angle is denoted as stem:[α], we have stem:[\left|\vec{{N_0}{N_1}}\right|=n\tan⁡α, \left|\vec{{F_0}{F_1}}\right|=f\tan⁡α, \left|\vec{{N_0}{F_0}}\right|=f-n]. We denote stem:[x=\left|\vec{C{N_0}}\right|], then stem:[\left|\vec{C{F_0}}\right|=f-n-x], if we solve x we can find out radius stem:[R]:
+Remember our half FOV angle is denoted as stem:[α], we have stem:[\left|\vec{{N_0}{N_1}}\right|=n\tan⁡α], stem:[\left|\vec{{F_0}{F_1}}\right|=f\tan⁡α], stem:[\left|\vec{{N_0}{F_0}}\right|=f-n]. We denote stem:[x=\left|\vec{C{N_0}}\right|], then stem:[\left|\vec{C{F_0}}\right|=f-n-x], if we solve stem:[x] we can find out radius stem:[R]:
 
 [stem]
 ++++
-\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}
+\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}\\
 \begin{align*}
 x^{2}+n^{2}\tan^{2}α&=(f-n-x)^{2}+f^{2}\tan^{2}α\\
 x^{2}+n^{2}\tan^{2}α&=(f-n)^{2}-2(f-n)x+x^{2}+f^{2}\tan^{2}α\\
