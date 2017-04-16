@@ -1,4 +1,153 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 07 Nov 2016 03:45:15 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[A Different Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 16 Apr 2017 00:17:39 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
+<p>I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need to calculate the center \(C\) and radius \(R\) of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as \(α=\frac{fov}{2}\).</p>
+</div>
+<div class="paragraph">
+<p>Let’s start with 2D situation. First consider an extreme case as shown in figure 1 (a), if near plane is very closed to far plane, that is \(n=f\). Obviously our minimal bounding sphere sits in the center of far plane, and the radius will be half far plane width:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=f\tanα
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Consider another extreme case as shown in figure 1 (b), if near plane is \(0\), that is \(n=0.\) We are actually calculating the circumscribed circle of an isosceles triangle. The center of our bounding sphere sits on Y axis \(C=(0,-R)\). I’m not going to calculate the radius here, since we don’t need it for the following calculation, but it should be easy to figure out if you are interested.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.png" alt="fig1a.png" width="300">
+</div>
+<div class="title">Figure 1 (a)</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png" alt="fig1b.png" width="300">
+</div>
+<div class="title">Figure 1 (b)</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig2.png" alt="fig2.png" width="400">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>Now let’s go back to the normal case as shown in figure 2. Intuitively we can guess the minimal bounding sphere should sits on somewhere between near plane center \({N_0}(0,-n)\) and far plane center \({F_0}(0,-f)\), and it should have the same distance to all 4 vertices of the frustum, that is \(\left|\vec{C{N_1}}\right|=\left|\vec{C{N_2}}\right|=\left|\vec{C{F_1}}\right|=\left|\vec{C{F_2}}\right|=R\). Can we actually find such a point? Since frustum is symmetrical along Y axis, if we found a point \(C\) such that \(\left|\vec{C{N_1}}\right|=\left|\vec{C{F_1}}\right|=R\), it is guaranteed we will have \(\left|\vec{C{N_2}}\right|=\left|\vec{C{F_2}}\right|=R\) as well. Now we just need to calculate that point.</p>
+</div>
+<div class="paragraph">
+<p>Remember our half FOV angle is denoted as \(α\), we have \(\left|\vec{{N_0}{N_1}}\right|=n\tan⁡α, \left|\vec{{F_0}{F_1}}\right|=f\tan⁡α, \left|\vec{{N_0}{F_0}}\right|=f-n\). We denote \(x=\left|\vec{C{N_0}}\right|\), then \(\left|\vec{C{F_0}}\right|=f-n-x\), if we solve x we can find out radius \(R\):</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}
+\begin{align*}
+x^{2}+n^{2}\tan^{2}α&amp;=(f-n-x)^{2}+f^{2}\tan^{2}α\\
+x^{2}+n^{2}\tan^{2}α&amp;=(f-n)^{2}-2(f-n)x+x^{2}+f^{2}\tan^{2}α\\
+x&amp;=\frac{1}{2}((f-n)+(f+n)\tan^{2}α)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can get the radius:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+R&amp;=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}}\\
+&amp;=\sqrt{x^{2}+n^{2}\tan^{2}α}\\
+&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>And the center will be</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\]
+</div>
+</div>
+<div class="paragraph">
+<p>However there is a catch. As shown in figure 3, if the near plane is close to far plane, we might end up with a bounding sphere larger than we need. Sphere \(C\) is the sphere we calculated, but sphere \(C'={F_0}\) is the minimal sphere. This is because based on our calculation, we want to fit all 4 vertices on the sphere. In the normal case this will give us the minimal sphere, but when near plane is close to far plane, it is better to give up near plane since it is already inside the bounding sphere based on far plane only.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig3.png" alt="fig3.png" width="400">
+</div>
+<div class="title">Figure 3</div>
+</div>
+<div class="paragraph">
+<p>What is the condition we should give up? Take another look at the sphere center we calculated, we got a larger sphere because our center is farther along Y axis than our far plane, so we can simply make sure our bounding sphere center sits within the frustum, if it is farther than the far plane, clamp it to the far plane. The condition that we should clamp is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+-\frac{1}{2}(f+n)(1+tan^{2}α)&amp;\leqslant-f\\
+tan^{2}α&amp;\geqslant\frac{f-n}{f+n}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>To rewrite our result</p>
+</div>
+<div class="paragraph">
+<p>If \(tan^{2}α&amp;\geqslant\frac{f-n}{f+n}\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=f\tanα
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Else</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\\
+R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by \({N_1}{N_3}{F_1}{F_3}\). Similarly, based on symmetricity of frustum, if we find a bonding sphere that \(N_1\) and \(F_1\) is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate \(\left|\vec{{N_0}{N_1}}\right|\) and \(\left|\vec{{F_0}{F_1}}\right|\). It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let \(w\) be viewport width, \(h\) be viewport height, we have \({N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α), \left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\), similarly \(\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig4.png" alt="fig4.png" width="400">
+</div>
+<div class="title">Figure 4</div>
+</div>
+<div class="paragraph">
+<p>Here is our collusion. For 3D frustum with viewport width \(w\), height \(h\), near plane \(n\), far plane \(f\), X axis field of view angle \(fov\), let \(k=\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡{\frac{fov}{2}}\), then the minimal bounding sphere is:</p>
+</div>
+<div class="paragraph">
+<p>If \(k^{2}&amp;\geqslant\frac{f-n}{f+n}\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=fk
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Else</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -\frac{1}{2}(f+n)(1+k^{2}))\\
+R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})k^{2}+(f+n)^{2}k^{4}}
+\end{align*}\]
+</div>
+</div>]]></description><link>https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 15 Apr 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[A Different Way to Understand Quaternion and Rotation]]></title><description><![CDATA[<div class="sect2">
 <h3 id="_before_we_start">Before We Start</h3>
 <div class="paragraph">
 <p>Quaternion is widely used in game engines to represent 3D rotation. As a game engineer you might be using quaternion explicitly or implicitly in your daily work, but do you really understand what is going on under the hood when you are calling “rotate a vector” or “combine two rotations”? Why rotating a vector \(\vec{v}\) by quaternion \(q\) is calculated by a “sandwich” multiplication: \(q\vec{v}q^{-1}\) ? Why rotating by quaternion \(q_1\) then \(q_2\) is in the reversed order: \({q_2}{q_1}\), and can you visualize the result rotation axis and angle?</p>
