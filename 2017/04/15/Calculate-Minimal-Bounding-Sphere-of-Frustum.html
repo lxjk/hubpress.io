@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Calculate Minimal Bounding Sphere of Frustum - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Calculate Minimal Bounding Sphere of Frustum">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Calculate Minimal Bounding Sphere of Frustum">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1492301859812" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1492301859812"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+    <link rel="canonical" href="https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Calculate Minimal Bounding Sphere of Frustum" />
+    <meta property="og:description" content="I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need" />
+    <meta property="og:url" content="https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Calculate Minimal Bounding Sphere of Frustum" />
+    <meta name="twitter:description" content="I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need" />
+    <meta name="twitter:url" content="https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+
+</head>
+<body class="post-template no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game Dev - Tool Dev - Math - Machine Learning -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Apr 15 2017" class="post-meta__date date">Apr 15 2017</time> &#8226; <span class="post-meta__tags tags"></span>
+        <span class="post-meta__author author"><img src="https://avatars3.githubusercontent.com/u/3803294?v&#x3D;3" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">Calculate Minimal Bounding Sphere of Frustum</h1>
+    </header>
+
+    <section class="post">
+      <div class="paragraph">
+<p>I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need to calculate the center \(C\) and radius \(R\) of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as \(α=\frac{fov}{2}\).</p>
+</div>
+<div class="paragraph">
+<p>Let’s start with 2D situation. First consider an extreme case as shown in figure 1 (a), if near plane is very closed to far plane, that is \(n=f\). Obviously our minimal bounding sphere sits in the center of far plane, and the radius will be half far plane width:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=f\tanα
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Consider another extreme case as shown in figure 1 (b), if near plane is \(0\), that is \(n=0.\) We are actually calculating the circumscribed circle of an isosceles triangle. The center of our bounding sphere sits on Y axis \(C=(0,-R)\). I’m not going to calculate the radius here, since we don’t need it for the following calculation, but it should be easy to figure out if you are interested.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.png" alt="fig1a.png" width="300">
+</div>
+<div class="title">Figure 1 (a)</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png" alt="fig1b.png" width="300">
+</div>
+<div class="title">Figure 1 (b)</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig2.png" alt="fig2.png" width="400">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>Now let’s go back to the normal case as shown in figure 2. Intuitively we can guess the minimal bounding sphere should sits on somewhere between near plane center \({N_0}(0,-n)\) and far plane center \({F_0}(0,-f)\), and it should have the same distance to all 4 vertices of the frustum, that is \(\left|\vec{C{N_1}}\right|=\left|\vec{C{N_2}}\right|=\left|\vec{C{F_1}}\right|=\left|\vec{C{F_2}}\right|=R\). Can we actually find such a point? Since frustum is symmetrical along Y axis, if we found a point \(C\) such that \(\left|\vec{C{N_1}}\right|=\left|\vec{C{F_1}}\right|=R\), it is guaranteed we will have \(\left|\vec{C{N_2}}\right|=\left|\vec{C{F_2}}\right|=R\) as well. Now we just need to calculate that point.</p>
+</div>
+<div class="paragraph">
+<p>Remember our half FOV angle is denoted as \(α\), we have \(\left|\vec{{N_0}{N_1}}\right|=n\tan⁡α, \left|\vec{{F_0}{F_1}}\right|=f\tan⁡α, \left|\vec{{N_0}{F_0}}\right|=f-n\). We denote \(x=\left|\vec{C{N_0}}\right|\), then \(\left|\vec{C{F_0}}\right|=f-n-x\), if we solve x we can find out radius \(R\):</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}
+\begin{align*}
+x^{2}+n^{2}\tan^{2}α&amp;=(f-n-x)^{2}+f^{2}\tan^{2}α\\
+x^{2}+n^{2}\tan^{2}α&amp;=(f-n)^{2}-2(f-n)x+x^{2}+f^{2}\tan^{2}α\\
+x&amp;=\frac{1}{2}((f-n)+(f+n)\tan^{2}α)\\
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can get the radius:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+R&amp;=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}}\\
+&amp;=\sqrt{x^{2}+n^{2}\tan^{2}α}\\
+&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>And the center will be</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\]
+</div>
+</div>
+<div class="paragraph">
+<p>However there is a catch. As shown in figure 3, if the near plane is close to far plane, we might end up with a bounding sphere larger than we need. Sphere \(C\) is the sphere we calculated, but sphere \(C'={F_0}\) is the minimal sphere. This is because based on our calculation, we want to fit all 4 vertices on the sphere. In the normal case this will give us the minimal sphere, but when near plane is close to far plane, it is better to give up near plane since it is already inside the bounding sphere based on far plane only.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig3.png" alt="fig3.png" width="400">
+</div>
+<div class="title">Figure 3</div>
+</div>
+<div class="paragraph">
+<p>What is the condition we should give up? Take another look at the sphere center we calculated, we got a larger sphere because our center is farther along Y axis than our far plane, so we can simply make sure our bounding sphere center sits within the frustum, if it is farther than the far plane, clamp it to the far plane. The condition that we should clamp is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+-\frac{1}{2}(f+n)(1+tan^{2}α)&amp;\leqslant-f\\
+tan^{2}α&amp;\geqslant\frac{f-n}{f+n}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>To rewrite our result</p>
+</div>
+<div class="paragraph">
+<p>If \(tan^{2}α&amp;\geqslant\frac{f-n}{f+n}\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=f\tanα
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Else</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\\
+R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by \({N_1}{N_3}{F_1}{F_3}\). Similarly, based on symmetricity of frustum, if we find a bonding sphere that \(N_1\) and \(F_1\) is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate \(\left|\vec{{N_0}{N_1}}\right|\) and \(\left|\vec{{F_0}{F_1}}\right|\). It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let \(w\) be viewport width, \(h\) be viewport height, we have \({N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α), \left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\), similarly \(\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\).</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig4.png" alt="fig4.png" width="400">
+</div>
+<div class="title">Figure 4</div>
+</div>
+<div class="paragraph">
+<p>Here is our collusion. For 3D frustum with viewport width \(w\), height \(h\), near plane \(n\), far plane \(f\), X axis field of view angle \(fov\), let \(k=\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡{\frac{fov}{2}}\), then the minimal bounding sphere is:</p>
+</div>
+<div class="paragraph">
+<p>If \(k^{2}&amp;\geqslant\frac{f-n}{f+n}\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -f)\\
+R&amp;=fk
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Else</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+C&amp;=(0, -\frac{1}{2}(f+n)(1+k^{2}))\\
+R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})k^{2}+(f+n)^{2}k^{4}}
+\end{align*}\]
+</div>
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars3.githubusercontent.com/u/3803294?v&#x3D;3)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=Calculate%20Minimal%20Bounding%20Sphere%20of%20Frustum&amp;url=https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2017/04/15/Calculate-Minimal-Bounding-Sphere-of-Frustum.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2017. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1492301859812"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
