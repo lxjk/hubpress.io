@@ -11,8 +11,10 @@ Let’s start with 2D situation. First consider an extreme case as shown in figu
 
 [stem]
 ++++
-C = (0, -f)
-R = f\tanα
+\begin{align*}
+C&=(0, -f)\\
+R&=f\tanα
+\end{align*}
 ++++
 
 Consider another extreme case as shown in figure 1 (b), if near plane is stem:[0], that is stem:[n=0.] We are actually calculating the circumscribed circle of an isosceles triangle. The center of our bounding sphere sits on Y axis stem:[C=(0,-R)]. I’m not going to calculate the radius here, since we don’t need it for the following calculation, but it should be easy to figure out if you are interested.
@@ -23,3 +25,36 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.pn
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png[, 300,align="center"]
 
 Now let’s go back to the normal case as shown in figure 2. Intuitively we can guess the minimal bounding sphere should sits on somewhere between near plane center stem:[{N_0}(0,-n)] and far plane center stem:[{F_0}(0,-f)], and it should have the same distance to all 4 vertices of the frustum, that is stem:[\left|\vec{C{N_1}}\right|=\left|\vec{C{N_2}}\right|=\left|\vec{C{F_1}}\right|=\left|\vec{C{F_2}}\right|=R]. Can we actually find such a point? Since frustum is symmetrical along Y axis, if we found a point stem:[C] such that stem:[\left|\vec{C{N_1}}\right|=\left|\vec{C{F_1}}\right|=R], it is guaranteed we will have stem:[\left|\vec{C{N_2}}\right|=\left|\vec{C{F_2}}\right|=R] as well. Now we just need to calculate that point.
+
+Remember our half FOV angle is denoted as stem:[α], we have stem:[\left|\vec{{N_0}{N_1}}\right|=n\tan⁡α, \left|\vec{{F_0}{F_1}}\right|=f\tan⁡α, \left|\vec{{N_0}{F_0}}\right|=f-n]. We denote stem:[x=\left|\vec{C{N_0}}\right|], then stem:[\left|\vec{C{F_0}}\right|=f-n-x], if we solve x we can find out radius stem:[R]:
+
+[stem]
+++++
+\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}=\left|\vec{{C}{N_1}}\right|^{2}=R^{2}=\left|\vec{{C}{F_1}}\right|^{2}=\left|\vec{{C}{F_0}}\right|^{2}+\left|\vec{{F_0}{F_1}}\right|^{2}
+\begin{align*}
+x^{2}+n^{2}\tan^{2}α&=(f-n-x)^{2}+f^{2}\tan^{2}α\\
+x^{2}+n^{2}\tan^{2}α&=(f-n)^{2}-2(f-n)x+x^{2}+f^{2}\tan^{2}α\\
+x&=\frac{1}{2}((f-n)+(f+n)\tan^{2}α)\\
+\end{align*}
+++++
+
+Now we can get the radius:
+
+[stem]
+++++
+\begin{align*}
+R&=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}}\\
+&=\sqrt{x^{2}+n^{2}\tan^{2}α}\\
+&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}\\
+\end{align*}
+++++
+
+And the center will be
+
+[stem]
+++++
+C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))
+++++
+
+However there is a catch. As shown in figure 3, if the near plane is close to far plane, we might end up with a bounding sphere larger than we need. Sphere stem:[C] is the sphere we calculated, but sphere stem:[C'={F_0}] is the minimal sphere. This is because based on our calculation, we want to fit all 4 vertices on the sphere. In the normal case this will give us the minimal sphere, but when near plane is close to far plane, it is better to give up near plane since it is already inside the bounding sphere based on far plane only.
+
