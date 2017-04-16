@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1492303987444" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1492303987444"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1492304440388" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1492304440388"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -195,7 +195,7 @@ x&amp;=\frac{1}{2}((f-n)+(f+n)\tan^{2}α)\\
 \[\begin{align*}
 R&amp;=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\vec{{N_0}{N_1}}\right|^{2}}\\
 &amp;=\sqrt{x^{2}+n^{2}\tan^{2}α}\\
-&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})\tan^{2}α+(f+n)^{2}\tan^{4}α}
 \end{align*}\]
 </div>
 </div>
@@ -204,7 +204,7 @@ R&amp;=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\
 </div>
 <div class="stemblock">
 <div class="content">
-\[C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\]
+\[C=(0,-(n+x))=(0, -\frac{1}{2}(f+n)(1+\tan^{2}α))\]
 </div>
 </div>
 <div class="paragraph">
@@ -222,8 +222,8 @@ R&amp;=\left|\vec{{C}{N_1}}\right|=\sqrt{\left|\vec{{C}{N_0}}\right|^{2}+\left|\
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
--\frac{1}{2}(f+n)(1+tan^{2}α)&amp;\leqslant-f\\
-tan^{2}α&amp;\geqslant\frac{f-n}{f+n}
+-\frac{1}{2}(f+n)(1+\tan^{2}α)&amp;\leqslant-f\\
+\tan^{2}α&amp;\geqslant\frac{f-n}{f+n}
 \end{align*}\]
 </div>
 </div>
@@ -231,7 +231,7 @@ tan^{2}α&amp;\geqslant\frac{f-n}{f+n}
 <p>To rewrite our result</p>
 </div>
 <div class="paragraph">
-<p>If \(tan^{2}α&amp;\geqslant\frac{f-n}{f+n}\)</p>
+<p>If \(\tan^{2}α\geqslant\frac{f-n}{f+n}\)</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -247,13 +247,13 @@ R&amp;=f\tanα
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-C&amp;=(0, -\frac{1}{2}(f+n)(1+tan^{2}α))\\
-R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
+C&amp;=(0, -\frac{1}{2}(f+n)(1+\tan^{2}α))\\
+R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})\tan^{2}α+(f+n)^{2}\tan^{4}α}
 \end{align*}\]
 </div>
 </div>
 <div class="paragraph">
-<p>We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by \({N_1}{N_3}{F_1}{F_3}\). Similarly, based on symmetricity of frustum, if we find a bonding sphere that \(N_1\) and \(F_1\) is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate \(\left|\vec{{N_0}{N_1}}\right|\) and \(\left|\vec{{F_0}{F_1}}\right|\). It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let \(w\) be viewport width, \(h\) be viewport height, we have \({N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α), \left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\), similarly \(\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\).</p>
+<p>We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by \({N_1}{N_3}{F_1}{F_3}\). Similarly, based on symmetricity of frustum, if we find a bonding sphere that \(N_1\) and \(F_1\) is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate \(\left|\vec{{N_0}{N_1}}\right|\) and \(\left|\vec{{F_0}{F_1}}\right|\). It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let \(w\) be viewport width, \(h\) be viewport height, we have \({N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α)\), \(\left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\), similarly \(\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α\).</p>
 </div>
 <div class="imageblock" style="text-align: center">
 <div class="content">
@@ -265,7 +265,7 @@ R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})tan^{2}α+(f+n)^{2}tan^{4}α}
 <p>Here is our collusion. For 3D frustum with viewport width \(w\), height \(h\), near plane \(n\), far plane \(f\), X axis field of view angle \(fov\), let \(k=\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡{\frac{fov}{2}}\), then the minimal bounding sphere is:</p>
 </div>
 <div class="paragraph">
-<p>If \(k^{2}&amp;\geqslant\frac{f-n}{f+n}\)</p>
+<p>If \(k^{2}\geqslant\frac{f-n}{f+n}\)</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -366,7 +366,7 @@ R&amp;=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})k^{2}+(f+n)^{2}k^{4}}
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1492303987444"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1492304440388"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
