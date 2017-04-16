@@ -19,11 +19,22 @@ R&=f\tanα
 
 Consider another extreme case as shown in figure 1 (b), if near plane is stem:[0], that is stem:[n=0.] We are actually calculating the circumscribed circle of an isosceles triangle. The center of our bounding sphere sits on Y axis stem:[C=(0,-R)]. I’m not going to calculate the radius here, since we don’t need it for the following calculation, but it should be easy to figure out if you are interested.
 
+[.float-group]
+--
+[.left]
+.Figure 1 (a)
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.png[,300]
+
+[.left]
+.Figure 1 (b)
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png[,300]
+--
+////
 .Figure 1 (a)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.png[, 300,align="center"]
 .Figure 1 (b)
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png[, 300,align="center"]
-
+////
 .Figure 2
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig2.png[, 400,align="center"]
 
