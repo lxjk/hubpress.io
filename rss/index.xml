@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 16 Apr 2017 01:00:40 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 16 Apr 2017 01:12:30 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
 <p>I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need to calculate the center \(C\) and radius \(R\) of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as \(α=\frac{fov}{2}\).</p>
 </div>
 <div class="paragraph">
@@ -15,17 +15,21 @@ R&amp;=f\tanα
 <div class="paragraph">
 <p>Consider another extreme case as shown in figure 1 (b), if near plane is \(0\), that is \(n=0.\) We are actually calculating the circumscribed circle of an isosceles triangle. The center of our bounding sphere sits on Y axis \(C=(0,-R)\). I’m not going to calculate the radius here, since we don’t need it for the following calculation, but it should be easy to figure out if you are interested.</p>
 </div>
-<div class="imageblock" style="text-align: center">
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
 <div class="content">
 <img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1a.png" alt="fig1a.png" width="300">
 </div>
 <div class="title">Figure 1 (a)</div>
 </div>
-<div class="imageblock" style="text-align: center">
+<div class="imageblock left">
 <div class="content">
 <img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig1b.png" alt="fig1b.png" width="300">
 </div>
 <div class="title">Figure 1 (b)</div>
+</div>
+</div>
 </div>
 <div class="imageblock" style="text-align: center">
 <div class="content">
