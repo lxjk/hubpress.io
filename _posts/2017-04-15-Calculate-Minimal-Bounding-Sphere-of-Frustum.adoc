@@ -110,7 +110,7 @@ R&=\frac{1}{2}\sqrt{(f-n)^{2}+2(f^{2}+n^{2})\tan^{2}α+(f+n)^{2}\tan^{4}α}
 We solved 2D situation, going into 3D it is actually no more difficult than 2D. As shown in figure 4, we just need to work on the 2D frustum defined by stem:[{N_1}{N_3}{F_1}{F_3}]. Similarly, based on symmetricity of frustum, if we find a bonding sphere that stem:[N_1] and stem:[F_1] is on the sphere, it is guaranteed that all 8 vertices of frustum will be on the sphere. The only extra thing we need to do here is calculate stem:[\left|\vec{{N_0}{N_1}}\right|] and stem:[\left|\vec{{F_0}{F_1}}\right|]. It depends on which is the major axis of your field of view. I will use X axis as major axis for example, let stem:[w] be viewport width, stem:[h] be viewport height, we have stem:[{N_1}=(-n\tan⁡α,n\frac{h}{w}\tan⁡α)], stem:[\left|\vec{{N_0}{N_1}}\right|=n\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α], similarly stem:[\left|\vec{{F_0}{F_1}}\right|=f\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡α].
 
 .Figure 4
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig4.png[, 400,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/frustum/fig4.png[, 500,align="center"]
 
 Here is our collusion. For 3D frustum with viewport width stem:[w], height stem:[h], near plane stem:[n], far plane stem:[f], X axis field of view angle stem:[fov], let stem:[k=\sqrt{1+\frac{h^{2}}{w^{2}}}\tan⁡{\frac{fov}{2}}], then the minimal bounding sphere is:
 
