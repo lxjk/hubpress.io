@@ -7,3 +7,28 @@ v1.0, 2017-06-10
 
 Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the screen, we may march a large distance in view space but only move a pixel in screen space. Since all information are stored in pixels, we are wasting time sampling the same pixel. The other way around, if the ray is pointing to X/Y axis in view space, we might miss pixels if we march too fast in view space. So in general it is a better idea to march the ray in screen space instead. 
 
+Now the problem becomes if we march to a point in screen space somewhere between start pixel and end pixel, what is the corresponding point in view space? Of course we can use projection matrix to un-project it back to view space, but since we already know start point and end point in view space, we can do better than that. Let’s define our problem more specifically:
+
+We know two points in view space stem:[A_V] and stem:[B_V], their projected point in screen space is stem:[A_S] and stem:[B_S]. In screen space, given a linear interpolation ratio stem:[r_S] and a point stem:[{P_S}={A_S}(1-{r_S})+{B_S}{r_S}], what is its corresponding point stem:[P_V] in view space, and the ratio stem:[r_V] such that stem:[{P_V}={A_V}(1-{r_V})+{B_V}{r_V}].
+
+We will use OpenGL coordinate (right-handed, Y up), so stem:[A_V] and stem:[B_V] has negative Z value.
+
+.Figure 1
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/linearconversion/fig1.png[, 400,align="center"]
+
+If you wonder why stem:[r_S] and stem:[r_V] are different, take a look at figure 1. stem:[{r_V}=\frac{\left|AP\right|}{\left|AB\right|}], while stem:[{r_S}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}], they are the same only if stem:[AB] is parallel to stem:[{A_1}{B_1}].
+
+First we want to simplify our problem a little bit. Recall how we project a point from view space to screen space, with projection matrix stem:[M] and window size stem:[S], for any point in view space stem:[Q_V], we project it into clip space (range from -1 to 1): stem:[{Q_C}=\frac{1}{(M{Q_V}).w}{M{Q_V}}], then we remap it to screen space: stem:[{Q_S}=\frac{1}{2}({Q_C}+1)S]. Here stem:[S] is constant, so screen space is just a linear combination of view space, which means the linear ratio doesn’t change from clip space to view space: stem:[{P_C}={A_C}(1-{r_S})+{B_C}{r_S}]. We can ignore screen space remap, and just work on clip space.
+
+Now take a look a figure 1 again, you can see since stem:[A{B_2}] is parallel to stem:[{A_1}{B_1}], so stem:[{r_S}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}=\frac{\left|A{P_2}\right|}{\left|A{B_2}\right|}]. It means the selection of near plane and far plane doesn’t affect linear ratio at all, because they are all parallel to each other. So we can choose a good pair of near and far plane to simplify the problem, for example let stem:[A_V] be on near plane and stem:[B_V] be on far plane: stem:[n=-{A_V}.z], stem:[f=-{B_V}.z] (Or the other way around if stem:[B_V] is closer to camera, it doesn’t affect the result). Then in clip space we have 
+
+[stem]
+++++
+\begin{align*}
+{A_C}.z&=-1\\
+{B_C}.z&=1\\
+{P_C}.z&=({A_C}.z)(1-{r_S})+({B_C}.z){r_S}=2{r_S}-1
+\end{align*}
+++++
+
+With these special Z values in clip space, if we find out stem:[{P_V}.z] in view space, we can get the view space linear ratio stem:[{r_V}=\frac{{P_V}.z-{A_V}.z}{{B_V}.z-{A_V}.z}].
