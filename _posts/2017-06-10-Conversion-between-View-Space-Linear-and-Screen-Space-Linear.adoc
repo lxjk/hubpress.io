@@ -1,0 +1,9 @@
+= Conversion between View Space Linear and Screen Space Linear
+Eric Zhang
+v1.0, 2017-06-10
+
+:stem: latexmath
+:figure-caption!:
+
+Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the screen, we may march a large distance in view space but only move a pixel in screen space. Since all information are stored in pixels, we are wasting time sampling the same pixel. The other way around, if the ray is pointing to X/Y axis in view space, we might miss pixels if we march too fast in view space. So in general it is a better idea to march the ray in screen space instead. 
+
