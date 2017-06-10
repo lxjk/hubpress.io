@@ -32,3 +32,43 @@ Now take a look a figure 1 again, you can see since stem:[A{B_2}] is parallel to
 ++++
 
 With these special Z values in clip space, if we find out stem:[{P_V}.z] in view space, we can get the view space linear ratio stem:[{r_V}=\frac{{P_V}.z-{A_V}.z}{{B_V}.z-{A_V}.z}].
+
+Remember how perspective projection matrix is built:
+
+[stem]
+++++
+M=\left[ \begin{array}{} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & -\frac{f+n}{f-n} & -\frac{2fn}{f-n} \\ 0 & 0 & -1 & 0 \\ \end{array} \right] = \left[ \begin{array}{} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & \frac{{A_V}.z+{B_V}.z}{{A_V}.z-{B_V}.z} & -\frac{2({A_V}.z)({B_V}.z)}{{A_V}.z-{B_V}.z} \\ 0 & 0 & -1 & 0 \\ \end{array} \right]
+++++
+
+If we only look at Z value of stem:[P_C]:
+
+[stem]
+++++
+\begin{align*}
+{P_C}.z&=\frac{1}{(M{P_V}).w}(M{P_V}).z\\
+&=\frac{1}{-{P_V}.z}(\frac{{A_V}.z+{B_V}.z}{{A_V}.z-{B_V}.z}({P_V}.z)-\frac{2({A_V}.z)({B_V}.z)}{{A_V}.z-{B_V}.z})=2{r_S}-1
+\end{align*}
+++++
+
+Reorganize this equation, we can solve stem:[{P_V}.z]
+
+[stem]
+++++
+\begin{align*}
+({A_V}.z+{B_V}.z)({P_V}.z)-2({A_V}.z)({B_V}.z)&=-(2{r_S}-1)({A_V}.z-{B_V}.z)({P_V}.z)\\
+2(({B_V}.z)(1-{r_S})+({A_V}.z){r_S})({P_V}.z)&=2({A_V}.z)({B_V}.z)\\
+{P_V}.z&=\frac{({A_V}.z)({B_V}.z)}{({B_V}.z)(1-{r_S})+({A_V}.z){r_S}}\\
+&=\frac{1}{\frac{1}{{A_V}.z}(1-{r_S})+\frac{1}{{B_V}.z}{r_S}}
+\end{align*}
+++++
+
+When I got this result I was shocked, it turns out for any point stem:[P] in screen space (or clip space) with a linear interpolation ratio stem:[r_S] between two point stem:[A] and stem:[B], its linear depth stem:[{P_V}.z] is the reciprocal of a linear interpolation with the same ratio, but on the reciprocal of linear depth of stem:[A] and stem:[B]. Seems too good to be true, but if you look back at the reason why view space linear is different than screen space linear, it is because we need to divide by the W value after multiplying projection matrix (multiplying projection matrix itself won’t change linear ratio), which is effectively multiply by stem:[\frac{1}{-{P_V}.z}]. It sort of make sense that in screen space, linear interpolation will operate on stem:[\frac{1}{{P_V}.z}] instead, but sill amazing result.
+
+Now we can calculate view space linear ratio:
+
+[stem]
+++++
+\begin{align*}
+
+\end{align*}
+++++
