@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1497140356352" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1497140356352"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1497140478930" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1497140478930"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -158,7 +158,7 @@ null
 <p>If you wonder why \(r_s\) and \(r_v\) are different, take a look at figure 1. \({r_v}=\frac{\left|AP\right|}{\left|AB\right|}\), while \({r_s}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}\), they are the same only if \(AB\) is parallel to \({A_1}{B_1}\).</p>
 </div>
 <div class="paragraph">
-<p>First we want to simplify our problem a little bit. Recall how we project a point from view space to screen space, with projection matrix \(M\) and window size \(S\), for any point in view space \(Q_v\), we project it into clip space (range from -1 to 1): \({Q_c}=\frac{1}{(M{Q_v}).w}{M{Q_v}}\), then we remap it to screen space: \({Q_s}=\frac{1}{2}({Q_c}1)S]. Here stem:[S] is constant, so screen space is just a linear combination of view space, which means the linear ratio doesn’t change from clip space to view space: stem:[{P_c}={A_c}(1-{r_s}){B_c}{r_s}\). We can ignore screen space remap, and just work on clip space.</p>
+<p>First we want to simplify our problem a little bit. Recall how we project a point from view space to screen space, with projection matrix \(M\) and window size \(S\), for any point in view space \(Q_v\), we project it into clip space (range from -1 to 1): \({Q_c}=\frac{1}{(M{Q_v}).w}{M{Q_v}}\), then we remap it to screen space: \({Q_s}=\frac{1}{2}({Q_c} + 1)S\). Here \(S\) is constant, so screen space is just a linear combination of view space, which means the linear ratio doesn’t change from clip space to view space: \({P_c}={A_c}(1-{r_s})+{B_c}{r_s}\). We can ignore screen space remap, and just work on clip space.</p>
 </div>
 <div class="paragraph">
 <p>Now take a look a figure 1 again, you can see since \(A{B_2}\) is parallel to \({A_1}{B_1}\), so \({r_s}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}=\frac{\left|A{P_2}\right|}{\left|A{B_2}\right|}\). It means the selection of near plane and far plane doesn’t affect linear ratio at all, because they are all parallel to each other. So we can choose a good pair of near and far plane to simplify the problem, for example let \(A_v\) be on near plane and \(B_v\) be on far plane: \(n=-{A_v}.z\), \(f=-{B_v}.z\) (Or the other way around if \(B_v\) is closer to camera, it doesn’t affect the result). Then in clip space we have</p>
@@ -319,7 +319,7 @@ null
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1497140356352"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1497140478930"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
