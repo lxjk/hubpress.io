@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1497140478930" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1497140478930"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1497140823009" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1497140823009"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -201,7 +201,13 @@ null
 <div class="content">
 \[\begin{align*}
 ({A_v}.z+{B_v}.z)({P_v}.z)-2({A_v}.z)({B_v}.z)&amp;=-(2{r_s}-1)({A_v}.z-{B_v}.z)({P_v}.z)\\
-2(({B_v}.z)(1-{r_s})+({A_v}.z){r_s})({P_v}.z)&amp;=2({A_v}.z)({B_v}.z)\\
+2(({B_v}.z)(1-{r_s})+({A_v}.z){r_s})({P_v}.z)&amp;=2({A_v}.z)({B_v}.z)
+\end{align*}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
 {P_v}.z&amp;=\frac{({A_v}.z)({B_v}.z)}{({B_v}.z)(1-{r_s})+({A_v}.z){r_s}}\\
 &amp;=\frac{1}{\frac{1}{{A_v}.z}(1-{r_s})+\frac{1}{{B_v}.z}{r_s}}
 \end{align*}\]
@@ -227,7 +233,7 @@ null
 </div>
 <div class="stemblock">
 <div class="content">
-\[{r_s}=\frac{({B_v}.z){r_v}}{({A_v}.z)(1-{r_v})+({B_v}.z){r_v}}\\]
+\[{r_s}=\frac{({B_v}.z){r_v}}{({A_v}.z)(1-{r_v})+({B_v}.z){r_v}}\]
 </div>
 </div>
 <div class="imageblock" style="text-align: center">
@@ -237,7 +243,7 @@ null
 <div class="title">Figure 2</div>
 </div>
 <div class="paragraph">
-<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0}α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0}α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
+<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0} + α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0} + α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
 </div>
     </section>
 	
@@ -319,7 +325,7 @@ null
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1497140478930"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1497140823009"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
