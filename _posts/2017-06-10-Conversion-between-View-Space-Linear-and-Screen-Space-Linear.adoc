@@ -9,7 +9,7 @@ Some background of this problem: when doing screen space reflection, we need to 
 
 Now the problem becomes if we march to a point in screen space somewhere between start pixel and end pixel, what is the corresponding point in view space? Of course we can use projection matrix to un-project it back to view space, but since we already know start point and end point in view space, we can do better than that. Let’s define our problem more specifically:
 
-We know two points in view space stem:[A_V] and stem:[B_V], their projected point in screen space is stem:[A_S] and stem:[B_S]. In screen space, given a linear interpolation ratio stem:[r_S] and a point stem:[{P_S}={A_S}(1-{r_S})+{B_S}{r_S}], what is its corresponding point stem:[P_V] in view space, and the ratio stem:[r_V] such that stem:[{P_V}={A_V}(1-{r_V})+{B_V}{r_V}].
+We know two points in view space stem:[A_V] and stem:[B_V], their projected point in screen space is stem:[A_S] and stem:[B_S]. In screen space, given a linear interpolation ratio stem:[r_S] and a point stem:[{P_S}={A_S}(1-{r_S}) + {{B_S}{r_S}}], what is its corresponding point stem:[P_V] in view space, and the ratio stem:[r_V] such that stem:[{P_V}={A_V}(1-{r_V})+{B_V}{r_V}].
 
 We will use OpenGL coordinate (right-handed, Y up), so stem:[A_V] and stem:[B_V] has negative Z value.
 
