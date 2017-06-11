@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 11 Jun 2017 00:21:18 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Conversion between View Space Linear and Screen Space Linear]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 11 Jun 2017 00:27:03 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Conversion between View Space Linear and Screen Space Linear]]></title><description><![CDATA[<div class="paragraph">
 <p>Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the screen, we may march a large distance in view space but only move a pixel in screen space. Since all information are stored in pixels, we are wasting time sampling the same pixel. The other way around, if the ray is pointing to X/Y axis in view space, we might miss pixels if we march too fast in view space. So in general it is a better idea to march the ray in screen space instead.</p>
 </div>
 <div class="paragraph">
@@ -63,7 +63,13 @@
 <div class="content">
 \[\begin{align*}
 ({A_v}.z+{B_v}.z)({P_v}.z)-2({A_v}.z)({B_v}.z)&amp;=-(2{r_s}-1)({A_v}.z-{B_v}.z)({P_v}.z)\\
-2(({B_v}.z)(1-{r_s})+({A_v}.z){r_s})({P_v}.z)&amp;=2({A_v}.z)({B_v}.z)\\
+2(({B_v}.z)(1-{r_s})+({A_v}.z){r_s})({P_v}.z)&amp;=2({A_v}.z)({B_v}.z)
+\end{align*}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
 {P_v}.z&amp;=\frac{({A_v}.z)({B_v}.z)}{({B_v}.z)(1-{r_s})+({A_v}.z){r_s}}\\
 &amp;=\frac{1}{\frac{1}{{A_v}.z}(1-{r_s})+\frac{1}{{B_v}.z}{r_s}}
 \end{align*}\]
@@ -89,7 +95,7 @@
 </div>
 <div class="stemblock">
 <div class="content">
-\[{r_s}=\frac{({B_v}.z){r_v}}{({A_v}.z)(1-{r_v})+({B_v}.z){r_v}}\\]
+\[{r_s}=\frac{({B_v}.z){r_v}}{({A_v}.z)(1-{r_v})+({B_v}.z){r_v}}\]
 </div>
 </div>
 <div class="imageblock" style="text-align: center">
@@ -99,7 +105,7 @@
 <div class="title">Figure 2</div>
 </div>
 <div class="paragraph">
-<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0}α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0}α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
+<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0} + α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0} + α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
 </div>]]></description><link>https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 10 Jun 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
 <p>I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need to calculate the center \(C\) and radius \(R\) of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as \(α=\frac{fov}{2}\).</p>
 </div>
