@@ -69,6 +69,20 @@ Now we can calculate view space linear ratio:
 [stem]
 ++++
 \begin{align*}
-
+{r_V}&=\frac{{P_V}.z-{A_V}.z}{{B_V}.z-{A_V}.z}\\
+&=\frac{({A_V}.z){r_S}}{({B_V}.z)(1-{r_S})+({A_V}.z){r_S}}\\
+&=\frac{\frac{1}{{B_V}.z}{r_S}}{\frac{1}{{A_V}.z}(1-{r_S})+\frac{1}{{B_V}.z}{r_S}}
 \end{align*}
 ++++
+
+Inversely if we have view space linear ratio stem:[r_V], we can calculate screen space linear ratio:
+
+[stem]
+++++
+{r_S}=\frac{({B_V}.z){r_V}}{({A_V}.z)(1-{r_V})+({B_V}.z){r_V}}\
+++++
+
+.Figure 2
+image::https://en.wikipedia.org/wiki/Texture_mapping#/media/File:Perspective_correct_texture_mapping.jpg[, 600,align="center"]
+
+As I’m writing this post, I just realize another classic use case of this conversion: https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping[texture mapping]. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: stem:[{u_α}=\frac{(1-α)\frac{u_0}{z_0}+α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0}+α\frac{1}{z_1}}], where stem:[α] is screen space ratio between two end point stem:[u_0] and stem:[u_1] with linear depth stem:[z_0] and stem:[z_1]. We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.
