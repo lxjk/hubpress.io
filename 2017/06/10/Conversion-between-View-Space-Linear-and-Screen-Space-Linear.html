@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Conversion between View Space Linear and Screen Space Linear - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Conversion between View Space Linear and Screen Space Linear">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Conversion between View Space Linear and Screen Space Linear">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1497139823524" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1497139823524"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+    <link rel="canonical" href="https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Conversion between View Space Linear and Screen Space Linear" />
+    <meta property="og:description" content="Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the" />
+    <meta property="og:url" content="https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Conversion between View Space Linear and Screen Space Linear" />
+    <meta name="twitter:description" content="Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the" />
+    <meta name="twitter:url" content="https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+
+</head>
+<body class="post-template no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game Dev - Tool Dev - Math - Machine Learning -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Jun 10 2017" class="post-meta__date date">Jun 10 2017</time> &#8226; <span class="post-meta__tags tags"></span>
+        <span class="post-meta__author author"><img src="https://avatars3.githubusercontent.com/u/3803294?v&#x3D;3" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">Conversion between View Space Linear and Screen Space Linear</h1>
+    </header>
+
+    <section class="post">
+      <div class="paragraph">
+<p>Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the screen, we may march a large distance in view space but only move a pixel in screen space. Since all information are stored in pixels, we are wasting time sampling the same pixel. The other way around, if the ray is pointing to X/Y axis in view space, we might miss pixels if we march too fast in view space. So in general it is a better idea to march the ray in screen space instead.</p>
+</div>
+<div class="paragraph">
+<p>Now the problem becomes if we march to a point in screen space somewhere between start pixel and end pixel, what is the corresponding point in view space? Of course we can use projection matrix to un-project it back to view space, but since we already know start point and end point in view space, we can do better than that. Let’s define our problem more specifically:</p>
+</div>
+<div class="paragraph">
+<p>We know two points in view space \(A_V\) and \(B_V\), their projected point in screen space is \(A_S\) and \(B_S\). In screen space, given a linear interpolation ratio \(r_S\) and a point \({P_S}={A_S}(1-{r_S}){B_S}{r_S}], what is its corresponding point stem:[P_V] in view space, and the ratio stem:[r_V] such that stem:[{P_V}={A_V}(1-{r_V}){B_V}{r_V}\).</p>
+</div>
+<div class="paragraph">
+<p>We will use OpenGL coordinate (right-handed, Y up), so \(A_V\) and \(B_V\) has negative Z value.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/linearconversion/fig1.png" alt="fig1.png" width="400">
+</div>
+<div class="title">Figure 1</div>
+</div>
+<div class="paragraph">
+<p>If you wonder why \(r_S\) and \(r_V\) are different, take a look at figure 1. \({r_V}=\frac{\left|AP\right|}{\left|AB\right|}\), while \({r_S}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}\), they are the same only if \(AB\) is parallel to \({A_1}{B_1}\).</p>
+</div>
+<div class="paragraph">
+<p>First we want to simplify our problem a little bit. Recall how we project a point from view space to screen space, with projection matrix \(M\) and window size \(S\), for any point in view space \(Q_V\), we project it into clip space (range from -1 to 1): \({Q_C}=\frac{1}{(M{Q_V}).w}{M{Q_V}}\), then we remap it to screen space: \({Q_S}=\frac{1}{2}({Q_C}1)S]. Here stem:[S] is constant, so screen space is just a linear combination of view space, which means the linear ratio doesn’t change from clip space to view space: stem:[{P_C}={A_C}(1-{r_S}){B_C}{r_S}\). We can ignore screen space remap, and just work on clip space.</p>
+</div>
+<div class="paragraph">
+<p>Now take a look a figure 1 again, you can see since \(A{B_2}\) is parallel to \({A_1}{B_1}\), so \({r_S}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}=\frac{\left|A{P_2}\right|}{\left|A{B_2}\right|}\). It means the selection of near plane and far plane doesn’t affect linear ratio at all, because they are all parallel to each other. So we can choose a good pair of near and far plane to simplify the problem, for example let \(A_V\) be on near plane and \(B_V\) be on far plane: \(n=-{A_V}.z\), \(f=-{B_V}.z\) (Or the other way around if \(B_V\) is closer to camera, it doesn’t affect the result). Then in clip space we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{A_C}.z&amp;=-1\\
+{B_C}.z&amp;=1\\
+{P_C}.z&amp;=({A_C}.z)(1-{r_S})+({B_C}.z){r_S}=2{r_S}-1
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>With these special Z values in clip space, if we find out \({P_V}.z\) in view space, we can get the view space linear ratio \({r_V}=\frac{{P_V}.z-{A_V}.z}{{B_V}.z-{A_V}.z}\).</p>
+</div>
+<div class="paragraph">
+<p>Remember how perspective projection matrix is built:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} M_{00} &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; M_{11} &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -\frac{f+n}{f-n} &amp; -\frac{2fn}{f-n} \\ 0 &amp; 0 &amp; -1 &amp; 0 \\ \end{array} \right] = \left[ \begin{array}{} M_{00} &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; M_{11} &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; \frac{{A_V}.z+{B_V}.z}{{A_V}.z-{B_V}.z} &amp; -\frac{2({A_V}.z)({B_V}.z)}{{A_V}.z-{B_V}.z} \\ 0 &amp; 0 &amp; -1 &amp; 0 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we only look at Z value of \(P_C\):</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{P_C}.z&amp;=\frac{1}{(M{P_V}).w}(M{P_V}).z\\
+&amp;=\frac{1}{-{P_V}.z}(\frac{{A_V}.z+{B_V}.z}{{A_V}.z-{B_V}.z}({P_V}.z)-\frac{2({A_V}.z)({B_V}.z)}{{A_V}.z-{B_V}.z})=2{r_S}-1
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Reorganize this equation, we can solve \({P_V}.z\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+({A_V}.z+{B_V}.z)({P_V}.z)-2({A_V}.z)({B_V}.z)&amp;=-(2{r_S}-1)({A_V}.z-{B_V}.z)({P_V}.z)\\
+2(({B_V}.z)(1-{r_S})+({A_V}.z){r_S})({P_V}.z)&amp;=2({A_V}.z)({B_V}.z)\\
+{P_V}.z&amp;=\frac{({A_V}.z)({B_V}.z)}{({B_V}.z)(1-{r_S})+({A_V}.z){r_S}}\\
+&amp;=\frac{1}{\frac{1}{{A_V}.z}(1-{r_S})+\frac{1}{{B_V}.z}{r_S}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>When I got this result I was shocked, it turns out for any point \(P\) in screen space (or clip space) with a linear interpolation ratio \(r_S\) between two point \(A\) and \(B\), its linear depth \({P_V}.z\) is the reciprocal of a linear interpolation with the same ratio, but on the reciprocal of linear depth of \(A\) and \(B\). Seems too good to be true, but if you look back at the reason why view space linear is different than screen space linear, it is because we need to divide by the W value after multiplying projection matrix (multiplying projection matrix itself won’t change linear ratio), which is effectively multiply by \(\frac{1}{-{P_V}.z}\). It sort of make sense that in screen space, linear interpolation will operate on \(\frac{1}{{P_V}.z}\) instead, but sill amazing result.</p>
+</div>
+<div class="paragraph">
+<p>Now we can calculate view space linear ratio:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{r_V}&amp;=\frac{{P_V}.z-{A_V}.z}{{B_V}.z-{A_V}.z}\\
+&amp;=\frac{({A_V}.z){r_S}}{({B_V}.z)(1-{r_S})+({A_V}.z){r_S}}\\
+&amp;=\frac{\frac{1}{{B_V}.z}{r_S}}{\frac{1}{{A_V}.z}(1-{r_S})+\frac{1}{{B_V}.z}{r_S}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Inversely if we have view space linear ratio \(r_V\), we can calculate screen space linear ratio:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{r_S}=\frac{({B_V}.z){r_V}}{({A_V}.z)(1-{r_V})+({B_V}.z){r_V}}\\]
+</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Perspective_correct_texture_mapping.jpg" alt="Perspective correct texture mapping.jpg" width="600">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0}α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0}α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars3.githubusercontent.com/u/3803294?v&#x3D;3)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=Conversion%20between%20View%20Space%20Linear%20and%20Screen%20Space%20Linear&amp;url=https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2017. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1497139823524"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
