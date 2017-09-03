@@ -46,7 +46,7 @@ With this, we can actually directly write the form of the inverse of our matrix.
 
 [stem]
 ++++
-M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 & frac{1}{b}Y_0 & frac{1}{c}Z_0 & 0 \\ frac{1}{a}X_1 & frac{1}{b}Y_1 & frac{1}{c}Z_1 & 0 \\ frac{1}{a}X_2 & frac{1}{b}Y_2 & frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right]
+M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right] = \left[ \begin{array}{} \frac{1}{a}X_0 & \frac{1}{b}Y_0 & \frac{1}{c}Z_0 & 0 \\ \frac{1}{a}X_1 & \frac{1}{b}Y_1 & \frac{1}{c}Z_1 & 0 \\ \frac{1}{a}X_2 & \frac{1}{b}Y_2 & \frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right]
 ++++
 
 The nice thing about transform matrix stem:[M] is its first 3 rows are perpendicular to each other. Its inverse form is basically transpose the 3x3 rotation matrix, and rescale it, and change translation part by doing dot product with 3 rescaled axes. It should be easy to confirm stem:[MM^{-1}=I].
@@ -67,7 +67,7 @@ M^{-1}=\left[ \begin{array}{} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\
 
 Alright, enough theory, let’s see some code. This is our matrix definition.
 
-[source, c++]
+[source, c++, ]
 ----
 __declspec(align(16)) struct Matrix4
 {
