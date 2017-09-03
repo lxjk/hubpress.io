@@ -20,7 +20,7 @@ The transform matrix we are talking about here is defined as following:
 
 [stem]
 ++++
-M=\left[ \begin{array}{} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{array} \right] = \left[ \begin{array}{} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{array} \right]
+M=\begin{matrix} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix}= \begin{matrix} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{matrix}
 ++++
 
 The first 3 component of the last row is the translation stem:[\vec{T}]. The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have stem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0], and stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]. And the scale is stem:[(a,b,c)]. 
@@ -46,7 +46,7 @@ With this, we can actually directly write the form of the inverse of our matrix.
 
 [stem]
 ++++
-M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right] = \left[ \begin{array}{} \frac{1}{a}X_0 & \frac{1}{b}Y_0 & \frac{1}{c}Z_0 & 0 \\ \frac{1}{a}X_1 & \frac{1}{b}Y_1 & \frac{1}{c}Z_1 & 0 \\ \frac{1}{a}X_2 & \frac{1}{b}Y_2 & \frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right]
+M^{-1}=\begin{matrix} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix}= \begin{matrix} \frac{1}{a}X_0 & \frac{1}{b}Y_0 & \frac{1}{c}Z_0 & 0 \\ \frac{1}{a}X_1 & \frac{1}{b}Y_1 & \frac{1}{c}Z_1 & 0 \\ \frac{1}{a}X_2 & \frac{1}{b}Y_2 & \frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix}
 ++++
 
 The nice thing about transform matrix stem:[M] is its first 3 rows are perpendicular to each other. Its inverse form is basically transpose the 3x3 rotation matrix, and rescale it, and change translation part by doing dot product with 3 rescaled axes. It should be easy to confirm stem:[MM^{-1}=I].
@@ -55,14 +55,14 @@ Now let’s bake in the scale (so stem:[\left|\vec{X}\right|=a],stem:[\left|\vec
 
 [stem]
 ++++
-M=\left[ \begin{array}{} \vec{X} & 0 \\ \vec{Y} & 0 \\ \vec{Z} & 0 \\ \vec{T} & 1 \\ \end{array} \right], M^{-1}=\left[ \begin{array}{} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & -\vec{T}\cdot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & -\vec{T}\cdot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & 1 \\ \end{array} \right]
+M=\begin{matrix} \vec{X} & 0 \\ \vec{Y} & 0 \\ \vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix}, M^{-1}=\begin{matrix} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & -\vec{T}\cdot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & -\vec{T}\cdot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & 1 \\ \end{matrix}
 ++++
 
 Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is a good new for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.
 
 [stem]
 ++++
-M^{-1}=\left[ \begin{array}{} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\cdot\vec{X} & -\vec{T}\cdot\vec{Y} & -\vec{T}\cdot\vec{Z} & 1 \\ \end{array} \right]
+M^{-1}=\begin{matrix} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\cdot\vec{X} & -\vec{T}\cdot\vec{Y} & -\vec{T}\cdot\vec{Z} & 1 \\ \end{matrix}
 ++++
 
 Alright, enough theory, let’s see some code. This is our matrix definition.
@@ -188,7 +188,7 @@ A 4x4 matrix can be described as 4 2x2 sub matrices. The good things about 2x2 m
 
 [stem]
 ++++
-M=\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]=\left[ \begin{array}{} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{array} \right]
+M=\begin{matrix} A & B \\ C & D \\ \end{matrix}=\begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix}
 ++++
 
 Matrix block-wise inverse is given by the following:
@@ -196,8 +196,8 @@ Matrix block-wise inverse is given by the following:
 [stem]
 ++++
 \begin{align*}
-{\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}&=\left[ \begin{array}{} A^{-1}+A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} & -A^{-1}B(D-CA^{-1}B)^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{array} \right]\\
-&=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -D^{-1}C(A-BD^{-1}C)^{-1} & D^{-1}+D^{-1}C(A-BD^{-1}C)^{-1}BD^{-1} \\ \end{array} \right]
+{\begin{matrix} A & B \\ C & D \\ \end{matrix}}^{-1}&=\begin{matrix} A^{-1}+A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} & -A^{-1}B(D-CA^{-1}B)^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{matrix}\\
+&=\begin{matrix} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -D^{-1}C(A-BD^{-1}C)^{-1} & D^{-1}+D^{-1}C(A-BD^{-1}C)^{-1}BD^{-1} \\ \end{matrix}
 \end{align*}
 ++++
 
@@ -205,7 +205,7 @@ We actually use a mix of these two forms, 2nd row from the first form, and 1st r
 
 [stem]
 ++++
-{\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{array} \right]
+{\begin{matrix} A & B \\ C & D \\ \end{matrix}}^{-1}=\begin{matrix} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{matrix}
 ++++
 
 This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: stem:[A^{-1}] and stem:[(D-CA^{-1} B)^{-1}], however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.
@@ -214,7 +214,7 @@ Before we start derivation, we need to introduce some concepts. The adjugate of 
 
 [stem]
 ++++
-A^{\#}={\left[ \begin{array}{} A_0 & A_1 \\ A_2 & A_3 \\ \end{array} \right]}^{\#}=\left[ \begin{array}{} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{array} \right]
+A^{\#}={\begin{matrix} A_0 & A_1 \\ A_2 & A_3 \\ \end{matrix}}^{\#}=\begin{matrix} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{matrix}
 ++++
 
 Adjugate of 2x2 matrix has the following property: stem:[(AB)^{\#}=B^{\#}], stem:[A^{\#}],stem:[(A^{\#})^{\#}=A], stem:[(cA)^{\#}=cA^{\#}].
@@ -223,7 +223,7 @@ For determinant of 2x2 matrix, we will use the following properties: stem:[\left
 
 For trace of matrix we have stem:[\operatorname{tr}(AB)=\operatorname{tr}(BA)], stem:[\operatorname{tr}(-A)=-\operatorname{tr}(A)].
 
-Finally for our block matrices stem:[M={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}], the determinant is
+Finally for our block matrices stem:[M={\begin{matrix} A & B \\ C & D \\ \end{matrix}}], the determinant is
 
 [stem]
 ++++
@@ -232,7 +232,7 @@ Finally for our block matrices stem:[M={\left[ \begin{array}{} A & B \\ C & D \\
 
 I only listed properties needed for derivation. If you are not familiar with these concepts, or want to know more about them, take a look at the wiki pages above.
 
-Let stem:[M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}={\left[ \begin{array}{} X & Y \\ Z & W \\ \end{array} \right]}].Let’s start with the top left corner.
+Let stem:[M^{-1}={\begin{matrix} A & B \\ C & D \\ \end{matrix}}^{-1}={\begin{matrix} X & Y \\ Z & W \\ \end{matrix}}].Let’s start with the top left corner.
 
 [stem]
 ++++
@@ -277,7 +277,7 @@ Here we also changed from stem:[B^{\#}A] to stem:[(A^{\#}B)^{\#}], so we can reu
 
 [stem]
 ++++
-M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\frac{1}{\left|M\right|}{\left[ \begin{array}{} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{array} \right]}
+M^{-1}={\begin{matrix} A & B \\ C & D \\ \end{matrix}}^{-1}=\frac{1}{\left|M\right|}{\begin{matrix} \begin{array}{} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{array} \right]}
 ++++
 
 Now it is clear what kind of calculation we need. We need 2x2 matrix multiply and multiply by adjugate: stem:[AB], stem:[A^{\#}B] and stem:[AB^{\#}]. We already know how to do adjugate, but in this case, adjugate can be combined with multiplication so we don’t waste instructions. Just expand the result and rearrange the order, for example:
