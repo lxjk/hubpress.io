@@ -193,4 +193,23 @@ M=\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]=\left[ \begin{arr
 
 Matrix block-wise inverse is given by the following:
 
+[stem]
+++++
+\begin{align*}
+{\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}&=\left[ \begin{array}{} A^{-1}+A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} & -A^{-1}B(D-CA^{-1}B)^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{array} \right]\\
+&=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -D^{-1}C(A-BD^{-1}C)^{-1} & D^{-1}+D^{-1}C(A-BD^{-1}C)^{-1}BD^{-1} \\ \end{array} \right]
+\end{align*}
+++++
+
+We actually use a mix of these two forms, 2nd row from the first form, and 1st row from the second form.
+
+[stem]
+++++
+{\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{array} \right]
+++++
+
+This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: stem:[A^{-1}] and stem:[(D-CA^{-1} B)^{-1}], however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.
+
+Before we start derivation, we need to introduce some concepts. The adjugate of matrix stem:[A] is defined as stem:[A\operatorname{adj}(A)=\left|A\right|I], where stem:[\left|A\right|] is determinant of stem:[A]. For convenience, in this post we denote adjugate matrix as stem:[A^{#}=\operatorname{adj}(A)]. So we can change inverse calculation to adjugate calculation by stem:[A^{-1}=\frac{1}{\left|A\right|}A^{#}]. Adjugate of 2x2 matrix is:
+
 === Appendix
