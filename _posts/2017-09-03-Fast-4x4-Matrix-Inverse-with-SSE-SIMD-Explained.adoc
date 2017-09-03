@@ -49,6 +49,26 @@ With this, we can actually directly write the form of the inverse of our matrix.
 M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\dot\frac{1}{a}\vec{X} & -\vec{T}\dot\frac{1}{b}\vec{Y} & -\vec{T}\dot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 & frac{1}{b}Y_0 & frac{1}{c}Z_0 & 0 \\ frac{1}{a}X_1 & frac{1}{b}Y_1 & frac{1}{c}Z_1 & 0 \\ frac{1}{a}X_2 & frac{1}{b}Y_2 & frac{1}{c}Z_2 & 0 \\ -\vec{T}\dot\frac{1}{a}\vec{X} & -\vec{T}\dot\frac{1}{b}\vec{Y} & -\vec{T}\dot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right]
 ++++
 
+The nice thing about transform matrix stem:[M] is its first 3 rows are perpendicular to each other. Its inverse form is basically transpose the 3x3 rotation matrix, and rescale it, and change translation part by doing dot product with 3 rescaled axes. It should be easy to confirm stem:[MM^{-1}=I].
+
+Now let’s bake in the scale (so stem:[\left|\vec{X}\right|=a],stem:[\left|\vec{Y}\right|=b],stem:[\left|\vec{Z}\right|=c]) and get a more generic form.
+
+[stem]
+++++
+M=\left[ \begin{array}{} \vec{X} & 0 \\ \vec{Y} & 0 \\ \vec{Z} & 0 \\ \vec{T} & 1 \\ \end{array} \right], M^{-1}=\left[ \begin{array}{} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & \vec{0} \\ -\vec{T}\dot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & -\vec{T}\dot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & -\vec{T}\dot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & 1 \\ \end{array} \right]
+++++
+
+Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is a good new for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.
+
+[stem]
+++++
+M^{-1}=\left[ \begin{array}{} \\vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\dot\vec{X} & -\vec{T}\dot\vec{Y} & -\vec{T}\dot\vec{Z} & 1 \\ \end{array} \right]
+++++
+
+Alright, enough theory, let’s see some code. This is our matrix definition.
+
+
+
 === General Matrix Inverse
 
 
