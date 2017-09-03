@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504477944178" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504477944178"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504478368666" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504478368666"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -168,7 +168,7 @@ null
 </div>
 </div>
 <div class="paragraph">
-<p>The first 3 component of the last row is the translation \(\vec{T}\). The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have \(\vec{X}\dot\vec{Y}=\vec{X}\dot\vec{Z}=\vec{Y}\dot\vec{Z}=0\), and \(\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1\). And the scale is \((a,b,c)\).</p>
+<p>The first 3 component of the last row is the translation \(\vec{T}\). The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have \(\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0\), and \(\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1\). And the scale is \((a,b,c)\).</p>
 </div>
 <div class="paragraph">
 <p>Most matrices in the game are of this form. For example, \(M\) represents a local to world transform, \(\vec{X}\), \(\vec{Y}\), \(\vec{Z}\) are your local space axes. If you have a point \(\vec{P}(P_0,P_1,P_2)\), and you want to transform it from local space to world space, you do this:</p>
@@ -184,8 +184,8 @@ null
 <div class="stemblock">
 <div class="content">
 \[\begin{align*}
-\vec{P}&amp;=(\frac{1}{a}(\vec{P'}-\vec{T})\dot\vec{X},\frac{1}{b}(\vec{P'}-\vec{T})\dot\vec{Y},\frac{1}{c}(\vec{P'}-\vec{T})\dot\vec{Z})\\
-&amp;=(\frac{1}{a}\vec{P'}\dot\vec{X},\frac{1}{b}\vec{P'}\dot\vec{Y},\frac{1}{c}\vec{P'}\dot\vec{Z})-(\frac{1}{a}\vec{T}\dot\vec{X},\frac{1}{b}\vec{T}\dot\vec{Y},\frac{1}{c}\vec{T}\dot\vec{Z})
+\vec{P}&amp;=(\frac{1}{a}(\vec{P'}-\vec{T})\cdot\vec{X},\frac{1}{b}(\vec{P'}-\vec{T})\cdot\vec{Y},\frac{1}{c}(\vec{P'}-\vec{T})\cdot\vec{Z})\\
+&amp;=(\frac{1}{a}\vec{P'}\cdot\vec{X},\frac{1}{b}\vec{P'}\cdot\vec{Y},\frac{1}{c}\vec{P'}\cdot\vec{Z})-(\frac{1}{a}\vec{T}\cdot\vec{X},\frac{1}{b}\vec{T}\cdot\vec{Y},\frac{1}{c}\vec{T}\cdot\vec{Z})
 \end{align*}\]
 </div>
 </div>
@@ -194,7 +194,7 @@ null
 </div>
 <div class="stemblock">
 <div class="content">
-\[M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} &amp; \frac{1}{b}\vec{Y} &amp; \frac{1}{c}\vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\frac{1}{a}\vec{X} &amp; -\vec{T}\dot\frac{1}{b}\vec{Y} &amp; -\vec{T}\dot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 &amp; frac{1}{b}Y_0 &amp; frac{1}{c}Z_0 &amp; 0 \\ frac{1}{a}X_1 &amp; frac{1}{b}Y_1 &amp; frac{1}{c}Z_1 &amp; 0 \\ frac{1}{a}X_2 &amp; frac{1}{b}Y_2 &amp; frac{1}{c}Z_2 &amp; 0 \\ -\vec{T}\dot\frac{1}{a}\vec{X} &amp; -\vec{T}\dot\frac{1}{b}\vec{Y} &amp; -\vec{T}\dot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right]\]
+\[M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} &amp; \frac{1}{b}\vec{Y} &amp; \frac{1}{c}\vec{Z} &amp; \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} &amp; -\vec{T}\cdot\frac{1}{b}\vec{Y} &amp; -\vec{T}\cdot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 &amp; frac{1}{b}Y_0 &amp; frac{1}{c}Z_0 &amp; 0 \\ frac{1}{a}X_1 &amp; frac{1}{b}Y_1 &amp; frac{1}{c}Z_1 &amp; 0 \\ frac{1}{a}X_2 &amp; frac{1}{b}Y_2 &amp; frac{1}{c}Z_2 &amp; 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} &amp; -\vec{T}\cdot\frac{1}{b}\vec{Y} &amp; -\vec{T}\cdot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right]\]
 </div>
 </div>
 <div class="paragraph">
@@ -205,7 +205,7 @@ null
 </div>
 <div class="stemblock">
 <div class="content">
-\[M=\left[ \begin{array}{} \vec{X} &amp; 0 \\ \vec{Y} &amp; 0 \\ \vec{Z} &amp; 0 \\ \vec{T} &amp; 1 \\ \end{array} \right], M^{-1}=\left[ \begin{array}{} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; -\vec{T}\dot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; -\vec{T}\dot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; 1 \\ \end{array} \right]\]
+\[M=\left[ \begin{array}{} \vec{X} &amp; 0 \\ \vec{Y} &amp; 0 \\ \vec{Z} &amp; 0 \\ \vec{T} &amp; 1 \\ \end{array} \right], M^{-1}=\left[ \begin{array}{} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; \vec{0} \\ -\vec{T}\cdot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; -\vec{T}\cdot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; -\vec{T}\cdot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; 1 \\ \end{array} \right]\]
 </div>
 </div>
 <div class="paragraph">
@@ -213,7 +213,7 @@ null
 </div>
 <div class="stemblock">
 <div class="content">
-\[M^{-1}=\left[ \begin{array}{} \vec{X} &amp; \vec{Y} &amp; \vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\vec{X} &amp; -\vec{T}\dot\vec{Y} &amp; -\vec{T}\dot\vec{Z} &amp; 1 \\ \end{array} \right]\]
+\[M^{-1}=\left[ \begin{array}{} \vec{X} &amp; \vec{Y} &amp; \vec{Z} &amp; \vec{0} \\ -\vec{T}\cdot\vec{X} &amp; -\vec{T}\cdot\vec{Y} &amp; -\vec{T}\cdot\vec{Z} &amp; 1 \\ \end{array} \right]\]
 </div>
 </div>
 <div class="paragraph">
@@ -461,7 +461,7 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504477944178"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504478368666"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
