@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Fast 4x4 Matrix Inverse with SSE SIMD, Explained - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Fast 4x4 Matrix Inverse with SSE SIMD, Explained">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Fast 4x4 Matrix Inverse with SSE SIMD, Explained">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504477944178" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504477944178"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+    <link rel="canonical" href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Fast 4x4 Matrix Inverse with SSE SIMD, Explained" />
+    <meta property="og:description" content="Table of Contents Transform Matrix Inverse General Matrix Inverse Appendix Before we start, think about this question: do we really need the inverse of a general matrix? I came to this problem when writing a math library for my game engine. If you are making a game or 3D application," />
+    <meta property="og:url" content="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Fast 4x4 Matrix Inverse with SSE SIMD, Explained" />
+    <meta name="twitter:description" content="Table of Contents Transform Matrix Inverse General Matrix Inverse Appendix Before we start, think about this question: do we really need the inverse of a general matrix? I came to this problem when writing a math library for my game engine. If you are making a game or 3D application," />
+    <meta name="twitter:url" content="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+
+</head>
+<body class="post-template no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game Dev - Tool Dev - Math - Machine Learning -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Sep 03 2017" class="post-meta__date date">Sep 03 2017</time> &#8226; <span class="post-meta__tags tags"></span>
+        <span class="post-meta__author author"><img src="https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">Fast 4x4 Matrix Inverse with SSE SIMD, Explained</h1>
+    </header>
+
+    <section class="post">
+      <div id="preamble">
+<div class="sectionbody">
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel2">
+<li><a href="#_transform_matrix_inverse">Transform Matrix Inverse</a></li>
+<li><a href="#_general_matrix_inverse">General Matrix Inverse</a></li>
+<li><a href="#_appendix">Appendix</a></li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Before we start, think about this question: do we really need the inverse of a general matrix?</p>
+</div>
+<div class="paragraph">
+<p>I came to this problem when writing a math library for my game engine. If you are making a game or 3D application, we use 4x4 matrix for object transform, which is a combination of 3D translation, rotation and scale. If most of your matrix are used as transform matrix, because of their special property, we have a fast route for calculating their inverse. In fact transform matrix inverse is only 50% of the cost compared to the optimized general matrix inverse. In the first half of this post we will talk about transform matrix.  In the second half we will dive in and explain the SIMD version of general 4x4 matrix inverse, and we compare the performance of our method with commonly used math libraries from UE4, Eigen and DirectX Math.</p>
+</div>
+<div class="paragraph">
+<p>The matrices used in this post are row major. This is mainly for (1) easier to demonstrate and visualize with matrix data layout; (2) easier to compare with other math library. The same matrix inverse function works for both row major and column major, because \(A^{-1}=((A^{T})^{-1})^{T}\) (inverse is the same as transpose, inverse then transpose again). However if you are a column major guy like myself, I have a full-on column major version for you in <a href="#_appendix">Appendix</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_transform_matrix_inverse">Transform Matrix Inverse</h3>
+<div class="paragraph">
+<p>The transform matrix we are talking about here is defined as following:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} a\vec{X} &amp; 0 \\ b\vec{Y} &amp; 0 \\ c\vec{Z} &amp; 0 \\ \vec{T} &amp; 1 \\ \end{array} \right] = \left[ \begin{array}{} aX_0 &amp; aX_1 &amp; aX_2 &amp; 0 \\ bY_0 &amp; bY_1 &amp; bY_2 &amp; 0 \\ cZ_0 &amp; cZ_1 &amp; cZ_2 &amp; 0 \\ T_0 &amp; T_1 &amp; T_2 &amp; 1 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>The first 3 component of the last row is the translation \(\vec{T}\). The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have \(\vec{X}\dot\vec{Y}=\vec{X}\dot\vec{Z}=\vec{Y}\dot\vec{Z}=0\), and \(\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1\). And the scale is \((a,b,c)\).</p>
+</div>
+<div class="paragraph">
+<p>Most matrices in the game are of this form. For example, \(M\) represents a local to world transform, \(\vec{X}\), \(\vec{Y}\), \(\vec{Z}\) are your local space axes. If you have a point \(\vec{P}(P_0,P_1,P_2)\), and you want to transform it from local space to world space, you do this:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{P'}=P_0a\vec{X}+P_1b\vec{Y}+P_2c\vec{Z}+\vec{T}\]
+</div>
+</div>
+<div class="paragraph">
+<p>This is the same as extend \(\vec{P}\) to a 4 component vector \(\vec{P}(P_0,P_1,P_2,1)\) and multiply by matrix \(M\). Now what does inverse matrix \(M^{-1}\) mean? In this case it represents a world to local transform, so if we multiply \(\vec{P'}\) by \(M^{-1}\), we should get \(\vec{P}\) back. How do we transform the point \(\vec{P'}\) in world space back in local space? We subtract the local space origin (aka the translation \(\vec{T}\)), then dot each axes to get its local space coordinate and rescale it:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{P}&amp;=(\frac{1}{a}(\vec{P'}-\vec{T})\dot\vec{X},\frac{1}{b}(\vec{P'}-\vec{T})\dot\vec{Y},\frac{1}{c}(\vec{P'}-\vec{T})\dot\vec{Z})\\
+&amp;=(\frac{1}{a}\vec{P'}\dot\vec{X},\frac{1}{b}\vec{P'}\dot\vec{Y},\frac{1}{c}\vec{P'}\dot\vec{Z})-(\frac{1}{a}\vec{T}\dot\vec{X},\frac{1}{b}\vec{T}\dot\vec{Y},\frac{1}{c}\vec{T}\dot\vec{Z})
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>With this, we can actually directly write the form of the inverse of our matrix.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} &amp; \frac{1}{b}\vec{Y} &amp; \frac{1}{c}\vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\frac{1}{a}\vec{X} &amp; -\vec{T}\dot\frac{1}{b}\vec{Y} &amp; -\vec{T}\dot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 &amp; frac{1}{b}Y_0 &amp; frac{1}{c}Z_0 &amp; 0 \\ frac{1}{a}X_1 &amp; frac{1}{b}Y_1 &amp; frac{1}{c}Z_1 &amp; 0 \\ frac{1}{a}X_2 &amp; frac{1}{b}Y_2 &amp; frac{1}{c}Z_2 &amp; 0 \\ -\vec{T}\dot\frac{1}{a}\vec{X} &amp; -\vec{T}\dot\frac{1}{b}\vec{Y} &amp; -\vec{T}\dot\frac{1}{c}\vec{Z} &amp; 1 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>The nice thing about transform matrix \(M\) is its first 3 rows are perpendicular to each other. Its inverse form is basically transpose the 3x3 rotation matrix, and rescale it, and change translation part by doing dot product with 3 rescaled axes. It should be easy to confirm \(MM^{-1}=I\).</p>
+</div>
+<div class="paragraph">
+<p>Now let’s bake in the scale (so \(\left|\vec{X}\right|=a\),\(\left|\vec{Y}\right|=b\),\(\left|\vec{Z}\right|=c\)) and get a more generic form.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} \vec{X} &amp; 0 \\ \vec{Y} &amp; 0 \\ \vec{Z} &amp; 0 \\ \vec{T} &amp; 1 \\ \end{array} \right], M^{-1}=\left[ \begin{array}{} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} &amp; -\vec{T}\dot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} &amp; -\vec{T}\dot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} &amp; 1 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is a good new for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{-1}=\left[ \begin{array}{} \vec{X} &amp; \vec{Y} &amp; \vec{Z} &amp; \vec{0} \\ -\vec{T}\dot\vec{X} &amp; -\vec{T}\dot\vec{Y} &amp; -\vec{T}\dot\vec{Z} &amp; 1 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Alright, enough theory, let’s see some code. This is our matrix definition.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">__declspec(align(16)) struct Matrix4
+{
+public:
+	union
+	{
+		float m[4][4];
+		__m128 mVec[4];
+	};
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle macros. Hopefully they will make it easier to read. We also make use of faster instructions for special shuffles.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">#define MakeShuffleMask(x,y,z,w)			(x | (y&lt;&lt;2) | (z&lt;&lt;4) | (w&lt;&lt;6))
+
+// vec(0, 1, 2, 3) -&gt; (vec[x], vec[y], vec[z], vec[w])
+#define VecSwizzle(vec, x,y,z,w)			_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
+#define VecSwizzle1(vec, x) 				_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,x,x,x))
+// special swizzle
+#define VecSwizzle_0101(vec)				_mm_movelh_ps(vec, vec)
+#define VecSwizzle_2323(vec)				_mm_movehl_ps(vec, vec)
+#define VecSwizzle_0022(vec)				_mm_moveldup_ps(vec)
+#define VecSwizzle_1133(vec)				_mm_movehdup_ps(vec)
+
+// return (vec1[x], vec1[y], vec2[z], vec2[w])
+#define VecShuffle(vec1, vec2, x,y,z,w)		_mm_shuffle_ps(vec1, vec2, MakeShuffleMask(x,y,z,w))
+// special shuffle
+#define VecShuffle_0101(vec1, vec2)			_mm_movelh_ps(vec1, vec2)
+#define VecShuffle_2323(vec1, vec2)			_mm_movehl_ps(vec2, vec1)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is our first function to inverse transform matrix without scaling (always unit scale).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
+inline Matrix4 GetTransformInverseNoScale(const Matrix4&amp; inM)
+{
+	Matrix4 r;
+
+	// transpose 3x3, we know m03 = m13 = m23 = 0
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// last line
+	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Very straight forward. This is the fastest function you can have, it only does a transpose and some dot products. If we add in scales, it takes a little more time to do rescaling, but still pretty fast. There is a little trick for calculating squared size, we can make use of the fact that we need to transpose 3x3 rotation part anyway, do squared size after and calculate 3 axes in one go.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-c++" data-lang="c++">#define SMALL_NUMBER		(1.e-8f)
+
+// Requires this matrix to be transform matrix
+inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
+{
+	Matrix4 r;
+
+	// transpose 3x3, we know m03 = m13 = m23 = 0
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// (SizeSqr(mVec[0]), SizeSqr(mVec[1]), SizeSqr(mVec[2]), 0)
+	__m128 sizeSqr;
+	sizeSqr =						_mm_mul_ps(r.mVec[0], r.mVec[0]);
+	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[1], r.mVec[1]));
+	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[2], r.mVec[2]));
+
+	// optional test to avoid divide by 0
+	__m128 one = _mm_set1_ps(1.f);
+	// for each component, if(sizeSqr &lt; SMALL_NUMBER) sizeSqr = 1;
+	__m128 rSizeSqr = _mm_blendv_ps(
+		_mm_div_ps(one, sizeSqr),
+		one,
+		_mm_cmplt_ps(sizeSqr, _mm_set1_ps(SMALL_NUMBER))
+		);
+
+	r.mVec[0] = _mm_mul_ps(r.mVec[0], rSizeSqr);
+	r.mVec[1] = _mm_mul_ps(r.mVec[1], rSizeSqr);
+	r.mVec[2] = _mm_mul_ps(r.mVec[2], rSizeSqr);
+
+	// last line
+	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice the top and bottom of the function is exactly the same as the NoScale version. In the middle we calculate squared size, with an optional divide-by-small-number test.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_general_matrix_inverse">General Matrix Inverse</h3>
+<div class="paragraph">
+<p>For general matrix, things are getting complicated. You can find most of the theory part in the following wiki pages:
+<a href="https://en.wikipedia.org/wiki/Invertible_matrix">Invertible Matrix</a>, <a href="https://en.wikipedia.org/wiki/Adjugate_matrix">Adjugate Matrix</a>, <a href="https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace">Determinant</a>, <a href="https://en.wikipedia.org/wiki/Trace_(linear_algebra)">Trace</a>.</p>
+</div>
+<div class="paragraph">
+<p>We will introduce some of them as we go. The method is based on the same block matrices method Intel used for its <a href="https://software.intel.com/en-us/articles/optimized-matrix-library-for-use-with-the-intel-pentiumr-4-processors-sse2-instructions/">Optimized Matrix Library</a>.</p>
+</div>
+<div class="paragraph">
+<p>A 4x4 matrix can be described as 4 2x2 sub matrices. The good things about 2x2 matrix are not only it is easy to calculate their inverse or determinant, but also because they can fit in one vector register, their calculation can be done very fast.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right]=\left[ \begin{array}{} A_0 &amp; A_1 &amp; B_0 &amp; B_1 \\ A_2 &amp; A_3 &amp; B_2 &amp; B_3 \\ C_0 &amp; C_1 &amp; D_0 &amp; D_1 \\ C_2 &amp; C_3 &amp; D_2 &amp; D_3 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Matrix block-wise inverse is given by the following:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right]}^{-1}&amp;=\left[ \begin{array}{} A^{-1}+A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} &amp; -A^{-1}B(D-CA^{-1}B)^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} &amp; (D-CA^{-1}B)^{-1} \\ \end{array} \right]\\
+&amp;=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} &amp; -(A-BD^{-1}C)^{-1}BD^{-1} \\ -D^{-1}C(A-BD^{-1}C)^{-1} &amp; D^{-1}+D^{-1}C(A-BD^{-1}C)^{-1}BD^{-1} \\ \end{array} \right]
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We actually use a mix of these two forms, 2nd row from the first form, and 1st row from the second form.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right]}^{-1}=\left[ \begin{array}{} (A-BD^{-1}C)^{-1} &amp; -(A-BD^{-1}C)^{-1}BD^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} &amp; (D-CA^{-1}B)^{-1} \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: \(A^{-1}\) and \((D-CA^{-1} B)^{-1}\), however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.</p>
+</div>
+<div class="paragraph">
+<p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{#}\). Adjugate of 2x2 matrix is:</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_appendix">Appendix</h3>
+
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=Fast%204x4%20Matrix%20Inverse%20with%20SSE%20SIMD%2C%20Explained&amp;url=https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2017. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504477944178"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
