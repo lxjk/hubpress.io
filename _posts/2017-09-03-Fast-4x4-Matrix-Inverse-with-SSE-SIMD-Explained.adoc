@@ -62,14 +62,135 @@ Notice that for rescaling, we divide by squared size of scaled axis, instead of 
 
 [stem]
 ++++
-M^{-1}=\left[ \begin{array}{} \\vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\dot\vec{X} & -\vec{T}\dot\vec{Y} & -\vec{T}\dot\vec{Z} & 1 \\ \end{array} \right]
+M^{-1}=\left[ \begin{array}{} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\dot\vec{X} & -\vec{T}\dot\vec{Y} & -\vec{T}\dot\vec{Z} & 1 \\ \end{array} \right]
 ++++
 
 Alright, enough theory, let’s see some code. This is our matrix definition.
 
+[source, c++]
+----
+__declspec(align(16)) struct Matrix4
+{
+public:
+	union
+	{
+		float m[4][4];
+		__m128 mVec[4];
+	};
+};
+----
 
+Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle macros. Hopefully they will make it easier to read. We also make use of faster instructions for special shuffles.
+
+[source, c++]
+----
+#define MakeShuffleMask(x,y,z,w)			(x | (y<<2) | (z<<4) | (w<<6))
+
+// vec(0, 1, 2, 3) -> (vec[x], vec[y], vec[z], vec[w])
+#define VecSwizzle(vec, x,y,z,w)			_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
+#define VecSwizzle1(vec, x) 				_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,x,x,x))
+// special swizzle
+#define VecSwizzle_0101(vec)				_mm_movelh_ps(vec, vec)
+#define VecSwizzle_2323(vec)				_mm_movehl_ps(vec, vec)
+#define VecSwizzle_0022(vec)				_mm_moveldup_ps(vec)
+#define VecSwizzle_1133(vec)				_mm_movehdup_ps(vec)
+
+// return (vec1[x], vec1[y], vec2[z], vec2[w])
+#define VecShuffle(vec1, vec2, x,y,z,w)		_mm_shuffle_ps(vec1, vec2, MakeShuffleMask(x,y,z,w))
+// special shuffle
+#define VecShuffle_0101(vec1, vec2)			_mm_movelh_ps(vec1, vec2)
+#define VecShuffle_2323(vec1, vec2)			_mm_movehl_ps(vec2, vec1)
+----
+
+Here is our first function to inverse transform matrix without scaling (always unit scale).
+
+[source, c++]
+----
+// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
+inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
+{
+	Matrix4 r;
+
+	// transpose 3x3, we know m03 = m13 = m23 = 0	
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// last line
+	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}
+----
+
+Very straight forward. This is the fastest function you can have, it only does a transpose and some dot products. If we add in scales, it takes a little more time to do rescaling, but still pretty fast. There is a little trick for calculating squared size, we can make use of the fact that we need to transpose 3x3 rotation part anyway, do squared size after and calculate 3 axes in one go.
+
+[source, c++]
+----
+#define SMALL_NUMBER		(1.e-8f)
+
+// Requires this matrix to be transform matrix
+inline Matrix4 GetTransformInverse(const Matrix4& inM)
+{
+	Matrix4 r;
+	
+	// transpose 3x3, we know m03 = m13 = m23 = 0	
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// (SizeSqr(mVec[0]), SizeSqr(mVec[1]), SizeSqr(mVec[2]), 0)
+	__m128 sizeSqr;
+	sizeSqr =						_mm_mul_ps(r.mVec[0], r.mVec[0]);
+	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[1], r.mVec[1]));
+	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[2], r.mVec[2]));
+
+	// optional test to avoid divide by 0
+	__m128 one = _mm_set1_ps(1.f);
+	// for each component, if(sizeSqr < SMALL_NUMBER) sizeSqr = 1;
+	__m128 rSizeSqr = _mm_blendv_ps(
+		_mm_div_ps(one, sizeSqr),
+		one,
+		_mm_cmplt_ps(sizeSqr, _mm_set1_ps(SMALL_NUMBER))
+		);
+
+	r.mVec[0] = _mm_mul_ps(r.mVec[0], rSizeSqr);
+	r.mVec[1] = _mm_mul_ps(r.mVec[1], rSizeSqr);
+	r.mVec[2] = _mm_mul_ps(r.mVec[2], rSizeSqr);
+
+	// last line
+	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}
+----
+
+Notice the top and bottom of the function is exactly the same as the NoScale version. In the middle we calculate squared size, with an optional divide-by-small-number test.
 
 === General Matrix Inverse
 
+For general matrix, things are getting complicated. You can find most of the theory part in the following wiki pages: 
+https://en.wikipedia.org/wiki/Invertible_matrix[Invertible Matrix], https://en.wikipedia.org/wiki/Adjugate_matrix[Adjugate Matrix], https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace[Determinant], https://en.wikipedia.org/wiki/Trace_(linear_algebra)[Trace].
+
+We will introduce some of them as we go. The method is based on the same block matrices method Intel used for its https://software.intel.com/en-us/articles/optimized-matrix-library-for-use-with-the-intel-pentiumr-4-processors-sse2-instructions/[Optimized Matrix Library].
+
+A 4x4 matrix can be described as 4 2x2 sub matrices. The good things about 2x2 matrix are not only it is easy to calculate their inverse or determinant, but also because they can fit in one vector register, their calculation can be done very fast.
+
+[stem]
+++++
+M=\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]=\left[ \begin{array}{} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{array} \right]
+++++
+
+Matrix block-wise inverse is given by the following:
 
 === Appendix
