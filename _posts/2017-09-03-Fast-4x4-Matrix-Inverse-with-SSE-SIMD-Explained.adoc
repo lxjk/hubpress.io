@@ -23,7 +23,31 @@ The transform matrix we are talking about here is defined as following:
 M=\left[ \begin{array}{} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{array} \right] = \left[ \begin{array}{} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{array} \right]
 ++++
 
-The first 3 component of the last row is the translation stem:[\vec{T}]. The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have stem:[\vec{X}·\vec{Y}=\vec{X}∙\vec{Z}=\vec{Y}∙\vec{Z}=0], and stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]. And the scale is stem:[(a,b,c)]. 
+The first 3 component of the last row is the translation stem:[\vec{T}]. The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have stem:[\vec{X}\dot\vec{Y}=\vec{X}\dot\vec{Z}=\vec{Y}\dot\vec{Z}=0], and stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]. And the scale is stem:[(a,b,c)]. 
+
+Most matrices in the game are of this form. For example, stem:[M] represents a local to world transform, stem:[\vec{X}], stem:[\vec{Y}], stem:[\vec{Z}] are your local space axes. If you have a point stem:[\vec{P}(P_0,P_1,P_2)], and you want to transform it from local space to world space, you do this:
+
+[stem]
+++++
+\vec{P'}=P_0a\vec{X}+P_1b\vec{Y}+P_2c\vec{Z}+\vec{T}
+++++
+
+This is the same as extend stem:[\vec{P}] to a 4 component vector stem:[\vec{P}(P_0,P_1,P_2,1)] and multiply by matrix stem:[M]. Now what does inverse matrix stem:[M^{-1}] mean? In this case it represents a world to local transform, so if we multiply stem:[\vec{P'}] by stem:[M^{-1}], we should get stem:[\vec{P}] back. How do we transform the point stem:[\vec{P'}] in world space back in local space? We subtract the local space origin (aka the translation stem:[\vec{T}]), then dot each axes to get its local space coordinate and rescale it:
+
+[stem]
+++++
+\begin{align*}
+\vec{P}&=(\frac{1}{a}(\vec{P'}-\vec{T})\dot\vec{X},\frac{1}{b}(\vec{P'}-\vec{T})\dot\vec{Y},\frac{1}{c}(\vec{P'}-\vec{T})\dot\vec{Z})\\
+&=(\frac{1}{a}\vec{P'}\dot\vec{X},\frac{1}{b}\vec{P'}\dot\vec{Y},\frac{1}{c}\vec{P'}\dot\vec{Z})-(\frac{1}{a}\vec{T}\dot\vec{X},\frac{1}{b}\vec{T}\dot\vec{Y},\frac{1}{c}\vec{T}\dot\vec{Z})
+\end{align*}
+++++
+
+With this, we can actually directly write the form of the inverse of our matrix.
+
+[stem]
+++++
+M^{-1}=\left[ \begin{array}{} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\dot\frac{1}{a}\vec{X} & -\vec{T}\dot\frac{1}{b}\vec{Y} & -\vec{T}\dot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right] = \left[ \begin{array}{} frac{1}{a}X_0 & frac{1}{b}Y_0 & frac{1}{c}Z_0 & 0 \\ frac{1}{a}X_1 & frac{1}{b}Y_1 & frac{1}{c}Z_1 & 0 \\ frac{1}{a}X_2 & frac{1}{b}Y_2 & frac{1}{c}Z_2 & 0 \\ -\vec{T}\dot\frac{1}{a}\vec{X} & -\vec{T}\dot\frac{1}{b}\vec{Y} & -\vec{T}\dot\frac{1}{c}\vec{Z} & 1 \\ \end{array} \right]
+++++
 
 === General Matrix Inverse
 
