@@ -223,7 +223,7 @@ For determinant of 2x2 matrix, we will use the following properties: stem:[\left
 
 For trace of matrix we have stem:[\operatorname{tr}(AB)=\operatorname{tr}(BA)], stem:[\operatorname{tr}(-A)=-\operatorname{tr}(A)].
 
-Finally for our block matrices stem:[M=\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]], the determinant is
+Finally for our block matrices stem:[M={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}], the determinant is
 
 [stem]
 ++++
@@ -232,7 +232,7 @@ Finally for our block matrices stem:[M=\left[ \begin{array}{} A & B \\ C & D \\ 
 
 I only listed properties needed for derivation. If you are not familiar with these concepts, or want to know more about them, take a look at the wiki pages above.
 
-Let stem:[M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\left[ \begin{array}{} X & Y \\ Z & W \\ \end{array} \right]].Let’s start with the top left corner.
+Let stem:[M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}={\left[ \begin{array}{} X & Y \\ Z & W \\ \end{array} \right]}].Let’s start with the top left corner.
 
 [stem]
 ++++
@@ -251,4 +251,300 @@ Similarly we can derive the bottom right corner:
 W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}
 ++++
 
+Notice that we put parentheses around stem:[D^{\#}C] and stem:[A^{\#}B], and you will see the reason soon.
+Now let’s do the top right corner, and make use of the result of top left corner stem:[X]:
+
+[stem]
+++++
+\begin{align*}
+Y&=-(A-BD^{-1}C)^{-1}BD^{-1}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(BD^{\#})\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(DB^{\#})^{\#}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|DB^{\#}A-DB^{\#}B(D^{\#}C))^{\#}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|D(A^{\#}B)^{\#}-|\left|D\right||\left|B\right|C))^{\#}\\
+&=\frac{1}{\left|M\right|}(\left|B\right|C-D(A^{\#}B)^{\#})^{\#}
+\end{align*}
+++++
+
+Similarly we can derive the bottom left corner:
+
+[stem]
+++++
+Z=-(D-CA^{-1}B)^{-1}CA^{-1}=\frac{1}{\left|M\right|}(\left|C\right|B-A(D^{\#}C)^{\#})^{\#}
+++++
+
+Here we also changed from stem:[B^{\#}A] to stem:[(A^{\#}B)^{\#}], so we can reuse the result of stem:[A^{\#}B]. Putting them together:
+
+[stem]
+++++
+M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\frac{1}{\left|M\right|}{\left[ \begin{array}{} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{array} \right]}
+++++
+
+Now it is clear what kind of calculation we need. We need 2x2 matrix multiply and multiply by adjugate: stem:[AB], stem:[A^{\#}B] and stem:[AB^{\#}]. We already know how to do adjugate, but in this case, adjugate can be combined with multiplication so we don’t waste instructions. Just expand the result and rearrange the order, for example:
+
+[source, c++]
+----
+// for row major matrix
+// we use __m128 to represent 2x2 matrix as A = | A0  A1 |
+//                                              | A2  A3 |
+// 2x2 row major Matrix multiply A*B
+__forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
+{
+	return 
+		_mm_add_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 0,3,0,3)),
+					_mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+}
+// 2x2 row major Matrix adjugate multiply (A#)*B
+__forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(	_mm_mul_ps(VecSwizzle(vec1, 3,3,0,0), vec2),
+					_mm_mul_ps(VecSwizzle(vec1, 1,1,2,2), VecSwizzle(vec2, 2,3,0,1)));
+
+}
+// 2x2 row major Matrix multiply adjugate A*(B#)
+__forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 3,0,3,0)),
+					_mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+}
+----
+
+Another trick is after we calculate the 2x2 sub matrix, for example stem:[\left|D\right|A-B(D^{\#}C)], The final adjugate to get stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}] can be combined with storing 2x2 sub matrices to the final result 4x4 matrix. You can see this at the end of the function.
+
+The only thing left if determinant. 2x2 determinant is easy, the problem really the whole 4x4 matrix determinant. Remember the determinant property we give above:
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&=\left|AD-BC\right|\\
+&=\left|AD\right|+\left|-BC\right|+\operatorname{tr}((AD)^{\#}(-BC))\\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}(D^{\#}A^{\#}BC)\\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+\end{align*}
+++++
+
+This is good. We need to calculate all sub matrices determinants and matrix stem:[A^{\#}B] and stem:[D^{\#}C] anyway. And if you derive the trace of 2x2 matrix multiplication:
+
+[stem]
+++++
+\operatorname{tr}(AB)={A_0}{B_0}+{A_1}{B_2}+{A_2}{B_1}+{A_3}{B_3}
+++++
+
+This is just a shuffle and a dot product, should be easy enough to translate into instructions.
+
+Now we have all pieces ready, here is our function for general 4x4 matrix inverse:
+
+[source, c++]
+----
+// Inverse function is the same no matter column major or row major
+// this version treats it as row major
+inline Matrix4 GetInverse(const Matrix4& inM)
+{
+	// use block matrix method
+	// A is a matrix, then i(A) or iA means inverse of A, A# (or A_ in code) means adjugate of A, |A| (or detA in code) is determinant, tr(A) is trace
+
+	// sub matrices
+	__m128 A = VecShuffle_0101(inM.mVec[0], inM.mVec[1]);
+	__m128 B = VecShuffle_2323(inM.mVec[0], inM.mVec[1]);
+	__m128 C = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
+	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
+
+	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
+	__m128 detB = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
+	__m128 detC = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
+	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
+
+#if 0 // for determinant, float version is faster
+	// determinant as (|A| |B| |C| |D|)
+	__m128 detSub = _mm_sub_ps(
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 1,3,1,3), VecShuffle(inM.mVec[1], inM.mVec[3], 0,2,0,2))
+	);
+	__m128 detA = VecSwizzle1(detSub, 0);
+	__m128 detB = VecSwizzle1(detSub, 1);
+	__m128 detC = VecSwizzle1(detSub, 2);
+	__m128 detD = VecSwizzle1(detSub, 3);
+#endif
+
+	// let iM = 1/|M| * | X  Y |
+	//                  | Z  W |
+
+	// D#C
+	__m128 D_C = Mat2AdjMul(D, C);
+	// A#B
+	__m128 A_B = Mat2AdjMul(A, B);
+	// X# = |D|A - B(D#C)
+	__m128 X_ = _mm_sub_ps(_mm_mul_ps(detD, A), Mat2Mul(B, D_C));
+	// W# = |A|D - C(A#B)
+	__m128 W_ = _mm_sub_ps(_mm_mul_ps(detA, D), Mat2Mul(C, A_B));
+
+	// |M| = |A|*|D| + ... (continue later)
+	__m128 detM = _mm_mul_ps(detA, detD);
+
+	// Y# = |B|C - D(A#B)#
+	__m128 Y_ = _mm_sub_ps(_mm_mul_ps(detB, C), Mat2MulAdj(D, A_B));
+	// Z# = |C|B - A(D#C)#
+	__m128 Z_ = _mm_sub_ps(_mm_mul_ps(detC, B), Mat2MulAdj(A, D_C));
+
+	// |M| = |A|*|D| + |B|*|C| ... (continue later)
+	detM = _mm_add_ps(detM, _mm_mul_ps(detB, detC));
+
+	// tr((A#B)(D#C))
+	__m128 tr = _mm_mul_ps(A_B, VecSwizzle(D_C, 0,2,1,3));
+	tr = _mm_hadd_ps(tr, tr);
+	tr = _mm_hadd_ps(tr, tr);
+	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C)
+	detM = _mm_sub_ps(detM, tr);
+
+	const __m128 adjSignMask = _mm_castsi128_ps(_mm_setr_epi32(0x00000000, 0x80000000, 0x80000000, 0x00000000));
+	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
+	__m128 rDetM = _mm_xor_ps(_mm_div_ps(_mm_set1_ps(1.f), detM), adjSignMask);
+
+	X_ = _mm_mul_ps(X_, rDetM);
+	Y_ = _mm_mul_ps(Y_, rDetM);
+	Z_ = _mm_mul_ps(Z_, rDetM);
+	W_ = _mm_mul_ps(W_, rDetM);
+
+	Matrix4 r;
+
+	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
+	// btw adjuagate fuction: Adj(Vec) = VecXor(VecSwizzle(Vec, 3,1,2,0), adjSignMask)
+	r.mVec[0] = VecShuffle(X_, Y_, 3,1,3,1);
+	r.mVec[1] = VecShuffle(X_, Y_, 2,0,2,0);
+	r.mVec[2] = VecShuffle(Z_, W_, 3,1,3,1);
+	r.mVec[3] = VecShuffle(Z_, W_, 2,0,2,0);
+
+	return r;
+}
+----
+
+As side products of this function, it also gives you optimized version of calculating determinant and adjugate of 4x4 matrix. There are two things I want to talk a little bit more.
+
+When we calculate the determinants of sub matrices, I do have a version to calculate 4 determinant in one go. However calculate them separately and use _mm_set1_ps to load into vector unit is proven to be faster on my CPU. My guess is since we need them to be separated anyway, even if I can calculate them together I need to use 4 shuffles to separate them out, which is not worth the effort, but I’m not sure. You should test performance in both version.
+
+Also when calculating trace, I’m using two _mm_hadd_ps to sum up 4 components and have the result in all 4 components. There are a lot of ways to do the same thing. From what I tested, they yield similar performance, so I choose the one with less instructions. Again it could be different on different target platforms, and you should test them. 
+
+So how our functions perform? The following measurement and comparison is done in August 2017. We use __rdtsc to count cycles. For each test we loop 10 million times and measure the average cycle counts. We do 5 groups of tests and here is the result on Intel Haswell:
+
+.Figure 2
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fig1.png[, 600,align="center"]
+
+The first three columns are our 3 versions of functions. The SIMD version of general 4x4 matrix inverse only cost less than half (44%) of the float version. And if you know the matrix is a transform matrix, it would cost less than a quarter (21%) of the float version. The more information you have as a programmer, the less work the machine need to do.
+
+Think about that question again, do we really need to inverse a matrix. If we are using transform matrix and all we do is inverse transform a point or vector temporarily (so no need to save inverse matrix for other calculations), write an inverse transform function, which is faster than get inverse matrix and then transform. Hopefully this will help you choose which function to write or use, and how to make it fast. 
+
 === Appendix
+
+This is column major area. The first two functions for transform matrix is exactly the same in column major. Here is the general matrix inverse and helper functions:
+
+[source, c++]
+----
+// for column major matrix
+// we use __m128 to represent 2x2 matrix as A = | A0  A2 |
+//                                              | A1  A3 |
+// 2x2 column major Matrix multiply A*B
+__forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
+{
+	return 
+		_mm_add_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 0,0,3,3)),
+					_mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+}
+// 2x2 column major Matrix adjugate multiply (A#)*B
+__forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(	_mm_mul_ps(VecSwizzle(vec1, 3,0,3,0), vec2),
+					_mm_mul_ps(VecSwizzle(vec1, 2,1,2,1), VecSwizzle(vec2, 1,0,3,2)));
+
+}
+// 2x2 column major Matrix multiply adjugate A*(B#)
+__forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 3,3,0,0)),
+					_mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+}
+
+// Inverse function is the same no matter column major or row major
+// this version treats it as column major
+inline Matrix4 GetInverse(const Matrix4& inM)
+{
+	// use block matrix method
+	// A is a matrix, then i(A) or iA means inverse of A, A# (or A_ in code) means adjugate of A, |A| (or detA in code) is determinant, tr(A) is trace
+				
+	// sub matrices
+	__m128 A = VecShuffle_0101(inM.mVec[0], inM.mVec[1]);
+	__m128 C = VecShuffle_2323(inM.mVec[0], inM.mVec[1]);
+	__m128 B = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
+	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
+
+	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
+	__m128 detC = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
+	__m128 detB = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
+	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
+
+#if 0 // for determinant, float version is faster
+	// determinant as (|A| |C| |B| |D|)
+	__m128 detSub = _mm_sub_ps(
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 1,3,1,3), VecShuffle(inM.mVec[1], inM.mVec[3], 0,2,0,2))
+		);
+	__m128 detA = VecSwizzle1(detSub, 0);
+	__m128 detC = VecSwizzle1(detSub, 1);
+	__m128 detB = VecSwizzle1(detSub, 2);
+	__m128 detD = VecSwizzle1(detSub, 3);
+#endif
+
+	// let iM = 1/|M| * | X  Y |
+	//                  | Z  W |
+
+	// D#C
+	__m128 D_C = Mat2AdjMul(D, C);
+	// A#B
+	__m128 A_B = Mat2AdjMul(A, B);
+	// X# = |D|A - B(D#C)
+	__m128 X_ = _mm_sub_ps(_mm_mul_ps(detD, A), Mat2Mul(B, D_C));
+	// W# = |A|D - C(A#B)
+	__m128 W_ = _mm_sub_ps(_mm_mul_ps(detA, D), Mat2Mul(C, A_B));
+
+	// |M| = |A|*|D| + ... (continue later)
+	__m128 detM = _mm_mul_ps(detA, detD);
+
+	// Y# = |B|C - D(A#B)#
+	__m128 Y_ = _mm_sub_ps(_mm_mul_ps(detB, C), Mat2MulAdj(D, A_B));
+	// Z# = |C|B - A(D#C)#
+	__m128 Z_ = _mm_sub_ps(_mm_mul_ps(detC, B), Mat2MulAdj(A, D_C));
+
+	// |M| = |A|*|D| + |B|*|C| ... (continue later)
+	detM = _mm_add_ps(detM, _mm_mul_ps(detB, detC));
+
+	// tr((A#B)(D#C))
+	__m128 tr = _mm_mul_ps(A_B, VecSwizzle(D_C, 0,2,1,3));
+	tr = _mm_hadd_ps(tr, tr);
+	tr = _mm_hadd_ps(tr, tr);
+	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C))
+	detM = _mm_sub_ps(detM, tr);
+
+	const __m128 adjSignMask = _mm_castsi128_ps(_mm_setr_epi32(0x00000000, 0x80000000, 0x80000000, 0x00000000));
+	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
+	__m128 rDetM = _mm_xor_ps(_mm_div_ps(_mm_set1_ps(1.f), detM), adjSignMask);
+
+	X_ = _mm_mul_ps(X_, rDetM);
+	Y_ = _mm_mul_ps(Y_, rDetM);
+	Z_ = _mm_mul_ps(Z_, rDetM);
+	W_ = _mm_mul_ps(W_, rDetM);
+
+	Matrix4 r;
+
+	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
+	// btw adjuagate fuction: Adj(Vec) = VecXor(VecSwizzle(Vec, 3,1,2,0), adjSignMask)
+	r.mVec[0] = VecShuffle(X_, Z_, 3,1,3,1);
+	r.mVec[1] = VecShuffle(X_, Z_, 2,0,2,0);
+	r.mVec[2] = VecShuffle(Y_, W_, 3,1,3,1);
+	r.mVec[3] = VecShuffle(Y_, W_, 2,0,2,0);
+
+	return r;
+}
+----
