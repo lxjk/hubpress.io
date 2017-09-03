@@ -210,6 +210,45 @@ We actually use a mix of these two forms, 2nd row from the first form, and 1st r
 
 This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: stem:[A^{-1}] and stem:[(D-CA^{-1} B)^{-1}], however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.
 
-Before we start derivation, we need to introduce some concepts. The adjugate of matrix stem:[A] is defined as stem:[A\operatorname{adj}(A)=\left|A\right|I], where stem:[\left|A\right|] is determinant of stem:[A]. For convenience, in this post we denote adjugate matrix as stem:[A^{#}=\operatorname{adj}(A)]. So we can change inverse calculation to adjugate calculation by stem:[A^{-1}=\frac{1}{\left|A\right|}A^{#}]. Adjugate of 2x2 matrix is:
+Before we start derivation, we need to introduce some concepts. The adjugate of matrix stem:[A] is defined as stem:[A\operatorname{adj}(A)=\left|A\right|I], where stem:[\left|A\right|] is determinant of stem:[A]. For convenience, in this post we denote adjugate matrix as stem:[A^{\#}=\operatorname{adj}(A)]. So we can change inverse calculation to adjugate calculation by stem:[A^{-1}=\frac{1}{\left|A\right|}A^{\#}]. Adjugate of 2x2 matrix is:
+
+[stem]
+++++
+A^{\#}={\left[ \begin{array}{} A_0 & A_1 \\ A_2 & A_3 \\ \end{array} \right]}^{\#}=\left[ \begin{array}{} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{array} \right]
+++++
+
+Adjugate of 2x2 matrix has the following property: stem:[(AB)^{\#}=B^{\#}], stem:[A^{\#}],stem:[(A^{\#})^{\#}=A], stem:[(cA)^{\#}=cA^{\#}].
+
+For determinant of 2x2 matrix, we will use the following properties: stem:[\left|A\right|={A_0}{A_3}-{A_1}{A_2}], stem:[\left|-A\right|=\left|A\right|], stem:[\left|AB\right|=\left|A\right|\left|B\right|], stem:[\left|A+B\right|=\left|A\right|+\left|B\right|+\operatorname{tr}(A^{\#}{B})].
+
+For trace of matrix we have stem:[\operatorname{tr}(AB)=\operatorname{tr}(BA)], stem:[\operatorname{tr}(-A)=-\operatorname{tr}(A)].
+
+Finally for our block matrices stem:[M=\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]], the determinant is
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D-CA^{-1}B\right|=\left|D\right|\left|A-BD^{-1}C\right|=\left|AD-BC\right|
+++++
+
+I only listed properties needed for derivation. If you are not familiar with these concepts, or want to know more about them, take a look at the wiki pages above.
+
+Let stem:[M^{-1}={\left[ \begin{array}{} A & B \\ C & D \\ \end{array} \right]}^{-1}=\left[ \begin{array}{} X & Y \\ Z & W \\ \end{array} \right]].Let’s start with the top left corner.
+
+[stem]
+++++
+\begin{align*}
+X&=(A-BD^{-1}C)^{-1}\\
+&=\frac{1}{\left|A-BD^{-1}C\right|}(A-\frac{1}{\left|D\right|}BD^{\#}C)^{\#}\\
+&=\frac{1}{\left|D\right|\left|A-BD^{-1}C\right|}(\left|D\right|A-BD^{\#}C)^{\#}\\
+&=\frac{1}{\left|M\right|}(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}
+++++
+
+Similarly we can derive the bottom right corner:
+
+[stem]
+++++
+W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}
+++++
 
 === Appendix
