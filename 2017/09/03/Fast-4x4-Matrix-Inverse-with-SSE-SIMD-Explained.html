@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504480349271" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504480349271"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504480651064" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504480651064"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -374,7 +374,53 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
 <p>This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: \(A^{-1}\) and \((D-CA^{-1} B)^{-1}\), however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.</p>
 </div>
 <div class="paragraph">
-<p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{#}\). Adjugate of 2x2 matrix is:</p>
+<p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{\#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{\#}\). Adjugate of 2x2 matrix is:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[A^{\#}={\left[ \begin{array}{} A_0 &amp; A_1 \\ A_2 &amp; A_3 \\ \end{array} \right]}^{\#}=\left[ \begin{array}{} A_3 &amp; -A_1 \\ -A_2 &amp; A_0 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Adjugate of 2x2 matrix has the following property: \((AB)^{\#}=B^{\#}\), \(A^{\#}\),\((A^{\#})^{\#}=A\), \((cA)^{\#}=cA^{\#}\).</p>
+</div>
+<div class="paragraph">
+<p>For determinant of 2x2 matrix, we will use the following properties: \(\left|A\right|={A_0}{A_3}-{A_1}{A_2}\), \(\left|-A\right|=\left|A\right|\), \(\left|AB\right|=\left|A\right|\left|B\right|\), \(\left|A+B\right|=\left|A\right|\left|B\right|\operatorname{tr}(A^{\#}{B})\).</p>
+</div>
+<div class="paragraph">
+<p>For trace of matrix we have \(\operatorname{tr}(AB)=\operatorname{tr}(BA)\), \(\operatorname{tr}(-A)=-\operatorname{tr}(A)\).</p>
+</div>
+<div class="paragraph">
+<p>Finally for our block matrices \(M=\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right\)], the determinant is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|M\right|=\left|A\right|\left|D-CA^{-1}B\right|=\left|D\right|\left|A-BD^{-1}C\right|=\left|AD-BC\right|\]
+</div>
+</div>
+<div class="paragraph">
+<p>I only listed properties needed for derivation. If you are not familiar with these concepts, or want to know more about them, take a look at the wiki pages above.</p>
+</div>
+<div class="paragraph">
+<p>Let \(M^{-1}={\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right\)}^{-1}=\left[ \begin{array}{} X &amp; Y \\ Z &amp; W \\ \end{array} \right]].Let’s start with the top left corner.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+X&amp;=(A-BD^{-1}C)^{-1}\\
+&amp;=\frac{1}{\left|A-BD^{-1}C\right|}(A-\frac{1}{\left|D\right|}BD^{\#}C)^{\#}\\
+&amp;=\frac{1}{\left|D\right|\left|A-BD^{-1}C\right|}(\left|D\right|A-BD^{\#}C)^{\#}\\
+&amp;=\frac{1}{\left|M\right|}(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly we can derive the bottom right corner:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}\]
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -461,7 +507,7 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504480349271"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504480651064"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
