@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 03 Sep 2017 23:12:29 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 03 Sep 2017 23:17:31 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -236,7 +236,53 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
 <p>This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: \(A^{-1}\) and \((D-CA^{-1} B)^{-1}\), however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.</p>
 </div>
 <div class="paragraph">
-<p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{#}\). Adjugate of 2x2 matrix is:</p>
+<p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{\#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{\#}\). Adjugate of 2x2 matrix is:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[A^{\#}={\left[ \begin{array}{} A_0 &amp; A_1 \\ A_2 &amp; A_3 \\ \end{array} \right]}^{\#}=\left[ \begin{array}{} A_3 &amp; -A_1 \\ -A_2 &amp; A_0 \\ \end{array} \right]\]
+</div>
+</div>
+<div class="paragraph">
+<p>Adjugate of 2x2 matrix has the following property: \((AB)^{\#}=B^{\#}\), \(A^{\#}\),\((A^{\#})^{\#}=A\), \((cA)^{\#}=cA^{\#}\).</p>
+</div>
+<div class="paragraph">
+<p>For determinant of 2x2 matrix, we will use the following properties: \(\left|A\right|={A_0}{A_3}-{A_1}{A_2}\), \(\left|-A\right|=\left|A\right|\), \(\left|AB\right|=\left|A\right|\left|B\right|\), \(\left|A+B\right|=\left|A\right|\left|B\right|\operatorname{tr}(A^{\#}{B})\).</p>
+</div>
+<div class="paragraph">
+<p>For trace of matrix we have \(\operatorname{tr}(AB)=\operatorname{tr}(BA)\), \(\operatorname{tr}(-A)=-\operatorname{tr}(A)\).</p>
+</div>
+<div class="paragraph">
+<p>Finally for our block matrices \(M=\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right\)], the determinant is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|M\right|=\left|A\right|\left|D-CA^{-1}B\right|=\left|D\right|\left|A-BD^{-1}C\right|=\left|AD-BC\right|\]
+</div>
+</div>
+<div class="paragraph">
+<p>I only listed properties needed for derivation. If you are not familiar with these concepts, or want to know more about them, take a look at the wiki pages above.</p>
+</div>
+<div class="paragraph">
+<p>Let \(M^{-1}={\left[ \begin{array}{} A &amp; B \\ C &amp; D \\ \end{array} \right\)}^{-1}=\left[ \begin{array}{} X &amp; Y \\ Z &amp; W \\ \end{array} \right]].Let’s start with the top left corner.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+X&amp;=(A-BD^{-1}C)^{-1}\\
+&amp;=\frac{1}{\left|A-BD^{-1}C\right|}(A-\frac{1}{\left|D\right|}BD^{\#}C)^{\#}\\
+&amp;=\frac{1}{\left|D\right|\left|A-BD^{-1}C\right|}(\left|D\right|A-BD^{\#}C)^{\#}\\
+&amp;=\frac{1}{\left|M\right|}(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly we can derive the bottom right corner:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}\]
+</div>
 </div>
 </div>
 <div class="sect2">
