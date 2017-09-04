@@ -67,7 +67,7 @@ M^{-1}=\left[ \begin{array}{} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\
 
 Alright, enough theory, let’s see some code. This is our matrix definition.
 
-[source, c++, ]
+[source, C/C++]
 ----
 __declspec(align(16)) struct Matrix4
 {
@@ -82,7 +82,7 @@ public:
 
 Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle macros. Hopefully they will make it easier to read. We also make use of faster instructions for special shuffles.
 
-[source, c++]
+[source, C/C++]
 ----
 #define MakeShuffleMask(x,y,z,w)			(x | (y<<2) | (z<<4) | (w<<6))
 
@@ -104,7 +104,7 @@ Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle 
 
 Here is our first function to inverse transform matrix without scaling (always unit scale).
 
-[source, c++]
+[source, C/C++]
 ----
 // Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
 inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
@@ -130,7 +130,7 @@ inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
 
 Very straight forward. This is the fastest function you can have, it only does a transpose and some dot products. If we add in scales, it takes a little more time to do rescaling, but still pretty fast. There is a little trick for calculating squared size, we can make use of the fact that we need to transpose 3x3 rotation part anyway, do squared size after and calculate 3 axes in one go.
 
-[source, c++]
+[source, C/C++]
 ----
 #define SMALL_NUMBER		(1.e-8f)
 
@@ -293,7 +293,7 @@ A^{\#}B&={\left[ \begin{array}{} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{array} \right]
 
 Here’s the code for these three functions:
 
-[source, c++]
+[source, C/C++]
 ----
 // for row major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A1 |
@@ -347,7 +347,7 @@ This is just a shuffle and a dot product, should be easy enough to translate int
 
 Now we have all pieces ready, here is our function for general 4x4 matrix inverse:
 
-[source, c++]
+[source, C/C++]
 ----
 // Inverse function is the same no matter column major or row major
 // this version treats it as row major
@@ -450,7 +450,7 @@ Think about that question again, do we really need to inverse a matrix. If we ar
 
 This is column major area. The first two functions for transform matrix is exactly the same in column major. Here is the general matrix inverse and helper functions:
 
-[source, c++]
+[source, C/C++]
 ----
 // for column major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A2 |
