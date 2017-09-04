@@ -2,6 +2,7 @@
 Eric Zhang
 v1.0, 2017-09-03
 :toc: macro
+:keywords: Math SSE
 
 :stem: latexmath
 :source-highlighter: prettify
