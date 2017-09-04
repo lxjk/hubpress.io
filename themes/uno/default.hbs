@@ -34,6 +34,9 @@
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 	
+	{{! Styles'n'Scripts }}
+	<link rel="stylesheet" type="text/css" href="{{asset "highlighter/prettify.css"}}" />
+	
     {{! Ghost Magic }}
     {{ghost_head}}
 
@@ -59,6 +62,7 @@
     {{ghost_foot}}
 
     {{! The main JavaScript file for Casper }}
+	<script type='text/javascript' src="{{asset 'highlighter/prettify.js'}}"></script>
     <script type="text/javascript" src="{{asset "js/main.js"}}"></script>
     
     {{#if @blog.googleAnalytics}}
