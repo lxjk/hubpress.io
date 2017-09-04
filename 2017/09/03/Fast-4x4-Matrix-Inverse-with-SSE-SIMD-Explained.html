@@ -25,8 +25,8 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504483077117" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504483077117"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504485277758" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504485277758"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
@@ -150,7 +150,7 @@ null
 <p>Before we start, think about this question: do we really need the inverse of a general matrix?</p>
 </div>
 <div class="paragraph">
-<p>I came to this problem when writing a math library for my game engine. If you are making a game or 3D application, we use 4x4 matrix for object transform, which is a combination of 3D translation, rotation and scale. If most of your matrix are used as transform matrix, because of their special property, we have a fast route for calculating their inverse. In fact transform matrix inverse is only 50% of the cost compared to the optimized general matrix inverse. In the first half of this post we will talk about transform matrix.  In the second half we will dive in and explain the SIMD version of general 4x4 matrix inverse, and we compare the performance of our method with commonly used math libraries from UE4, Eigen and DirectX Math.</p>
+<p>I came to this problem when writing a math library for my game engine. If you are making a game or 3D application, we use 4x4 matrix for object transform, which is a combination of 3D translation, rotation and scale. If most of your matrices are used as transform matrices, because of their special property, we have a fast route for calculating their inverse. In fact transform matrix inverse is only 50% of the cost compared to the optimized general matrix inverse. In the first half of this post we will talk about transform matrix.  In the second half we will dive in and explain the SIMD version of general 4x4 matrix inverse, and we compare the performance of our method with commonly used math libraries from UE4, Eigen and DirectX Math.</p>
 </div>
 <div class="paragraph">
 <p>The matrices used in this post are row major. This is mainly for (1) easier to demonstrate and visualize with matrix data layout; (2) easier to compare with other math library. The same matrix inverse function works for both row major and column major, because \(A^{-1}=((A^{T})^{-1})^{T}\) (inverse is the same as transpose, inverse then transpose again). However if you are a column major guy like myself, I have a full-on column major version for you in <a href="#_appendix">Appendix</a>.</p>
@@ -179,7 +179,7 @@ null
 </div>
 </div>
 <div class="paragraph">
-<p>This is the same as extend \(\vec{P}\) to a 4 component vector \(\vec{P}(P_0,P_1,P_2,1)\) and multiply by matrix \(M\). Now what does inverse matrix \(M^{-1}\) mean? In this case it represents a world to local transform, so if we multiply \(\vec{P'}\) by \(M^{-1}\), we should get \(\vec{P}\) back. How do we transform the point \(\vec{P'}\) in world space back in local space? We subtract the local space origin (aka the translation \(\vec{T}\)), then dot each axes to get its local space coordinate and rescale it:</p>
+<p>This is the same as extend \(\vec{P}\) to a 4 component vector \(\vec{P}(P_0,P_1,P_2,1)\) and multiply by matrix \(M\). Now what does inverse matrix \(M^{-1}\) mean? In this case it represents a world to local transform, so if we multiply \(\vec{P'}\) by \(M^{-1}\), we should get \(\vec{P}\) back. How do we transform the point \(\vec{P'}\) from world space back in local space? We subtract the local space origin (aka the translation \(\vec{T}\)), then dot each axes to get its local space coordinate and rescale it:</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -209,7 +209,7 @@ null
 </div>
 </div>
 <div class="paragraph">
-<p>Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is a good new for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.</p>
+<p>Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is good news for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -371,7 +371,7 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
 </div>
 </div>
 <div class="paragraph">
-<p>This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: \(A^{-1}\) and \((D-CA^{-1} B)^{-1}\), however it can be further simplified by proper derivation. Since each corresponding sub-matrices equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.</p>
+<p>This choice might not seem obvious. Take the first form for example, it seems we only need to calculate two 2x2 matrix inverse: \(A^{-1}\) and \((D-CA^{-1} B)^{-1}\), however it can be further simplified by proper derivation. Since each corresponding sub-matrix equals to each other, it doesn’t matter which form you choose to work your math on. We just select the easier row from both forms.</p>
 </div>
 <div class="paragraph">
 <p>Before we start derivation, we need to introduce some concepts. The adjugate of matrix \(A\) is defined as \(A\operatorname{adj}(A)=\left|A\right|I\), where \(\left|A\right|\) is determinant of \(A\). For convenience, in this post we denote adjugate matrix as \(A^{\#}=\operatorname{adj}(A)\). So we can change inverse calculation to adjugate calculation by \(A^{-1}=\frac{1}{\left|A\right|}A^{\#}\). Adjugate of 2x2 matrix is:</p>
@@ -382,10 +382,10 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
 </div>
 </div>
 <div class="paragraph">
-<p>Adjugate of 2x2 matrix has the following property: \((AB)^{\#}=B^{\#}\), \(A^{\#}\),\((A^{\#})^{\#}=A\), \((cA)^{\#}=cA^{\#}\).</p>
+<p>Adjugate of 2x2 matrix has the following property: \((AB)^{\#}=B^{\#}A^{\#}\),\((A^{\#})^{\#}=A\), \((cA)^{\#}=cA^{\#}\).</p>
 </div>
 <div class="paragraph">
-<p>For determinant of 2x2 matrix, we will use the following properties: \(\left|A\right|={A_0}{A_3}-{A_1}{A_2}\), \(\left|-A\right|=\left|A\right|\), \(\left|AB\right|=\left|A\right|\left|B\right|\), \(\left|A+B\right|=\left|A\right|\left|B\right|\operatorname{tr}(A^{\#}{B})\).</p>
+<p>For determinant of 2x2 matrix, we will use the following properties: \(\left|A\right|={A_0}{A_3}-{A_1}{A_2}\), \(\left|-A\right|=\left|A\right|\), \(\left|AB\right|=\left|A\right|\left|B\right|\), \(\left|A+B\right|=\left|A\right| + \left|B\right| + \operatorname{tr}(A^{\#}{B})\).</p>
 </div>
 <div class="paragraph">
 <p>For trace of matrix we have \(\operatorname{tr}(AB)=\operatorname{tr}(BA)\), \(\operatorname{tr}(-A)=-\operatorname{tr}(A)\).</p>
@@ -423,8 +423,10 @@ X&amp;=(A-BD^{-1}C)^{-1}\\
 </div>
 </div>
 <div class="paragraph">
-<p>Notice that we put parentheses around \(D^{\#}C\) and \(A^{\#}B\), and you will see the reason soon.
-Now let’s do the top right corner, and make use of the result of top left corner \(X\):</p>
+<p>Notice that we put parentheses around \(D^{\#}C\) and \(A^{\#}B\), and you will see the reason soon.</p>
+</div>
+<div class="paragraph">
+<p>Now let’s do the top right corner, and make use of the result of top left corner \(X\):</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -433,7 +435,7 @@ Y&amp;=-(A-BD^{-1}C)^{-1}BD^{-1}\\
 &amp;=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(BD^{\#})\\
 &amp;=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(DB^{\#})^{\#}\\
 &amp;=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|DB^{\#}A-DB^{\#}B(D^{\#}C))^{\#}\\
-&amp;=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|D(A^{\#}B)^{\#}-|\left|D\right||\left|B\right|C))^{\#}\\
+&amp;=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|D(A^{\#}B)^{\#}-\left|D\right|\left|B\right|C))^{\#}\\
 &amp;=\frac{1}{\left|M\right|}(\left|B\right|C-D(A^{\#}B)^{\#})^{\#}
 \end{align*}\]
 </div>
@@ -456,6 +458,17 @@ Y&amp;=-(A-BD^{-1}C)^{-1}BD^{-1}\\
 </div>
 <div class="paragraph">
 <p>Now it is clear what kind of calculation we need. We need 2x2 matrix multiply and multiply by adjugate: \(AB\), \(A^{\#}B\) and \(AB^{\#}\). We already know how to do adjugate, but in this case, adjugate can be combined with multiplication so we don’t waste instructions. Just expand the result and rearrange the order, for example:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+A^{\#}B&amp;={\left[ \begin{array}{} A_3 &amp; -A_1 \\ -A_2 &amp; A_0 \\ \end{array} \right]}{\left[ \begin{array}{} B_0 &amp; B_1 \\ B_2 &amp; B_3 \\ \end{array} \right]}\\
+&amp;={\left[ \begin{array}{} {A_3}{B_0}-{A_1}{B_2} &amp;{A_3}{B_1}-{A_1}{B_3} \\ {A_0}{B_2}-{A_2}{B_0} &amp; {A_0}{B_3}-{A_2}{B_1} \\ \end{array} \right]}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Here’s the code for these three functions:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -487,10 +500,10 @@ __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 </div>
 </div>
 <div class="paragraph">
-<p>Another trick is after we calculate the 2x2 sub matrix, for example \(\left|D\right|A-B(D^{\#}C)\), The final adjugate to get \(X=(\left|D\right|A-B(D^{\#}C))^{\#}\) can be combined with storing 2x2 sub matrices to the final result 4x4 matrix. You can see this at the end of the function.</p>
+<p>Another trick is after we calculate the 2x2 sub matrix, for example \(\left|D\right|A-B(D^{\#}C)\), the final adjugate to get \(X=(\left|D\right|A-B(D^{\#}C))^{\#}\) can be combined with storing 2x2 sub matrices to the final result 4x4 matrix. You can see this at the end of the function.</p>
 </div>
 <div class="paragraph">
-<p>The only thing left if determinant. 2x2 determinant is easy, the problem really the whole 4x4 matrix determinant. Remember the determinant property we give above:</p>
+<p>The only thing left if determinant. 2x2 determinant is easy, the problem really is the whole 4x4 matrix determinant. Remember the determinant property we give above:</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -604,7 +617,7 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 <p>As side products of this function, it also gives you optimized version of calculating determinant and adjugate of 4x4 matrix. There are two things I want to talk a little bit more.</p>
 </div>
 <div class="paragraph">
-<p>When we calculate the determinants of sub matrices, I do have a version to calculate 4 determinant in one go. However calculate them separately and use _mm_set1_ps to load into vector unit is proven to be faster on my CPU. My guess is since we need them to be separated anyway, even if I can calculate them together I need to use 4 shuffles to separate them out, which is not worth the effort, but I’m not sure. You should test performance in both version.</p>
+<p>When we calculate the determinants of sub matrices, I do have a version to calculate 4 determinants in one go. However calculate them separately and use _mm_set1_ps to load into vector unit is proven to be faster on my CPU. My guess is since we need them to be separated anyway, even if I can calculate them together I need to use 4 shuffles to separate them out, which is not worth the effort, but I’m not sure. You should test performance in both versions.</p>
 </div>
 <div class="paragraph">
 <p>Also when calculating trace, I’m using two _mm_hadd_ps to sum up 4 components and have the result in all 4 components. There are a lot of ways to do the same thing. From what I tested, they yield similar performance, so I choose the one with less instructions. Again it could be different on different target platforms, and you should test them.</p>
@@ -614,9 +627,9 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 </div>
 <div class="imageblock" style="text-align: center">
 <div class="content">
-<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fig1.png" alt="fig1.png" width="600">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fig1.jpg" alt="fig1.jpg" width="600">
 </div>
-<div class="title">Figure 2</div>
+<div class="title">Figure 1</div>
 </div>
 <div class="paragraph">
 <p>The first three columns are our 3 versions of functions. The SIMD version of general 4x4 matrix inverse only cost less than half (44%) of the float version. And if you know the matrix is a transform matrix, it would cost less than a quarter (21%) of the float version. The more information you have as a programmer, the less work the machine need to do.</p>
@@ -821,7 +834,7 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504483077117"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504485277758"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
