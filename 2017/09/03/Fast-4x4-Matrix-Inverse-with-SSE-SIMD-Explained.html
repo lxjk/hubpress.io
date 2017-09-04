@@ -25,12 +25,14 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504485935778" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504485935778"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1504488676949" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1504488676949"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
+	
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1504488676949" />
 	
     <link rel="canonical" href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html" />
     <meta name="referrer" content="origin" />
@@ -221,7 +223,7 @@ null
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">__declspec(align(16)) struct Matrix4
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">__declspec(align(16)) struct Matrix4
 {
 public:
 	union
@@ -237,7 +239,7 @@ public:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">#define MakeShuffleMask(x,y,z,w)			(x | (y&lt;&lt;2) | (z&lt;&lt;4) | (w&lt;&lt;6))
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#define MakeShuffleMask(x,y,z,w)			(x | (y&lt;&lt;2) | (z&lt;&lt;4) | (w&lt;&lt;6))
 
 // vec(0, 1, 2, 3) -&gt; (vec[x], vec[y], vec[z], vec[w])
 #define VecSwizzle(vec, x,y,z,w)			_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
@@ -260,7 +262,7 @@ public:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
 inline Matrix4 GetTransformInverseNoScale(const Matrix4&amp; inM)
 {
 	Matrix4 r;
@@ -287,7 +289,7 @@ inline Matrix4 GetTransformInverseNoScale(const Matrix4&amp; inM)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">#define SMALL_NUMBER		(1.e-8f)
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#define SMALL_NUMBER		(1.e-8f)
 
 // Requires this matrix to be transform matrix
 inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
@@ -472,7 +474,7 @@ A^{\#}B&amp;={\left[ \begin{array}{} A_3 &amp; -A_1 \\ -A_2 &amp; A_0 \\ \end{ar
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">// for row major matrix
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">// for row major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A1 |
 //                                              | A2  A3 |
 // 2x2 row major Matrix multiply A*B
@@ -531,7 +533,7 @@ __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">// Inverse function is the same no matter column major or row major
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">// Inverse function is the same no matter column major or row major
 // this version treats it as row major
 inline Matrix4 GetInverse(const Matrix4&amp; inM)
 {
@@ -645,7 +647,7 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C++" data-lang="C++">// for column major matrix
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">// for column major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A2 |
 //                                              | A1  A3 |
 // 2x2 column major Matrix multiply A*B
@@ -834,7 +836,8 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504485935778"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1504488676949"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1504488676949"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
