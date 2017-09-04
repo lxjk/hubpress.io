@@ -1,6 +1,7 @@
 = Calculate Minimal Bounding Sphere of Frustum
 Eric Zhang
 v1.0, 2017-04-15
+:hp-tags: Math, Graphics
 
 :stem: latexmath
 :figure-caption!:
