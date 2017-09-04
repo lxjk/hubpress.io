@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 04 Sep 2017 02:08:13 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 04 Sep 2017 23:21:42 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -453,9 +453,9 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C)
 	detM = _mm_sub_ps(detM, tr);
 
-	const __m128 adjSignMask = _mm_castsi128_ps(_mm_setr_epi32(0x00000000, 0x80000000, 0x80000000, 0x00000000));
+	const __m128 adjSignMask = _mm_setr_ps(1.f, -1.f, -1.f, 1.f);
 	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
-	__m128 rDetM = _mm_xor_ps(_mm_div_ps(_mm_set1_ps(1.f), detM), adjSignMask);
+	__m128 rDetM = _mm_div_ps(adjSignMask, detM);
 
 	X_ = _mm_mul_ps(X_, rDetM);
 	Y_ = _mm_mul_ps(Y_, rDetM);
@@ -465,7 +465,6 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 	Matrix4 r;
 
 	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
-	// btw adjuagate fuction: Adj(Vec) = VecXor(VecSwizzle(Vec, 3,1,2,0), adjSignMask)
 	r.mVec[0] = VecShuffle(X_, Y_, 3,1,3,1);
 	r.mVec[1] = VecShuffle(X_, Y_, 2,0,2,0);
 	r.mVec[2] = VecShuffle(Z_, W_, 3,1,3,1);
@@ -593,9 +592,9 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C))
 	detM = _mm_sub_ps(detM, tr);
 
-	const __m128 adjSignMask = _mm_castsi128_ps(_mm_setr_epi32(0x00000000, 0x80000000, 0x80000000, 0x00000000));
+	const __m128 adjSignMask = _mm_setr_ps(1.f, -1.f, -1.f, 1.f));
 	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
-	__m128 rDetM = _mm_xor_ps(_mm_div_ps(_mm_set1_ps(1.f), detM), adjSignMask);
+	__m128 rDetM = _mm_div_ps(adjSignMask, detM);
 
 	X_ = _mm_mul_ps(X_, rDetM);
 	Y_ = _mm_mul_ps(Y_, rDetM);
@@ -605,7 +604,6 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 	Matrix4 r;
 
 	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
-	// btw adjuagate fuction: Adj(Vec) = VecXor(VecSwizzle(Vec, 3,1,2,0), adjSignMask)
 	r.mVec[0] = VecShuffle(X_, Z_, 3,1,3,1);
 	r.mVec[1] = VecShuffle(X_, Z_, 2,0,2,0);
 	r.mVec[2] = VecShuffle(Y_, W_, 3,1,3,1);
