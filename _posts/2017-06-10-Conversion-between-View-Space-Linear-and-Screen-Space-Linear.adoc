@@ -1,6 +1,7 @@
 = Conversion between View Space Linear and Screen Space Linear
 Eric Zhang
 v1.0, 2017-06-10
+:hp-tags: Math, Graphics
 
 :stem: latexmath
 :figure-caption!:
@@ -37,7 +38,7 @@ Remember how perspective projection matrix is built:
 
 [stem]
 ++++
-M=\left[ \begin{array}{} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & -\frac{f+n}{f-n} & -\frac{2fn}{f-n} \\ 0 & 0 & -1 & 0 \\ \end{array} \right] = \left[ \begin{array}{} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & \frac{{A_v}.z+{B_v}.z}{{A_v}.z-{B_v}.z} & -\frac{2({A_v}.z)({B_v}.z)}{{A_v}.z-{B_v}.z} \\ 0 & 0 & -1 & 0 \\ \end{array} \right]
+M=\left( \begin{matrix} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & -\frac{f+n}{f-n} & -\frac{2fn}{f-n} \\ 0 & 0 & -1 & 0 \\ \end{matrix} \right) = \left( \begin{matrix} M_{00} & 0 & 0 & 0 \\ 0 & M_{11} & 0 & 0 \\ 0 & 0 & \frac{{A_v}.z+{B_v}.z}{{A_v}.z-{B_v}.z} & -\frac{2({A_v}.z)({B_v}.z)}{{A_v}.z-{B_v}.z} \\ 0 & 0 & -1 & 0 \\ \end{matrix} \right)
 ++++
 
 If we only look at Z value of stem:[P_c]:
