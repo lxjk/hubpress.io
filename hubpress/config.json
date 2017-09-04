@@ -16,5 +16,21 @@
   },
   "theme": {
     "name": "uno"
+  },
+  "urls": {
+    "site": "https://lxjk.github.io",
+    "hubpress": "https://lxjk.github.io",
+    "theme": "//lxjk.github.io/themes/uno",
+    "images": "https://lxjk.github.io/images"
+  },
+  "initialisationConfigComponent": {
+    "name": "initialise-configuration",
+    "computed": {},
+    "methods": {},
+    "staticRenderFns": [
+      null,
+      null,
+      null
+    ]
   }
 }
