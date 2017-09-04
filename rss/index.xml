@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 04 Sep 2017 00:39:39 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 04 Sep 2017 00:45:35 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -99,7 +99,7 @@ public:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">#define MakeShuffleMask(x,y,z,w)			(x | (y&lt;&lt;2) | (z&lt;&lt;4) | (w&lt;&lt;6))
+<pre class="highlight"><code class="language-C++" data-lang="C++">#define MakeShuffleMask(x,y,z,w)			(x | (y&lt;&lt;2) | (z&lt;&lt;4) | (w&lt;&lt;6))
 
 // vec(0, 1, 2, 3) -&gt; (vec[x], vec[y], vec[z], vec[w])
 #define VecSwizzle(vec, x,y,z,w)			_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
@@ -122,7 +122,7 @@ public:
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
+<pre class="highlight"><code class="language-C++" data-lang="C++">// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
 inline Matrix4 GetTransformInverseNoScale(const Matrix4&amp; inM)
 {
 	Matrix4 r;
@@ -149,7 +149,7 @@ inline Matrix4 GetTransformInverseNoScale(const Matrix4&amp; inM)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">#define SMALL_NUMBER		(1.e-8f)
+<pre class="highlight"><code class="language-C++" data-lang="C++">#define SMALL_NUMBER		(1.e-8f)
 
 // Requires this matrix to be transform matrix
 inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
@@ -334,7 +334,7 @@ A^{\#}B&amp;={\left[ \begin{array}{} A_3 &amp; -A_1 \\ -A_2 &amp; A_0 \\ \end{ar
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">// for row major matrix
+<pre class="highlight"><code class="language-C++" data-lang="C++">// for row major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A1 |
 //                                              | A2  A3 |
 // 2x2 row major Matrix multiply A*B
@@ -393,7 +393,7 @@ __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">// Inverse function is the same no matter column major or row major
+<pre class="highlight"><code class="language-C++" data-lang="C++">// Inverse function is the same no matter column major or row major
 // this version treats it as row major
 inline Matrix4 GetInverse(const Matrix4&amp; inM)
 {
@@ -507,7 +507,7 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-C/C++" data-lang="C/C++">// for column major matrix
+<pre class="highlight"><code class="language-C++" data-lang="C++">// for column major matrix
 // we use __m128 to represent 2x2 matrix as A = | A0  A2 |
 //                                              | A1  A3 |
 // 2x2 column major Matrix multiply A*B
