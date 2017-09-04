@@ -85,22 +85,22 @@ Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle 
 
 [source,cpp]
 ----
-#define MakeShuffleMask(x,y,z,w)			(x | (y<<2) | (z<<4) | (w<<6))
+#define MakeShuffleMask(x,y,z,w)           (x | (y<<2) | (z<<4) | (w<<6))
 
 // vec(0, 1, 2, 3) -> (vec[x], vec[y], vec[z], vec[w])
-#define VecSwizzle(vec, x,y,z,w)			_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
-#define VecSwizzle1(vec, x) 				_mm_shuffle_ps(vec, vec, MakeShuffleMask(x,x,x,x))
+#define VecSwizzle(vec, x,y,z,w)           _mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
+#define VecSwizzle1(vec, x)                _mm_shuffle_ps(vec, vec, MakeShuffleMask(x,x,x,x))
 // special swizzle
-#define VecSwizzle_0101(vec)				_mm_movelh_ps(vec, vec)
-#define VecSwizzle_2323(vec)				_mm_movehl_ps(vec, vec)
-#define VecSwizzle_0022(vec)				_mm_moveldup_ps(vec)
-#define VecSwizzle_1133(vec)				_mm_movehdup_ps(vec)
+#define VecSwizzle_0101(vec)               _mm_movelh_ps(vec, vec)
+#define VecSwizzle_2323(vec)               _mm_movehl_ps(vec, vec)
+#define VecSwizzle_0022(vec)               _mm_moveldup_ps(vec)
+#define VecSwizzle_1133(vec)               _mm_movehdup_ps(vec)
 
 // return (vec1[x], vec1[y], vec2[z], vec2[w])
-#define VecShuffle(vec1, vec2, x,y,z,w)		_mm_shuffle_ps(vec1, vec2, MakeShuffleMask(x,y,z,w))
+#define VecShuffle(vec1, vec2, x,y,z,w)    _mm_shuffle_ps(vec1, vec2, MakeShuffleMask(x,y,z,w))
 // special shuffle
-#define VecShuffle_0101(vec1, vec2)			_mm_movelh_ps(vec1, vec2)
-#define VecShuffle_2323(vec1, vec2)			_mm_movehl_ps(vec2, vec1)
+#define VecShuffle_0101(vec1, vec2)        _mm_movelh_ps(vec1, vec2)
+#define VecShuffle_2323(vec1, vec2)        _mm_movehl_ps(vec2, vec1)
 ----
 
 Here is our first function to inverse transform matrix without scaling (always unit scale).
@@ -120,9 +120,9 @@ inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
 	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
 
 	// last line
-	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
-	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
-	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] =                       _mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
 	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
 
 	return r;
@@ -149,9 +149,9 @@ inline Matrix4 GetTransformInverse(const Matrix4& inM)
 
 	// (SizeSqr(mVec[0]), SizeSqr(mVec[1]), SizeSqr(mVec[2]), 0)
 	__m128 sizeSqr;
-	sizeSqr =						_mm_mul_ps(r.mVec[0], r.mVec[0]);
-	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[1], r.mVec[1]));
-	sizeSqr = _mm_add_ps(sizeSqr,	_mm_mul_ps(r.mVec[2], r.mVec[2]));
+	sizeSqr =                     _mm_mul_ps(r.mVec[0], r.mVec[0]);
+	sizeSqr = _mm_add_ps(sizeSqr, _mm_mul_ps(r.mVec[1], r.mVec[1]));
+	sizeSqr = _mm_add_ps(sizeSqr, _mm_mul_ps(r.mVec[2], r.mVec[2]));
 
 	// optional test to avoid divide by 0
 	__m128 one = _mm_set1_ps(1.f);
@@ -167,9 +167,9 @@ inline Matrix4 GetTransformInverse(const Matrix4& inM)
 	r.mVec[2] = _mm_mul_ps(r.mVec[2], rSizeSqr);
 
 	// last line
-	r.mVec[3] =							_mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
-	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
-	r.mVec[3] = _mm_add_ps(r.mVec[3],	_mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] =                       _mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
 	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
 
 	return r;
@@ -303,23 +303,23 @@ Here’s the code for these three functions:
 __forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
 {
 	return 
-		_mm_add_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 0,3,0,3)),
-					_mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+		_mm_add_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 0,3,0,3)),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
 }
 // 2x2 row major Matrix adjugate multiply (A#)*B
 __forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
 {
 	return
-		_mm_sub_ps(	_mm_mul_ps(VecSwizzle(vec1, 3,3,0,0), vec2),
-					_mm_mul_ps(VecSwizzle(vec1, 1,1,2,2), VecSwizzle(vec2, 2,3,0,1)));
+		_mm_sub_ps(_mm_mul_ps(VecSwizzle(vec1, 3,3,0,0), vec2),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,1,2,2), VecSwizzle(vec2, 2,3,0,1)));
 
 }
 // 2x2 row major Matrix multiply adjugate A*(B#)
 __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 {
 	return
-		_mm_sub_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 3,0,3,0)),
-					_mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+		_mm_sub_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 3,0,3,0)),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
 }
 ----
 
@@ -460,23 +460,23 @@ This is column major area. The first two functions for transform matrix is exact
 __forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
 {
 	return 
-		_mm_add_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 0,0,3,3)),
-					_mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+		_mm_add_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 0,0,3,3)),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
 }
 // 2x2 column major Matrix adjugate multiply (A#)*B
 __forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
 {
 	return
-		_mm_sub_ps(	_mm_mul_ps(VecSwizzle(vec1, 3,0,3,0), vec2),
-					_mm_mul_ps(VecSwizzle(vec1, 2,1,2,1), VecSwizzle(vec2, 1,0,3,2)));
+		_mm_sub_ps(_mm_mul_ps(VecSwizzle(vec1, 3,0,3,0), vec2),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,1,2,1), VecSwizzle(vec2, 1,0,3,2)));
 
 }
 // 2x2 column major Matrix multiply adjugate A*(B#)
 __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 {
 	return
-		_mm_sub_ps(	_mm_mul_ps(						 vec1, VecSwizzle(vec2, 3,3,0,0)),
-					_mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+		_mm_sub_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 3,3,0,0)),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
 }
 
 // Inverse function is the same no matter column major or row major
