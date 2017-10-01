@@ -1,7 +1,7 @@
 = Stop Using Normal Matrix
 Eric Zhang
 v1.0, 2017-10-01
-:hp-tags: Math, SSE
+:hp-tags: Math, Graphics
 
 :stem: latexmath
 :figure-caption!:
@@ -11,9 +11,9 @@ For rendering, I used to calculate normal matrix to transform vertex normal from
 Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.
 
 .Figure 1
-image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,align="left"]
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,align="center"]
 .Figure 2
-image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,align="left"]
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,align="center"]
 
 Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix
 
