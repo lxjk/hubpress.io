@@ -25,14 +25,14 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1506899525971" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1506899525971"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1506899896260" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1506899896260"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 	
-	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1506899525971" />
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1506899896260" />
 	
     <link rel="canonical" href="https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html" />
     <meta name="referrer" content="origin" />
@@ -167,13 +167,13 @@
 <div class="paragraph">
 <p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
 </div>
-<div class="imageblock" style="text-align: center">
+<div class="imageblock" style="text-align: center;float: right">
 <div class="content">
 <img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif" alt="normalmat1.gif" width="200">
 </div>
 <div class="title">Figure 1</div>
 </div>
-<div class="imageblock" style="text-align: center">
+<div class="imageblock" style="text-align: center;float: right">
 <div class="content">
 <img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
 </div>
@@ -217,7 +217,7 @@
 <p>It means instead of calculating inverse transpose of model matrix, and send a 3x3 matrix to the shader, you can simply calculate reciprocal of squared scale and send over a vector3, use that to rescale your normal and multiply by the model matrix you already have, and that’s it. Because the calculation is cheap, you can even avoid sending over extra data, and just calculate the whole thing in vertex shader (3 dot product to get squared scale from model matrix, 3 reciprocal and multiply).</p>
 </div>
 <div class="paragraph">
-<p>Of course the normal you get need be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.</p>
+<p>Of course the normal you get need to be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.</p>
 </div>
 <div class="paragraph">
 <p>Now how does the normal matrix handle the same problem? The inverse of our 3x3 model matrix is</p>
@@ -234,7 +234,7 @@
 <p>The normal matrix is \(M'={(M^{-1})}^{T}=\left( \begin{matrix} \frac{1}{a}\vec{X} \\ \frac{1}{b}\vec{Y} \\ \frac{1}{c}\vec{Z} \\ \end{matrix} \right)\).</p>
 </div>
 <div class="paragraph">
-<p>The transformed normal is \(\vec{N'}=\vec{N}M=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\).</p>
+<p>The transformed normal is \(\vec{N'}=\vec{N}M'=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\).</p>
 </div>
 <div class="paragraph">
 <p>Well, we got the same result.</p>
@@ -322,8 +322,8 @@
         hljs.initHighlightingOnLoad();
       </script>
 
-	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1506899525971"></script>
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1506899525971"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1506899896260"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1506899896260"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
