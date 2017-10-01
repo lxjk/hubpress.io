@@ -11,9 +11,9 @@ For rendering, I used to calculate normal matrix to transform vertex normal from
 Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.
 
 .Figure 1
-image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,align="center"]
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,float="right",align="center"]
 .Figure 2
-image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,align="center"]
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,float="right",align="center"]
 
 Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix
 
@@ -47,7 +47,7 @@ Doesn’t this look familiar? We already know the original tangent and normal st
 
 It means instead of calculating inverse transpose of model matrix, and send a 3x3 matrix to the shader, you can simply calculate reciprocal of squared scale and send over a vector3, use that to rescale your normal and multiply by the model matrix you already have, and that’s it. Because the calculation is cheap, you can even avoid sending over extra data, and just calculate the whole thing in vertex shader (3 dot product to get squared scale from model matrix, 3 reciprocal and multiply).
 
-Of course the normal you get need be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.
+Of course the normal you get need to be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.
 
 Now how does the normal matrix handle the same problem? The inverse of our 3x3 model matrix is
 
@@ -60,7 +60,7 @@ It should be easy to confirm stem:[MM^{-1}=I]. More about matrix inverse can be 
 
 The normal matrix is stem:[M'={(M^{-1})}^{T}=\left( \begin{matrix} \frac{1}{a}\vec{X} \\ \frac{1}{b}\vec{Y} \\ \frac{1}{c}\vec{Z} \\ \end{matrix} \right)].
 
-The transformed normal is stem:[\vec{N'}=\vec{N}M=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}].
+The transformed normal is stem:[\vec{N'}=\vec{N}M'=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}].
 
 Well, we got the same result.
 
