@@ -8,12 +8,12 @@ v1.0, 2017-10-01
 
 For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/[this article]. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html[here]), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.
 
-Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.
-
-.Figure 1
-image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,float="right",align="center"]
 .Figure 2
 image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,float="right",align="center"]
+.Figure 1
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,float="right",align="center"]
+
+Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.
 
 Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix
 
