@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 01 Oct 2017 23:18:16 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Stop Using Normal Matrix]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 01 Oct 2017 23:20:06 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Stop Using Normal Matrix]]></title><description><![CDATA[<div class="paragraph">
 <p>For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this article</a>. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.</p>
 </div>
-<div class="paragraph">
-<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
+<div class="imageblock" style="text-align: center;float: right">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
+</div>
+<div class="title">Figure 2</div>
 </div>
 <div class="imageblock" style="text-align: center;float: right">
 <div class="content">
@@ -10,11 +13,8 @@
 </div>
 <div class="title">Figure 1</div>
 </div>
-<div class="imageblock" style="text-align: center;float: right">
-<div class="content">
-<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
-</div>
-<div class="title">Figure 2</div>
+<div class="paragraph">
+<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
 </div>
 <div class="paragraph">
 <p>Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix</p>

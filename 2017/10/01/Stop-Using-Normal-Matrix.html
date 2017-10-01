@@ -25,14 +25,14 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1506899896260" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1506899896260"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1506900006817" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1506900006817"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 	
-	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1506899896260" />
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1506900006817" />
 	
     <link rel="canonical" href="https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html" />
     <meta name="referrer" content="origin" />
@@ -164,8 +164,11 @@
       <div class="paragraph">
 <p>For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this article</a>. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.</p>
 </div>
-<div class="paragraph">
-<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
+<div class="imageblock" style="text-align: center;float: right">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
+</div>
+<div class="title">Figure 2</div>
 </div>
 <div class="imageblock" style="text-align: center;float: right">
 <div class="content">
@@ -173,11 +176,8 @@
 </div>
 <div class="title">Figure 1</div>
 </div>
-<div class="imageblock" style="text-align: center;float: right">
-<div class="content">
-<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
-</div>
-<div class="title">Figure 2</div>
+<div class="paragraph">
+<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
 </div>
 <div class="paragraph">
 <p>Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix</p>
@@ -322,8 +322,8 @@
         hljs.initHighlightingOnLoad();
       </script>
 
-	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1506899896260"></script>
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1506899896260"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1506900006817"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1506900006817"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
