@@ -1,0 +1,39 @@
+= Stop Using Normal Matrix
+Eric Zhang
+v1.0, 2017-10-01
+:hp-tags: Math, SSE
+
+:stem: latexmath
+:figure-caption!:
+
+For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/[this article]. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse here), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.
+
+Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.
+
+.Figure 1
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif[, 200,align="left"]
+.Figure 2
+image::http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif[, 200,align="left"]
+
+Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix
+
+[stem]
+++++
+M=\left( \begin{matrix} a\vec{X} \\ b\vec{Y} \\ c\vec{Z} \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 & aX_1 & aX_2 \\ bY_0 & bY_1 & bY_2 \\ cZ_0 & cZ_1 & cZ_2 \\ \end{matrix} \right)
+++++
+
+be made of rotation (axis stem:[\vec{X}], stem:[\vec{Y}] and stem:[\vec{Z}], where stem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0], and stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]), and scale stem:[(a,b,c)]. We also have tangent stem:[\vec{T}=(T_0,T_1,T_2)] and normal stem:[\vec{N}=(N_0,N_1,N_2)], that stem:[\vec{T}\cdot\vec{N}=0]. Now after transform, tangent becomes stem:[\vec{T'}=\vec{T}M=a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z}], we need to find a normal stem:[\vec{N'}] such that stem:[\vec{T'}\cdot\vec{N'}=0].
+
+Remember stem:[\vec{X}], stem:[\vec{Y}] and stem:[\vec{Z}] are unit axes perpendicular to each other, if we denote stem:[\vec{N'}={N'_0}\vec{X} + {N'_1}\vec{Y} + {N'_2}\vec{Z}], we can expand this dot product.
+
+[stem]
+++++
+\begin{align*}
+\vec{T'}\cdot\vec{N'}&=(a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z})\vec{N'}\\
+&=a{T_0}\vec{X}\cdot\vec{N'}+b{T_1}\vec{Y}\cdot\vec{N'}+c{T_2}\vec{Z}\cdot\vec{N'}\\
+&=a{T_0}{N'_0}+b{T_1}{N'_1}+c{T_2}{N'_2}
+\end{align*}
+++++
+
+
+
