@@ -1,4 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 04 Sep 2017 23:46:32 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 01 Oct 2017 23:12:05 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Stop Using Normal Matrix]]></title><description><![CDATA[<div class="paragraph">
+<p>For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this article</a>. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.</p>
+</div>
+<div class="paragraph">
+<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif" alt="normalmat1.gif" width="200">
+</div>
+<div class="title">Figure 1</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left( \begin{matrix} a\vec{X} \\ b\vec{Y} \\ c\vec{Z} \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 &amp; aX_1 &amp; aX_2 \\ bY_0 &amp; bY_1 &amp; bY_2 \\ cZ_0 &amp; cZ_1 &amp; cZ_2 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>be made of rotation (axis \(\vec{X}\), \(\vec{Y}\) and \(\vec{Z}\), where \(\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0\), and \(\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1\)), and scale \((a,b,c)\). We also have tangent \(\vec{T}=(T_0,T_1,T_2)\) and normal \(\vec{N}=(N_0,N_1,N_2)\), that \(\vec{T}\cdot\vec{N}=0\). Now after transform, tangent becomes \(\vec{T'}=\vec{T}M=a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z}\), we need to find a normal \(\vec{N'}\) such that \(\vec{T'}\cdot\vec{N'}=0\).</p>
+</div>
+<div class="paragraph">
+<p>Remember \(\vec{X}\), \(\vec{Y}\) and \(\vec{Z}\) are unit axes perpendicular to each other, if we denote \(\vec{N'}={N'_0}\vec{X} + {N'_1}\vec{Y} + {N'_2}\vec{Z}\), we can expand this dot product.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{T'}\cdot\vec{N'}&amp;=(a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z})\vec{N'}\\
+&amp;=a{T_0}\vec{X}\cdot\vec{N'}+b{T_1}\vec{Y}\cdot\vec{N'}+c{T_2}\vec{Z}\cdot\vec{N'}\\
+&amp;=a{T_0}{N'_0}+b{T_1}{N'_1}+c{T_2}{N'_2}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Doesn’t this look familiar? We already know the original tangent and normal \(\vec{T}\cdot\vec{N}={T_0}{N_0}{T_1}{N_1}{T_2}{N_2}=0\). We can easily get our “transformed” normal</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{N'}&amp;=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\\
+&amp;=(\frac{N_0}{a}, \frac{N_1}{b}, \frac{N_2}{c})M
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>It means instead of calculating inverse transpose of model matrix, and send a 3x3 matrix to the shader, you can simply calculate reciprocal of squared scale and send over a vector3, use that to rescale your normal and multiply by the model matrix you already have, and that’s it. Because the calculation is cheap, you can even avoid sending over extra data, and just calculate the whole thing in vertex shader (3 dot product to get squared scale from model matrix, 3 reciprocal and multiply).</p>
+</div>
+<div class="paragraph">
+<p>Of course the normal you get need be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.</p>
+</div>
+<div class="paragraph">
+<p>Now how does the normal matrix handle the same problem? The inverse of our 3x3 model matrix is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{-1}=\left( \begin{matrix} \frac{1}{a}\vec{X} &amp; \frac{1}{b}\vec{Y} &amp; \frac{1}{c}\vec{Z} \\ \end{matrix} \right) = \left( \begin{matrix} \frac{1}{a}X_0 &amp; \frac{1}{b}Y_0 &amp; \frac{1}{c}Z_0 \\ \frac{1}{a}X_1 &amp; \frac{1}{b}Y_1 &amp; \frac{1}{c}Z_1 \\ \frac{1}{a}X_2 &amp; \frac{1}{b}Y_2 &amp; \frac{1}{c}Z_2 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>It should be easy to confirm \(MM^{-1}=I\). More about matrix inverse can be found <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>.</p>
+</div>
+<div class="paragraph">
+<p>The normal matrix is \(M'={(M^{-1})}^{T}=\left( \begin{matrix} \frac{1}{a}\vec{X} \\ \frac{1}{b}\vec{Y} \\ \frac{1}{c}\vec{Z} \\ \end{matrix} \right)\).</p>
+</div>
+<div class="paragraph">
+<p>The transformed normal is \(\vec{N'}=\vec{N}M=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\).</p>
+</div>
+<div class="paragraph">
+<p>Well, we got the same result.</p>
+</div>
+<div class="paragraph">
+<p>One thing to be careful about is, this method only works if the matrix axes are perpendicular to each other, that is \(\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0\). If your matrix is made of translation, rotation and scale, this is always true. However if you have interesting coordinate system that this does not hold, you need to fall back to using normal matrix. The proof and explanation for normal matrix in a general case can be found in <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this original article</a>.</p>
+</div>]]></description><link>https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html</guid><category><![CDATA[Math]]></category><category><![CDATA[Graphics]]></category><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sun, 01 Oct 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Fast 4x4 Matrix Inverse with SSE SIMD, Explained]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Stop Using Normal Matrix - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Stop Using Normal Matrix">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Stop Using Normal Matrix">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1506899525971" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1506899525971"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1506899525971" />
+	
+    <link rel="canonical" href="https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Stop Using Normal Matrix" />
+    <meta property="og:description" content="For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from this article. Of course matrix inverse is not a cheap operation" />
+    <meta property="og:url" content="https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html" />
+    <meta property="article:published_time" content="2017-10-01T00:00:00.000Z" />
+    <meta property="article:tag" content="Math" />
+    <meta property="article:tag" content="Graphics" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Stop Using Normal Matrix" />
+    <meta name="twitter:description" content="For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from this article. Of course matrix inverse is not a cheap operation" />
+    <meta name="twitter:url" content="https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Eric's Blog",
+    "author": {
+        "@type": "Person",
+        "name": "Eric Zhang",
+        "image": "https://avatars0.githubusercontent.com/u/3803294?v=4",
+        "url": "https://lxjk.github.io/author/lxjk/",
+        "sameAs": "https://lxjk.github.io/"
+    },
+    "headline": "Stop Using Normal Matrix",
+    "url": "https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html",
+    "datePublished": "2017-10-01T00:00:00.000Z",
+    "keywords": "Math, Graphics",
+    "description": "For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from this article. Of course matrix inverse is not a cheap operation"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+    
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+</head>
+<body class="post-template tag-Math tag-Graphics no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game Dev - Tool Dev - Math - Machine Learning -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Oct 01 2017" class="post-meta__date date">Oct 01 2017</time> &#8226; <span class="post-meta__tags tags">on <a href="https://lxjk.github.io/tag/Math/">Math</a>, <a href="https://lxjk.github.io/tag/Graphics/">Graphics</a></span>
+        <span class="post-meta__author author"><img src="https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">Stop Using Normal Matrix</h1>
+    </header>
+
+    <section class="post tag-Math tag-Graphics">
+      <div class="paragraph">
+<p>For rendering, I used to calculate normal matrix to transform vertex normal from model space to world space or view space. The normal matrix is defined as the inverse transpose of upper-left 3x3 matrix of the model matrix, from <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this article</a>. Of course matrix inverse is not a cheap operation (I discussed more about matrix inverse <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>), and I just realized I actually don’t need to calculate inverse transpose at all, if the model matrix is made of translation, rotation and scale, which in most of the cases your matrices will be.</p>
+</div>
+<div class="paragraph">
+<p>Let’s revisit the problem, why we cannot just use model matrix to transform the normal? If the matrix has uniform scale, there won’t be any problem. However if the matrix has non-uniform scale, after multiplied by the matrix, our normal is no longer perpendicular to the tangent anymore.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat1.gif" alt="normalmat1.gif" width="200">
+</div>
+<div class="title">Figure 1</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="http://www.lighthouse3d.com/wp-content/uploads/2011/03/normalmat2.gif" alt="normalmat2.gif" width="200">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>Now we describe the problem in math terms. Because we only transform direction, we can ignore the translation for convenience and use 3x3 matrix. The matrices used here are row major. Let our model matrix</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left( \begin{matrix} a\vec{X} \\ b\vec{Y} \\ c\vec{Z} \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 &amp; aX_1 &amp; aX_2 \\ bY_0 &amp; bY_1 &amp; bY_2 \\ cZ_0 &amp; cZ_1 &amp; cZ_2 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>be made of rotation (axis \(\vec{X}\), \(\vec{Y}\) and \(\vec{Z}\), where \(\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0\), and \(\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1\)), and scale \((a,b,c)\). We also have tangent \(\vec{T}=(T_0,T_1,T_2)\) and normal \(\vec{N}=(N_0,N_1,N_2)\), that \(\vec{T}\cdot\vec{N}=0\). Now after transform, tangent becomes \(\vec{T'}=\vec{T}M=a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z}\), we need to find a normal \(\vec{N'}\) such that \(\vec{T'}\cdot\vec{N'}=0\).</p>
+</div>
+<div class="paragraph">
+<p>Remember \(\vec{X}\), \(\vec{Y}\) and \(\vec{Z}\) are unit axes perpendicular to each other, if we denote \(\vec{N'}={N'_0}\vec{X} + {N'_1}\vec{Y} + {N'_2}\vec{Z}\), we can expand this dot product.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{T'}\cdot\vec{N'}&amp;=(a{T_0}\vec{X}+b{T_1}\vec{Y}+c{T_2}\vec{Z})\vec{N'}\\
+&amp;=a{T_0}\vec{X}\cdot\vec{N'}+b{T_1}\vec{Y}\cdot\vec{N'}+c{T_2}\vec{Z}\cdot\vec{N'}\\
+&amp;=a{T_0}{N'_0}+b{T_1}{N'_1}+c{T_2}{N'_2}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Doesn’t this look familiar? We already know the original tangent and normal \(\vec{T}\cdot\vec{N}={T_0}{N_0}{T_1}{N_1}{T_2}{N_2}=0\). We can easily get our “transformed” normal</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\vec{N'}&amp;=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\\
+&amp;=(\frac{N_0}{a}, \frac{N_1}{b}, \frac{N_2}{c})M
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>It means instead of calculating inverse transpose of model matrix, and send a 3x3 matrix to the shader, you can simply calculate reciprocal of squared scale and send over a vector3, use that to rescale your normal and multiply by the model matrix you already have, and that’s it. Because the calculation is cheap, you can even avoid sending over extra data, and just calculate the whole thing in vertex shader (3 dot product to get squared scale from model matrix, 3 reciprocal and multiply).</p>
+</div>
+<div class="paragraph">
+<p>Of course the normal you get need be re-normalized, but you need to do this no matter which method you use. Moreover since you have to re-normalize the normal in pixel shader anyway (because after interpolation the normal may not be of unit length), you don’t need to do anything extra in vertex shader.</p>
+</div>
+<div class="paragraph">
+<p>Now how does the normal matrix handle the same problem? The inverse of our 3x3 model matrix is</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{-1}=\left( \begin{matrix} \frac{1}{a}\vec{X} &amp; \frac{1}{b}\vec{Y} &amp; \frac{1}{c}\vec{Z} \\ \end{matrix} \right) = \left( \begin{matrix} \frac{1}{a}X_0 &amp; \frac{1}{b}Y_0 &amp; \frac{1}{c}Z_0 \\ \frac{1}{a}X_1 &amp; \frac{1}{b}Y_1 &amp; \frac{1}{c}Z_1 \\ \frac{1}{a}X_2 &amp; \frac{1}{b}Y_2 &amp; \frac{1}{c}Z_2 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>It should be easy to confirm \(MM^{-1}=I\). More about matrix inverse can be found <a href="https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html">here</a>.</p>
+</div>
+<div class="paragraph">
+<p>The normal matrix is \(M'={(M^{-1})}^{T}=\left( \begin{matrix} \frac{1}{a}\vec{X} \\ \frac{1}{b}\vec{Y} \\ \frac{1}{c}\vec{Z} \\ \end{matrix} \right)\).</p>
+</div>
+<div class="paragraph">
+<p>The transformed normal is \(\vec{N'}=\vec{N}M=\frac{N_0}{a}\vec{X} + \frac{N_1}{b}\vec{Y} + \frac{N_2}{c}\vec{Z}\).</p>
+</div>
+<div class="paragraph">
+<p>Well, we got the same result.</p>
+</div>
+<div class="paragraph">
+<p>One thing to be careful about is, this method only works if the matrix axes are perpendicular to each other, that is \(\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0\). If your matrix is made of translation, rotation and scale, this is always true. However if you have interesting coordinate system that this does not hold, you need to fall back to using normal matrix. The proof and explanation for normal matrix in a general case can be found in <a href="http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/">this original article</a>.</p>
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=Stop%20Using%20Normal%20Matrix&amp;url=https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2017/10/01/Stop-Using-Normal-Matrix.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2017. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1506899525971"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1506899525971"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
