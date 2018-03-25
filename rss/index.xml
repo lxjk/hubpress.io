@@ -1,5 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 25 Mar 2018 19:53:56 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 25 Mar 2018 20:08:00 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel2">
+<li><a href="#_the_problem_of_sphere_frustum_test">The Problem of Sphere-Frustum Test</a></li>
+<li><a href="#_cone_test">Cone Test</a></li>
+<li><a href="#_spherical_sliced_cone_test">Spherical-sliced Cone Test</a></li>
+<li><a href="#_extend_to_clustered_light_culling">Extend to Clustered Light Culling</a></li>
+</ul>
+</div>
 <div class="paragraph">
 <p>Tile-based method is used in both deferred and forward rendering. Since light calculation is expensive, one of the main goal for improving tile-based method is to provide more accurate and efficient light culling. This article will present a new method for light culling using spherical-sliced cone, which largely reduces false positives introduced by traditional sphere-frustum test. Furthermore this method can be naturally extended to clustered light culling.</p>
 </div>
