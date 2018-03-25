@@ -25,14 +25,14 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1522006488139" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1522006488139"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1522007636040" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1522007636040"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 	
-	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1522006488139" />
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1522007636040" />
 	
     <link rel="canonical" href="https://lxjk.github.io/2018/03/25/Improve-Tile-based-Light-Culling-with-Spherical-sliced-Cone.html" />
     <meta name="referrer" content="origin" />
@@ -186,7 +186,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">if (lightDepth - lightRadius &lt;= tileMaxDepth &amp;&amp;
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">if (lightDepth - lightRadius &lt;= tileMaxDepth &amp;&amp;
     lightDepth + lightRadius &gt;= tileMinDepth)
 {
     for (int i = 0; i &lt; 4; ++i)
@@ -234,7 +234,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
 float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
 float tileSin = sqrt(1 - tileCos * tileCos);</code></pre>
 </div>
@@ -247,7 +247,7 @@ float tileSin = sqrt(1 - tileCos * tileCos);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// get lightPos and lightRadius in view space
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// get lightPos and lightRadius in view space
 float lightDistSqr = dot(lightPos, lightPos);
 float lightDist = sqrt(lightDistSqr);
 vec3 lightCenterVec = lightPos / lightDist;
@@ -261,7 +261,7 @@ Now we have both cones, we just need to compare the angle between two cone cente
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">float lightTileCos = dot(lightCenterVec, tileCenterVec);
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">float lightTileCos = dot(lightCenterVec, tileCenterVec);
 float lightTileSin = sqrt(1 - lightTileCos * lightTileCos);
 // sum angle = light cone half angle + tile cone half angle
 float sumCos = (lightRadius &gt; lightDist) ? -1.0 : (tileCos * lightCos - tileSin * lightSin);
@@ -351,7 +351,7 @@ if (lightTileCos &gt;= sumCos &amp;&amp;
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// diff angle = sum angle - tile cone half angle
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// diff angle = sum angle - tile cone half angle
 // clamp to handle the case when light center is within tile cone
 float diffSin = clamp(lightTileSin * tileCos - lightTileCos * tileSin, 0.0, 1.0);
 float diffCos = (diffSin == 0.0) ? 1.0 : lightTileCos * tileCos + lightTileSin * tileSin;
@@ -416,7 +416,7 @@ if (lightTileCos &gt;= sumCos &amp;&amp;
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// calculate tile cone
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// calculate tile cone
 vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
 float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
 float tileSin = sqrt(1 - tileCos * tileCos);
@@ -554,8 +554,8 @@ for (uint lightIdx = 0; lightIdx &lt; lightCount; ++lightIdx)
         hljs.initHighlightingOnLoad();
       </script>
 
-	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1522006488139"></script>
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1522006488139"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1522007636040"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1522007636040"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

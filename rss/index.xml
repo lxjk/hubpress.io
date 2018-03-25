@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 25 Mar 2018 19:34:48 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 25 Mar 2018 19:53:56 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Tile-based method is used in both deferred and forward rendering. Since light calculation is expensive, one of the main goal for improving tile-based method is to provide more accurate and efficient light culling. This article will present a new method for light culling using spherical-sliced cone, which largely reduces false positives introduced by traditional sphere-frustum test. Furthermore this method can be naturally extended to clustered light culling.</p>
@@ -24,7 +24,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">if (lightDepth - lightRadius &lt;= tileMaxDepth &amp;&amp;
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">if (lightDepth - lightRadius &lt;= tileMaxDepth &amp;&amp;
     lightDepth + lightRadius &gt;= tileMinDepth)
 {
     for (int i = 0; i &lt; 4; ++i)
@@ -72,7 +72,7 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
 float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
 float tileSin = sqrt(1 - tileCos * tileCos);</code></pre>
 </div>
@@ -85,7 +85,7 @@ float tileSin = sqrt(1 - tileCos * tileCos);</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// get lightPos and lightRadius in view space
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// get lightPos and lightRadius in view space
 float lightDistSqr = dot(lightPos, lightPos);
 float lightDist = sqrt(lightDistSqr);
 vec3 lightCenterVec = lightPos / lightDist;
@@ -99,7 +99,7 @@ Now we have both cones, we just need to compare the angle between two cone cente
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">float lightTileCos = dot(lightCenterVec, tileCenterVec);
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">float lightTileCos = dot(lightCenterVec, tileCenterVec);
 float lightTileSin = sqrt(1 - lightTileCos * lightTileCos);
 // sum angle = light cone half angle + tile cone half angle
 float sumCos = (lightRadius &gt; lightDist) ? -1.0 : (tileCos * lightCos - tileSin * lightSin);
@@ -189,7 +189,7 @@ if (lightTileCos &gt;= sumCos &amp;&amp;
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// diff angle = sum angle - tile cone half angle
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// diff angle = sum angle - tile cone half angle
 // clamp to handle the case when light center is within tile cone
 float diffSin = clamp(lightTileSin * tileCos - lightTileCos * tileSin, 0.0, 1.0);
 float diffCos = (diffSin == 0.0) ? 1.0 : lightTileCos * tileCos + lightTileSin * tileSin;
@@ -254,7 +254,7 @@ if (lightTileCos &gt;= sumCos &amp;&amp;
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="prettyprint highlight"><code class="language-glsl" data-lang="glsl">// calculate tile cone
+<pre class="highlight"><code class="language-glsl" data-lang="glsl">// calculate tile cone
 vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
 float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
 float tileSin = sqrt(1 - tileCos * tileCos);
