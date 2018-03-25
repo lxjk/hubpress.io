@@ -1,0 +1,107 @@
+= Improve Tile-based Light Culling with Spherical-sliced Cone
+Eric Zhang
+v1.0, 2018-03-25
+:published_at: 2018-03-25
+:toc: macro
+:hp-tags: Graphics
+
+:stem: latexmath
+:source-highlighter: prettify
+:figure-caption!:
+
+
+Tile-based method is used in both deferred and forward rendering. Since light calculation is expensive, one of the main goal for improving tile-based method is to provide more accurate and efficient light culling. This article will present a new method for light culling using spherical-sliced cone, which largely reduces false positives introduced by traditional sphere-frustum test. Furthermore this method can be naturally extended to clustered light culling.
+
+I would assume you have a basic idea of how tile-based deferred or forward rendering works, and in this article I will only be talking about light culling phase. Example shader code in this article is in GLSL.
+
+=== The Problem of Sphere-Frustum Test
+
+Let’s do a quick overview of how tile-based light culling normally works. We first divide the pixels into tiles (usually16x16), and run a compute shader to calculate the min and max depth of each tile by sampling depth buffer. After this step, each tile can be viewed as a little frustum. Figure 1 shows a top view of tiles and frustums under this setup. On the CPU side we build a list of bounding spheres of visible lights, and send it over to GPU. Then we run another compute shader to do sphere-frustum test for every light against each tile. If a light passed the test, its index gets added to a list for this tile for shading in a later stage.
+
+.Figure 1 top view of tile based shading.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig1.png[, 800,align="center"]
+
+A sphere-frustum test is basically calculating signed distance from sphere center to all 6 planes of the frustum. If any of the signed distance is larger than sphere radius, which means the sphere is completely outside one of the planes, it fails the test; otherwise it passes. In practice, since we know the near/far plane of the tile frustum is parallel to view near/far plane, we can simply compare light depth with tile min/max depth, and only calculate signed distance for 4 side planes. The shader code looks like this:
+
+[source,glsl]
+----
+if (lightDepth - lightRadius <= tileMaxDepth &&
+    lightDepth + lightRadius >= tileMinDepth)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        // test 4 side planes
+    }
+}
+----
+
+Sphere-frustum test will introduce false positives, where the sphere will pass the test even though it does not intersect with the frustum. As in Figure 2, the green zone is the actual intersection area, while the red zone is the area that will also pass the test, which are the false positives. As you can see from the graph, the false positive area grows if the sphere radius gets larger or the frustum gets smaller. That’s why while doing sphere-frustum test for view frustum culling is acceptable, doing it for tile-based light culling is not; the light radius are usually huge compared to our tile frustum. The cost of false positive here is also quite high (light calculation in later stage), so it is a problem we need to deal with.
+
+.Figure 2 (a) and (b) top view of sphere-frustum test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 1000,align="center"]
+
+=== Cone Test
+
+To reduce the false positives, we will tackle this problem in two steps. Step 1 we will focus on improving tests on 4 side planes of a frustum; and we will improve the test for near/far plane as step 2 in the next section. 
+
+Sphere-frustum test performs better when frustum is big and sphere is small, cone test is completely the opposite. It will perform better when frustum is small and sphere is big, which fits perfectly for this situation. To do cone culling, you make a cone from the camera origin that contains the whole tile frustum, and for each light we make a cone that contains the bounding sphere of the light; then we simply test if the cone overlaps. Again we will use the same near/far plane test for now, and we will improve that later. We are not going to send more data to shader, cones are easy to calculate on the fly.
+
+.Figure 3 front view of sphere-frustum test and cone test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig3.png[, 600,align="center"]
+
+Figure 3 shows the front view of sphere-frustum test and cone test. The green zone is the actual intersection area; the red zone is the false positive area for sphere-frustum test; the blue zone is the false positive area for cone test. You can get a sense of how false positives for cone test will decrease when we increase the light radius. 
+
+.Figure 4 top view of cone test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig4.png[, 1000,align="center"]
+
+Let’s look at an example in Figure 4. Firstly we need to make a cone for the tile (marked in green). The tile cone center vector can simply be the average of 4 side vectors that makes the tile frustum, and the half angle would be the maximum angle between center vector and 4 side vectors. We don’t really want to calculate angle, we calculate sine and cosine instead:
+
+[source,glsl]
+----
+vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
+float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
+float tileSin = sqrt(1 - tileCos * tileCos);
+----
+
+Note the half angle of a cone cannot go beyond 90 degree, so both sine and cosine are always positive.
+
+For each light, we need to make a cone for the bounding sphere. If we transform light’s bounding sphere into view space, the center vector of the cone is the vector to light position. We can get sine of the half angle by dividing light radius by light distance to camera (origin).
+
+[source,glsl]
+----
+// get lightPos and lightRadius in view space
+float lightDistSqr = dot(lightPos, lightPos);
+float lightDist = sqrt(lightDistSqr);
+vec3 lightCenterVec = lightPos / lightDist;
+float lightSin = clamp(lightRadius / lightDist, 0.0, 1.0);
+float lightCos = sqrt(1 - lightSin * lightSin);
+----
+
+Here we put clamp on sine to take care of the case when camera is inside a light. In this case the light will intersect all tiles for cone test (but can still fail near/far plane test), which we will handle specifically in the next step.
+Now we have both cones, we just need to compare the angle between two cone center vector and the sum of both cone half angles. Here we will use trigonometric formula: stem:[\cos{(A+B)} = \cos{A}\cos{B} - \sin{A}\sin{B}]
+
+[source,glsl]
+----
+float lightTileCos = dot(lightCenterVec, tileCenterVec);
+float lightTileSin = sqrt(1 - lightTileCos * lightTileCos);
+// sum angle = light cone half angle + tile cone half angle
+float sumCos = (lightRadius > lightDist) ? -1.0 : (tileCos * lightCos - tileSin * lightSin);
+
+if (lightTileCos >= sumCos &&
+    lightDepth - lightRadius <= tileMaxDepth &&
+    lightDepth + lightRadius >= tileMinDepth)
+{
+    // light intersect this tile
+}
+----
+
+If the camera is inside a light, we set cosine of sum angle to be -1, so it will always pass the cone test. For near/far plane we do the same depth check as sphere-frustum test.
+
+How are we doing with cone test? First let’s test in a single light situation. The results shows in Figure 5, in (b) and (c) the tiles are tinted red if it passes light culling. The sphere-frustum test will get a big square like result, which matches the false positive area we discussed above. And the cone test gives something closer to our goal.
+
+.Figure 5 (a) normal rendering; (b) tiles passed sphere-frustum test; (c) tiles passed cone test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig5.png[, 1200,align="center"]
+
+Next we test performance. We put in 1024 random lights in Crytek Sponza scene, rendered in 1280x720 with NVidia GeForce GTX 760M. And here is the result we got:
+
+
