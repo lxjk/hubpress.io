@@ -19,7 +19,7 @@ I would assume you have a basic idea of how tile-based deferred or forward rende
 Let’s do a quick overview of how tile-based light culling normally works. We first divide the pixels into tiles (usually16x16), and run a compute shader to calculate the min and max depth of each tile by sampling depth buffer. After this step, each tile can be viewed as a little frustum. Figure 1 shows a top view of tiles and frustums under this setup. On the CPU side we build a list of bounding spheres of visible lights, and send it over to GPU. Then we run another compute shader to do sphere-frustum test for every light against each tile. If a light passed the test, its index gets added to a list for this tile for shading in a later stage.
 
 .Figure 1 top view of tile based shading.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig1.png[, 800,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig1.png[, 600,align="center"]
 
 A sphere-frustum test is basically calculating signed distance from sphere center to all 6 planes of the frustum. If any of the signed distance is larger than sphere radius, which means the sphere is completely outside one of the planes, it fails the test; otherwise it passes. In practice, since we know the near/far plane of the tile frustum is parallel to view near/far plane, we can simply compare light depth with tile min/max depth, and only calculate signed distance for 4 side planes. The shader code looks like this:
 
@@ -100,7 +100,7 @@ If the camera is inside a light, we set cosine of sum angle to be -1, so it will
 How are we doing with cone test? First let’s test in a single light situation. The results shows in Figure 5, in (b) and (c) the tiles are tinted red if it passes light culling. The sphere-frustum test will get a big square like result, which matches the false positive area we discussed above. And the cone test gives something closer to our goal.
 
 .Figure 5 (a) normal rendering; (b) tiles passed sphere-frustum test; (c) tiles passed cone test.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig5.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig5.png[, 900,align="center"]
 
 Next we test performance. We put in 1024 random lights in Crytek Sponza scene, rendered in 1280x720 with NVidia GeForce GTX 760M. And here is the result we got:
 
@@ -124,7 +124,7 @@ To illustrate the problem of near/far plane test, Figure 7 (a) shows a good exam
 The good news is with cone setup, we can refine light range per tile. However we do need to change the value we are comparing to, instead of using tile min/max depth, we will need tile min/max distance to camera. This also means in the previous compute shader, we need to calculate min/max distance to camera per pixel instead. The reason for this change is that to calculate min/max distance to camera for a light within a tile is much easier than calculating min/max depth. This change also gives the name of “Spherical-sliced Cone”, since visually we are slicing each cone with two spheres, which has min/max distance to camera as their radii.  
 
 .Figure 7 (a) false positive example of near/far plane test; (b) Spherical-sliced Cone test.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig7.png[, 800,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig7.png[, 1200,align="center"]
 
 Figure 7 (b) shows how to calculate min/max light tile distance. Basically we are looking for the vector closet to light sphere center in the tile cone. In the example above, we get this vector by rotating tile cone center vector around origin towards sphere cone center vector, with tile cone half angle. The “Sum Angle” is the angle between tile cone center vector and light cone center vector, which we used to do cone test in previous section. The “Diff Angle” is “Sum Angle” minus tile cone half angle, which we will be using to calculate min/max light tile distance.
 
@@ -150,7 +150,7 @@ if (lightTileCos >= sumCos &&
 Here we keep cone test comparison, but changed near/far plane test to light tile distance comparison. How are we doing spherical-sliced cone test then? As shown in Figure 8 (d), for single light visualization, it removes false positives introduced by depth comparison. For performance, we get 11.70% improvement over cone test, and 15.68% improvement over sphere-frustum test.
 
 .Figure 8 (a) normal rendering; (b) tiles passed sphere-frustum test; (c) tiles passed cone test; (d) tiles passed spherical-sliced cone test.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig8.png[, 800,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig8.png[, 1200,align="center"]
 
 [width="80%",cols="7s,3,3,3",options="header"]
 |=========================================================
@@ -205,7 +205,7 @@ for (uint lightIdx = 0; lightIdx < lightCount; ++lightIdx)
 Since we are calculating light range per tile, it is natural to extend this method to clustered light culling, which is useful for rendering translucent object. Similar to common cluster setup, when we build the light list we record the farthest light and use that as the far bound for clusters. Instead of using overall max light depth, we use overall max light distance to camera. Figure 9 shows the difference between two setups.
 
 .Figure 9 cluster setup with 4 clusters per tile; (a) common cluster setup; (b) cluster setup with Spherical-sliced Cone.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig9.png[, 800,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig9.png[, 1200,align="center"]
 
 Also instead of using a global max distance, we calculate max distance per tile, which is the smaller value of overall max light distance and max tile distance. We are not going to run light culling per cluster, we still run it once per tile. With spherical-sliced cone culling, simply compare min/max light tile distance with cluster min/max distance we can get light-cluster intersection result for all clusters in this tile. 
 
