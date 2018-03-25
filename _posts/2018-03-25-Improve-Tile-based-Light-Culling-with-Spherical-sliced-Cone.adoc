@@ -1,7 +1,6 @@
 = Improve Tile-based Light Culling with Spherical-sliced Cone
 Eric Zhang
 v1.0, 2018-03-25
-:published_at: 2018-03-25
 :toc: macro
 :hp-tags: Graphics
 
