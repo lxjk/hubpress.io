@@ -5,7 +5,7 @@ v1.0, 2018-03-25
 :hp-tags: Graphics
 
 :stem: latexmath
-:source-highlighter: prettify
+:source-highlighter: prettify | lang-glsl
 :figure-caption!:
 
 
