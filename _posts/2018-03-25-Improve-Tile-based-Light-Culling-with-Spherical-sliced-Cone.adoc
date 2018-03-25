@@ -38,7 +38,7 @@ if (lightDepth - lightRadius <= tileMaxDepth &&
 Sphere-frustum test will introduce false positives, where the sphere will pass the test even though it does not intersect with the frustum. As in Figure 2, the green zone is the actual intersection area, while the red zone is the area that will also pass the test, which are the false positives. As you can see from the graph, the false positive area grows if the sphere radius gets larger or the frustum gets smaller. That’s why while doing sphere-frustum test for view frustum culling is acceptable, doing it for tile-based light culling is not; the light radius are usually huge compared to our tile frustum. The cost of false positive here is also quite high (light calculation in later stage), so it is a problem we need to deal with.
 
 .Figure 2 (a) and (b) top view of sphere-frustum test.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 1000,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 800,align="center"]
 
 === Cone Test
 
@@ -78,7 +78,7 @@ float lightCos = sqrt(1 - lightSin * lightSin);
 ----
 
 Here we put clamp on sine to take care of the case when camera is inside a light. In this case the light will intersect all tiles for cone test (but can still fail near/far plane test), which we will handle specifically in the next step.
-Now we have both cones, we just need to compare the angle between two cone center vector and the sum of both cone half angles. Here we will use trigonometric formula: stem:[\cos{(A+B)} = \cos{A}\cos{B} - \sin{A}\sin{B}]
+Now we have both cones, we just need to compare the angle between two cone center vector and the sum of both cone half angles. Here we will use trigonometric formula: stem:[\cos{(A+B)} = \cos{A}\cos{B} - \sin{A}\sin{B}].
 
 [source,glsl]
 ----
@@ -100,8 +100,115 @@ If the camera is inside a light, we set cosine of sum angle to be -1, so it will
 How are we doing with cone test? First let’s test in a single light situation. The results shows in Figure 5, in (b) and (c) the tiles are tinted red if it passes light culling. The sphere-frustum test will get a big square like result, which matches the false positive area we discussed above. And the cone test gives something closer to our goal.
 
 .Figure 5 (a) normal rendering; (b) tiles passed sphere-frustum test; (c) tiles passed cone test.
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig5.png[, 1200,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig5.png[, 600,align="center"]
 
 Next we test performance. We put in 1024 random lights in Crytek Sponza scene, rendered in 1280x720 with NVidia GeForce GTX 760M. And here is the result we got:
 
+[width="80%",cols="7s,3,3,3",options="header"]
+|=========================================================
+| |Lighting Time |Step Improvement |Accumulated Improvement
+|Sphere-Frustum Test |5.55 ms | | 
+|Cone Test |5.30 ms | 4.50% | 4.50%
+|=========================================================
 
+We got better result, but not super exciting. Remember we have not yet changed the near/far plane test, and we are going to tackle it next.
+
+.Figure 6. 1024 random lights in Crytek Sponza scene.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig6.png[, 800,align="center"]
+
+
+=== Spherical-sliced Cone Test
+
+To illustrate the problem of near/far plane test, Figure 7 (a) shows a good example. The light on the left will pass the cone test and near/far plane test, but apparently it does not intersect the tile (marked in green). 
+
+The good news is with cone setup, we can refine light range per tile. However we do need to change the value we are comparing to, instead of using tile min/max depth, we will need tile min/max distance to camera. This also means in the previous compute shader, we need to calculate min/max distance to camera per pixel instead. The reason for this change is that to calculate min/max distance to camera for a light within a tile is much easier than calculating min/max depth. This change also gives the name of “Spherical-sliced Cone”, since visually we are slicing each cone with two spheres, which has min/max distance to camera as their radii.  
+
+.Figure 7 (a) false positive example of near/far plane test; (b) Spherical-sliced Cone test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig7.png[, 800,align="center"]
+
+Figure 7 (b) shows how to calculate min/max light tile distance. Basically we are looking for the vector closet to light sphere center in the tile cone. In the example above, we get this vector by rotating tile cone center vector around origin towards sphere cone center vector, with tile cone half angle. The “Sum Angle” is the angle between tile cone center vector and light cone center vector, which we used to do cone test in previous section. The “Diff Angle” is “Sum Angle” minus tile cone half angle, which we will be using to calculate min/max light tile distance.
+
+One special condition is if the light sphere center is inside a tile, we will get a negative “Diff Angle”. In this case we simply clamp it to 0, since light cone center vector is inside the cone, it IS the closest vector we are looking for. Some more trigonometric formulas: stem:[\sin{(A-B)} = \sin{A}\cos{B} - \cos{A}\sin{B}]; stem:[\cos{(A-B)} = \cos{A}\cos{B} + \sin{A}\sin{B}].
+
+[source,glsl]
+----
+// diff angle = sum angle - tile cone half angle
+// clamp to handle the case when light center is within tile cone
+float diffSin = clamp(lightTileSin * tileCos - lightTileCos * tileSin, 0.0, 1.0);
+float diffCos = (diffSin == 0.0) ? 1.0 : lightTileCos * tileCos + lightTileSin * tileSin;
+float lightTileDistOffset = sqrt(lightRadius * lightRadius - lightDistSqr * diffSin * diffSin);
+float lightTileDistBase = lightDist * diffCos;
+
+if (lightTileCos >= sumCos &&
+    lightTileDistBase - lightTileDistOffset <= maxTileDist &&
+    lightTileDistBase + lightTileDistOffset >= minTileDist)
+{
+    // light intersect this tile
+}
+----
+
+Here we keep cone test comparison, but changed near/far plane test to light tile distance comparison. How are we doing spherical-sliced cone test then? As shown in Figure 8 (d), for single light visualization, it removes false positives introduced by depth comparison. For performance, we get 11.70% improvement over cone test, and 15.68% improvement over sphere-frustum test.
+
+.Figure 8 (a) normal rendering; (b) tiles passed sphere-frustum test; (c) tiles passed cone test; (d) tiles passed spherical-sliced cone test.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig8.png[, 800,align="center"]
+
+[width="80%",cols="7s,3,3,3",options="header"]
+|=========================================================
+| |Lighting Time |Step Improvement |Accumulated Improvement
+|Sphere-Frustum Test |5.55 ms | | 
+|Cone Test |5.30 ms | 4.50% | 4.50%
+|Spherical-sliced Cone Test |4.68 ms | 11.70% | 15.68%
+|=========================================================
+
+Here is the shader code we used so far:
+
+[source,glsl]
+----
+// calculate tile cone
+vec3 tileCenterVec = normalize(sides[0] + sides[1] + sides[2] + sides[3]);
+float tileCos = min(min(min(dot(tileCenterVec, sides[0]), dot(tileCenterVec, sides[1])), dot(tileCenterVec, sides[2])), dot(tileCenterVec, sides[3]));
+float tileSin = sqrt(1 - tileCos * tileCos);
+
+// loop through light list
+for (uint lightIdx = 0; lightIdx < lightCount; ++lightIdx)
+{
+    // get lightPos and lightRadius in view space
+    float lightDistSqr = dot(lightPos, lightPos);
+    float lightDist = sqrt(lightDistSqr);
+    vec3 lightCenterVec = lightPos / lightDist;
+    float lightSin = clamp(lightRadius / lightDist, 0.0, 1.0);
+    float lightCos = sqrt(1 - lightSin * lightSin);
+
+    float lightTileCos = dot(lightCenterVec, tileCenterVec);
+    float lightTileSin = sqrt(1 - lightTileCos * lightTileCos);
+    // sum angle = light cone half angle + tile cone half angle
+    float sumCos = (lightRadius > lightDist) ? -1.0 : (tileCos * lightCos - tileSin * lightSin);
+
+    // diff angle = sum angle - tile cone half angle
+    // clamp to handle the case when light center is within tile cone
+    float diffSin = clamp(lightTileSin * tileCos - lightTileCos * tileSin, 0.0, 1.0);
+    float diffCos = (diffSin == 0.0) ? 1.0 : lightTileCos * tileCos + lightTileSin * tileSin;
+    float lightTileDistOffset = sqrt(lightRadius * lightRadius - lightDistSqr * diffSin * diffSin);
+    float lightTileDistBase = lightDist * diffCos;
+
+    if (lightTileCos >= sumCos &&
+        lightTileDistBase - lightTileDistOffset <= maxTileDepth &&
+        lightTileDistBase + lightTileDistOffset >= minTileDepth)
+    {
+        // light intersect this tile
+    }
+}
+----
+
+=== Extend to Clustered Light Culling
+
+Since we are calculating light range per tile, it is natural to extend this method to clustered light culling, which is useful for rendering translucent object. Similar to common cluster setup, when we build the light list we record the farthest light and use that as the far bound for clusters. Instead of using overall max light depth, we use overall max light distance to camera. Figure 9 shows the difference between two setups.
+
+.Figure 9 cluster setup with 4 clusters per tile; (a) common cluster setup; (b) cluster setup with Spherical-sliced Cone.
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig9.png[, 800,align="center"]
+
+Also instead of using a global max distance, we calculate max distance per tile, which is the smaller value of overall max light distance and max tile distance. We are not going to run light culling per cluster, we still run it once per tile. With spherical-sliced cone culling, simply compare min/max light tile distance with cluster min/max distance we can get light-cluster intersection result for all clusters in this tile. 
+
+To store the information, we use one bit to mark whether light intersect with a cluster in a tile. If the maximum allowed visible lights are no more than 65535, and we have no more than 16 clusters per tile, we can use one uint32 for a light intersect a tile (16 bits for light index, 16 bits for cluster mask). Or if we have no more than 32 clusters per tile, we can use two uint32, one for light index, one for cluster mask. This way we still have a list of lights per tile rather than a list of lights per cluster.
+
+There are many ways to setup clusters within a tile, here we use even distribution just for simplicity. Finally, another trick is for the last and farthest cluster. If tile geometry distance range (max tile distance minus min tile distance) is smaller than the range of the farthest cluster, the second left-most tile in Figure 9 (b) for example, we can use the tile distance range to define the last cluster, and setup other clusters in this tile normally starting from min tile distance to camera. This way we have better culling result for rendering opaque geometry, which are the majority of the scene. The opposite example is the second right-most tile in Figure 9 (b), where tile geometry distance range is larger than farthest cluster range, we want to leave the cluster setup as it is, since this setup will cull the light for the front-most geometry, while the other setup or tile-based culling will not.
