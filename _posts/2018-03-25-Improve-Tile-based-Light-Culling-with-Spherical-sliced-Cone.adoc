@@ -8,6 +8,7 @@ v1.0, 2018-03-25
 :source-highlighter: prettify | lang-glsl
 :figure-caption!:
 
+toc::[]
 
 Tile-based method is used in both deferred and forward rendering. Since light calculation is expensive, one of the main goal for improving tile-based method is to provide more accurate and efficient light culling. This article will present a new method for light culling using spherical-sliced cone, which largely reduces false positives introduced by traditional sphere-frustum test. Furthermore this method can be naturally extended to clustered light culling.
 
