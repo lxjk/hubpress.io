@@ -2,6 +2,7 @@
 Eric Zhang
 v1.0, 2016-11-06
 :toc: macro
+:hp-tags: Math
 
 :stem: latexmath
 :figure-caption!:
