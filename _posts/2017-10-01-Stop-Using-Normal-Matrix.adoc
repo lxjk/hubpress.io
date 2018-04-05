@@ -35,7 +35,7 @@ Remember stem:[\vec{X}], stem:[\vec{Y}] and stem:[\vec{Z}] are unit axes perpend
 \end{align*}
 ++++
 
-Doesn’t this look familiar? We already know the original tangent and normal stem:[\vec{T}\cdot\vec{N}={T_0}{N_0}+{T_1}{N_1}+{T_2}{N_2}=0]. We can easily get our “transformed” normal
+Doesn’t this look familiar? We already know the original tangent and normal stem:[\vec{T}\cdot\vec{N}={T_0}{N_0} + {T_1}{N_1} + {T_2}{N_2}=0]. We can easily get our “transformed” normal
 
 [stem]
 ++++
