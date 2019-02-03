@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 03 Feb 2019 00:37:07 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Your Blog title]]></title><description><![CDATA[<div class="paragraph">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 03 Feb 2019 00:34:01 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Your Blog title]]></title><description><![CDATA[<div class="paragraph">
 <p>test</p>
 </div>]]></description><link>https://lxjk.github.io/2019/02/02/Your-Blog-title.html</link><guid isPermaLink="true">https://lxjk.github.io/2019/02/02/Your-Blog-title.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 02 Feb 2019 00:00:00 GMT</pubDate></item><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
@@ -1153,7 +1153,115 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 }</code></pre>
 </div>
 </div>
-</div>]]></description><link>https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html</guid><category><![CDATA[Math]]></category><category><![CDATA[SSE]]></category><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sun, 03 Sep 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
+</div>]]></description><link>https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html</guid><category><![CDATA[Math]]></category><category><![CDATA[SSE]]></category><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sun, 03 Sep 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Conversion between View Space Linear and Screen Space Linear]]></title><description><![CDATA[<div class="paragraph">
+<p>Some background of this problem: when doing screen space reflection, we need to shoot a ray from every pixel to find out reflection color. However we don’t want to march the ray in view space, because for example you have a ray pointing relatively inwards or outwards to the screen, we may march a large distance in view space but only move a pixel in screen space. Since all information are stored in pixels, we are wasting time sampling the same pixel. The other way around, if the ray is pointing to X/Y axis in view space, we might miss pixels if we march too fast in view space. So in general it is a better idea to march the ray in screen space instead.</p>
+</div>
+<div class="paragraph">
+<p>Now the problem becomes if we march to a point in screen space somewhere between start pixel and end pixel, what is the corresponding point in view space? Of course we can use projection matrix to un-project it back to view space, but since we already know start point and end point in view space, we can do better than that. Let’s define our problem more specifically:</p>
+</div>
+<div class="paragraph">
+<p>We know two points in view space \(A_v\) and \(B_v\), their projected point in screen space is \(A_s\) and \(B_s\). In screen space, given a linear interpolation ratio \(r_s\) and a point \({P_s}={A_s}(1-{r_s}) + {{B_s}{r_s}}\), what is its corresponding point \(P_v\) in view space, and the ratio \(r_v\) such that \({P_v}={A_v}(1-{r_v})+{B_v}{r_v}\).</p>
+</div>
+<div class="paragraph">
+<p>We will use OpenGL coordinate (right-handed, Y up), so \(A_v\) and \(B_v\) has negative Z value.</p>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/linearconversion/fig1.png" alt="fig1.png" width="400">
+</div>
+<div class="title">Figure 1</div>
+</div>
+<div class="paragraph">
+<p>If you wonder why \(r_s\) and \(r_v\) are different, take a look at figure 1. \({r_v}=\frac{\left|AP\right|}{\left|AB\right|}\), while \({r_s}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}\), they are the same only if \(AB\) is parallel to \({A_1}{B_1}\).</p>
+</div>
+<div class="paragraph">
+<p>First we want to simplify our problem a little bit. Recall how we project a point from view space to screen space, with projection matrix \(M\) and window size \(S\), for any point in view space \(Q_v\), we project it into clip space (range from -1 to 1): \({Q_c}=\frac{1}{(M{Q_v}).w}{M{Q_v}}\), then we remap it to screen space: \({Q_s}=\frac{1}{2}({Q_c} + 1)S\). Here \(S\) is constant, so screen space is just a linear combination of view space, which means the linear ratio doesn’t change from clip space to view space: \({P_c}={A_c}(1-{r_s})+{B_c}{r_s}\). We can ignore screen space remap, and just work on clip space.</p>
+</div>
+<div class="paragraph">
+<p>Now take a look a figure 1 again, you can see since \(A{B_2}\) is parallel to \({A_1}{B_1}\), so \({r_s}=\frac{\left|{A_1}{P_1}\right|}{\left|{A_1}{B_1}\right|}=\frac{\left|A{P_2}\right|}{\left|A{B_2}\right|}\). It means the selection of near plane and far plane doesn’t affect linear ratio at all, because they are all parallel to each other. So we can choose a good pair of near and far plane to simplify the problem, for example let \(A_v\) be on near plane and \(B_v\) be on far plane: \(n=-{A_v}.z\), \(f=-{B_v}.z\) (Or the other way around if \(B_v\) is closer to camera, it doesn’t affect the result). Then in clip space we have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{A_c}.z&amp;=-1\\
+{B_c}.z&amp;=1\\
+{P_c}.z&amp;=({A_c}.z)(1-{r_s})+({B_c}.z){r_s}=2{r_s}-1
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>With these special Z values in clip space, if we find out \({P_v}.z\) in view space, we can get the view space linear ratio \({r_v}=\frac{{P_v}.z-{A_v}.z}{{B_v}.z-{A_v}.z}\).</p>
+</div>
+<div class="paragraph">
+<p>Remember how perspective projection matrix is built:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left( \begin{matrix} M_{00} &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; M_{11} &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -\frac{f+n}{f-n} &amp; -\frac{2fn}{f-n} \\ 0 &amp; 0 &amp; -1 &amp; 0 \\ \end{matrix} \right) = \left( \begin{matrix} M_{00} &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; M_{11} &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; \frac{{A_v}.z+{B_v}.z}{{A_v}.z-{B_v}.z} &amp; -\frac{2({A_v}.z)({B_v}.z)}{{A_v}.z-{B_v}.z} \\ 0 &amp; 0 &amp; -1 &amp; 0 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>If we only look at Z value of \(P_c\):</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{P_c}.z&amp;=\frac{1}{(M{P_v}).w}(M{P_v}).z\\
+&amp;=\frac{1}{-{P_v}.z}(\frac{{A_v}.z+{B_v}.z}{{A_v}.z-{B_v}.z}({P_v}.z)-\frac{2({A_v}.z)({B_v}.z)}{{A_v}.z-{B_v}.z})=2{r_s}-1
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Reorganize this equation, we can solve \({P_v}.z\)</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+({A_v}.z+{B_v}.z)({P_v}.z)-2({A_v}.z)({B_v}.z)&amp;=-(2{r_s}-1)({A_v}.z-{B_v}.z)({P_v}.z)\\
+2(({B_v}.z)(1-{r_s})+({A_v}.z){r_s})({P_v}.z)&amp;=2({A_v}.z)({B_v}.z)
+\end{align*}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{P_v}.z&amp;=\frac{({A_v}.z)({B_v}.z)}{({B_v}.z)(1-{r_s})+({A_v}.z){r_s}}\\
+&amp;=\frac{1}{\frac{1}{{A_v}.z}(1-{r_s})+\frac{1}{{B_v}.z}{r_s}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>When I got this result I was shocked, it turns out for any point \(P\) in screen space (or clip space) with a linear interpolation ratio \(r_s\) between two point \(A\) and \(B\), its linear depth \({P_v}.z\) is the reciprocal of a linear interpolation with the same ratio, but on the reciprocal of linear depth of \(A\) and \(B\). Seems too good to be true, but if you look back at the reason why view space linear is different than screen space linear, it is because we need to divide by the W value after multiplying projection matrix (multiplying projection matrix itself won’t change linear ratio), which is effectively multiply by \(\frac{1}{-{P_v}.z}\). It sort of make sense that in screen space, linear interpolation will operate on \(\frac{1}{{P_v}.z}\) instead, but sill amazing result.</p>
+</div>
+<div class="paragraph">
+<p>Now we can calculate view space linear ratio:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+{r_v}&amp;=\frac{{P_v}.z-{A_v}.z}{{B_v}.z-{A_v}.z}\\
+&amp;=\frac{({A_v}.z){r_s}}{({B_v}.z)(1-{r_s})+({A_v}.z){r_s}}\\
+&amp;=\frac{\frac{1}{{B_v}.z}{r_s}}{\frac{1}{{A_v}.z}(1-{r_s})+\frac{1}{{B_v}.z}{r_s}}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Inversely if we have view space linear ratio \(r_v\), we can calculate screen space linear ratio:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[{r_s}=\frac{({B_v}.z){r_v}}{({A_v}.z)(1-{r_v})+({B_v}.z){r_v}}\]
+</div>
+</div>
+<div class="imageblock" style="text-align: center">
+<div class="content">
+<img src="https://upload.wikimedia.org/wikipedia/commons/5/57/Perspective_correct_texture_mapping.jpg" alt="Perspective correct texture mapping.jpg" width="600">
+</div>
+<div class="title">Figure 2</div>
+</div>
+<div class="paragraph">
+<p>As I’m writing this post, I just realize another classic use case of this conversion: <a href="https://en.wikipedia.org/wiki/Texture_mapping#Affine_texture_mapping">texture mapping</a>. If you simply use screen space interpolated UV to read texture, you will get distortion in perspective (called Affine texture mapping). To fix this you need to convert linear ratio into view space, which is exactly what we are doing here. You should be able to get same formula on wiki page for fixing UV on your own: \({u_α}=\frac{(1-α)\frac{u_0}{z_0} + α\frac{u_1}{z_1}}{(1-α)\frac{1}{z_0} + α\frac{1}{z_1}}\), where \(α\) is screen space ratio between two end point \(u_0\) and \(u_1\) with linear depth \(z_0\) and \(z_1\). We don’t usually think about fixing perspective UV because modern hardware does all the hard work for us already, however when we need to deal with screen space and view space, this conversion comes in handy.</p>
+</div>]]></description><link>https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html</link><guid isPermaLink="true">https://lxjk.github.io/2017/06/10/Conversion-between-View-Space-Linear-and-Screen-Space-Linear.html</guid><category><![CDATA[Math]]></category><category><![CDATA[Graphics]]></category><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 10 Jun 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Calculate Minimal Bounding Sphere of Frustum]]></title><description><![CDATA[<div class="paragraph">
 <p>I came across this problem when fixing shadow shimmering in Cascaded Shadow Map, but it could be used in many other cases. To describe what we are going to do more specifically: given a frustum with near plane \(n\), far plane \(f\), and field of view angle \(fov\), we need to calculate the center \(C\) and radius \(R\) of its minimal bounding sphere. In the calculation we will use right hand Y up coordinate system (forward is –Z axis) for 3D, and a similar coordinate system (forward is –Y axis) for 2D. For convenience we denote half FOV angle as \(α=\frac{fov}{2}\).</p>
 </div>
 <div class="paragraph">
