@@ -193,6 +193,8 @@ A 4x4 matrix can be described as 4 2x2 sub matrices. The good things about 2x2 m
 M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
 ++++
 
+For the following derivation, we are going to assume these properties: submatrix stem:[A] and stem:[D] are invertible, stem:[C] and stem:[D] commute (stem:[CD=DC]). (credits to *wychmaster* for pointing out the assumptions). These are rather strong assumptions, which would help us derive the final form we use for calculation. Later on in appendix we will prove that the result of derivation still holds for 4x4 matrix even if none of these assumptions is true.
+
 Matrix block-wise inverse is given by the following:
 
 [stem]
@@ -447,7 +449,123 @@ The first three columns are our 3 versions of functions. The SIMD version of gen
 
 Think about that question again, do we really need to inverse a matrix. If we are using transform matrix and all we do is inverse transform a point or vector temporarily (so no need to save inverse matrix for other calculations), write an inverse transform function, which is faster than get inverse matrix and then transform. Hopefully this will help you choose which function to write or use, and how to make it fast. 
 
-=== Appendix
+=== Appendix 1 
+
+We have one more thing to do, prove that this method is valid regardless of our assumptions before derivation. Let’s look back what we assumed:
+
+[stem]
+++++
+M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
+++++
+
+Assume these properties: submatrix stem:[A] and stem:[D] are invertible, stem:[C] and stem:[D] commute (stem:[CD=DC]).
+
+Consider this example:
+
+[stem]
+++++
+M'=\left( \begin{matrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ \end{matrix} \right)
+++++
+
+Apparently none of our assumptions holds, but stem:[M'] is invertible (its inverse is itself stem:[(M')^{-1}=M']). If you use the above method to calculate the inverse of stem:[M'], surprisingly you do get the correct result. Now we need to prove our calculation holds for any invertible 4x4 matrix, with no above assumptions.
+Here’s our final form for calculation:
+
+[stem]
+++++
+M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\frac{1}{\left|M\right|}{\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
+++++
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+++++
+
+Remember the definition of adjugate matrix stem:[M^{-1}=\frac{1}{\left|M\right|}M^{\#}], here we are going to prove
+
+[stem]
+++++
+M^{\#}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}={\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
+++++
+
+Starting from proving the top left submatrix stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}],
+
+The adjugate matrix of stem:[M] is the transpose of the cofactor matrix stem:[C] of stem:[M] (stem:[M^{\#}=C^{T}]), and the cofactor matrix stem:[C=((-1)^{i+j} M_{ij})] where stem:[M_{ij}] is the determinant of the (i,j)-minor of stem:[M]. Thus stem:[M^{\#}= ((-1)^{j+i}M_{ji})]. Remember the *TRANSPOSE* here! 
+For details visit Adjugate Matrix wiki page.
+
+[stem]
+++++
+\begin{align*}
+X&={\left( \begin{matrix} \left| \begin{matrix} A_3 & B_2 & B_3 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| & -\left| \begin{matrix} A_1 & B_0 & B_1 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| \\ -\left| \begin{matrix} A_2 & B_2 & B_3 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| & \left| \begin{matrix} A_0 & B_0 & B_1 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| \\ \end{matrix} \right)}\\
+&={\left( \begin{matrix} A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3) & -(A_1\left|D\right|-B_0(D_3C_1-D_1C_3) + B_1(D_2C_1-D_0C_3)) \\ -(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) & A_0\left|D\right|-B_0(D_3C_0-D_1C_2) + B_1(D_2C_0-D_0C_2) \\ \end{matrix} \right)}
+\end{align*}
+++++
+
+Remember
+
+[stem]
+++++
+D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
+++++
+
+We have
+
+[stem]
+++++
+\begin{align*}
+X&={\left( \begin{matrix} A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 & -(A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3) \\ -(A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2) & A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2 \\ \end{matrix} \right)} \\
+&={\left( \begin{matrix} A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2  & A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3 \\ A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2 & A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 \\ \end{matrix} \right)}^{\#} \\
+&=(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}
+++++
+
+Similarly we can prove other submatrices stem:[Y],stem:[Z],stem:[W].
+
+Now we need to prove the determinant form 
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+++++
+
+Again we start from the left hand side
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&=A_0 \left| \begin{matrix} A_3 & B_2 & B_3 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| - A_1 \left| \begin{matrix} A_2 & B_2 & B_3 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| + B_0 \left| \begin{matrix} A_2 & A_3 & B_3 \\ C_0 & C_1 & D_1 \\ C_2 & C_3 & D_3 \end{matrix} \right| - B_1 \left| \begin{matrix} A_2 & A_3 & B_2 \\ C_0 & C_1 & D_0 \\ C_2 & C_3 & D_2 \end{matrix} \right| \\
+&= A_0(A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3)) - A_1(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) \\
+&+B_0(B_3\left|C\right|+A_2(D_3C_1-D_1C_3) - A_3(D_3C_0-D_1C_2)) - B_1(B_2\left|C\right|+A_2(D_2C_1-D_0C_3) - A_3(D_2C_0-D_0C_2)) \\
+&= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|  \\
+&- ({A_3}{B_0}-{A_1}{B_2})({D_3}{C_0}-{D_1}{C_2}) - ({A_3}{B_1}-{A_1}{B_3})({D_0}{C_2}-{D_2}{C_0}) \\
+&- ({A_0}{B_2}-{A_2}{B_0})({D_3}{C_1}-{D_1}{C_3}) - ({A_0}{B_3}-{A_2}{B_1})({D_0}{C_3}-{D_2}{C_1})
+\end{align*}
+++++
+
+Remember
+
+[stem]
+++++
+A^{\#}B={\left( \begin{matrix}{} {A_3}{B_0}-{A_1}{B_2} &{A_3}{B_1}-{A_1}{B_3} \\ {A_0}{B_2}-{A_2}{B_0} & {A_0}{B_3}-{A_2}{B_1} \\ \end{matrix} \right)}  
+++++
+
+[stem]
+++++
+D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
+++++
+
+We have
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|- ({(A^{\#}B)}_0{(D^{\#}C)}_0 + {(A^{\#}B)}_1{(D^{\#}C)}_2 + {(A^{\#}B)}_2{(D^{\#}C)}_1 + {(A^{\#}B)}_3{(D^{\#}C)}_3) \\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+\end{align*}
+++++
+
+We have proved the derivation result holds for any invertible 4x4 matrix. Why this is the case? I think it is due to special properties of 2x2 matrices. With that said I believe there must be a more elegant way to derive the same result, if you know such a way, please leave a comment below!
+
+=== Appendix 2
 
 This is column major area. The first two functions for transform matrix is exactly the same in column major. Here is the general matrix inverse and helper functions:
 
