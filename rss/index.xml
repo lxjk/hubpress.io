@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Thu, 05 Apr 2018 02:23:05 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game Dev - Tool Dev - Math - Machine Learning -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 03 Feb 2019 00:12:52 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Your Blog title]]></title><link>https://lxjk.github.io/2019/02/02/Your-Blog-title.html</link><guid isPermaLink="true">https://lxjk.github.io/2019/02/02/Your-Blog-title.html</guid><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Sat, 02 Feb 2019 00:00:00 GMT</pubDate></item><item><title><![CDATA[Improve Tile-based Light Culling with Spherical-sliced Cone]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -407,7 +407,8 @@ for (uint lightIdx = 0; lightIdx &lt; lightCount; ++lightIdx)
 <ul class="sectlevel2">
 <li><a href="#_transform_matrix_inverse">Transform Matrix Inverse</a></li>
 <li><a href="#_general_matrix_inverse">General Matrix Inverse</a></li>
-<li><a href="#_appendix">Appendix</a></li>
+<li><a href="#_appendix_1">Appendix 1</a></li>
+<li><a href="#_appendix_2">Appendix 2</a></li>
 </ul>
 </div>
 <div class="paragraph">
@@ -417,7 +418,7 @@ for (uint lightIdx = 0; lightIdx &lt; lightCount; ++lightIdx)
 <p>I came to this problem when writing a math library for my game engine. If you are making a game or 3D application, we use 4x4 matrix for object transform, which is a combination of 3D translation, rotation and scale. If most of your matrices are used as transform matrices, because of their special property, we have a fast route for calculating their inverse. In fact transform matrix inverse is only 50% of the cost compared to the optimized general matrix inverse. In the first half of this post we will talk about transform matrix.  In the second half we will dive in and explain the SIMD version of general 4x4 matrix inverse, and we compare the performance of our method with commonly used math libraries from UE4, Eigen and DirectX Math.</p>
 </div>
 <div class="paragraph">
-<p>The matrices used in this post are row major. This is mainly for (1) easier to demonstrate and visualize with matrix data layout; (2) easier to compare with other math library. The same matrix inverse function works for both row major and column major, because \(A^{-1}=((A^{T})^{-1})^{T}\) (inverse is the same as transpose, inverse then transpose again). However if you are a column major guy like myself, I have a full-on column major version for you in <a href="#_appendix">Appendix</a>.</p>
+<p>The matrices used in this post are row major. This is mainly for (1) easier to demonstrate and visualize with matrix data layout; (2) easier to compare with other math library. The same matrix inverse function works for both row major and column major, because \(A^{-1}=((A^{T})^{-1})^{T}\) (inverse is the same as transpose, inverse then transpose again). However if you are a column major guy like myself, I have a full-on column major version for you in <a href="#Appendix">[Appendix]</a>.</p>
 </div>
 </div>
 </div>
@@ -614,6 +615,9 @@ inline Matrix4 GetTransformInverse(const Matrix4&amp; inM)
 <div class="content">
 \[M=\left( \begin{matrix} A &amp; B \\ C &amp; D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 &amp; A_1 &amp; B_0 &amp; B_1 \\ A_2 &amp; A_3 &amp; B_2 &amp; B_3 \\ C_0 &amp; C_1 &amp; D_0 &amp; D_1 \\ C_2 &amp; C_3 &amp; D_2 &amp; D_3 \\ \end{matrix} \right)\]
 </div>
+</div>
+<div class="paragraph">
+<p>For the following derivation, we are going to assume these properties: submatrix \(A\) and \(D\) are invertible, \(C\) and \(D\) commute (\(CD=DC\)). (credits to <strong>wychmaster</strong> for pointing out the assumptions). These are rather strong assumptions, which would help us derive the final form we use for calculation. Later on in appendix we will prove that the result of derivation still holds for 4x4 matrix even if none of these assumptions is true.</p>
 </div>
 <div class="paragraph">
 <p>Matrix block-wise inverse is given by the following:</p>
@@ -902,7 +906,139 @@ inline Matrix4 GetInverse(const Matrix4&amp; inM)
 </div>
 </div>
 <div class="sect2">
-<h3 id="_appendix">Appendix</h3>
+<h3 id="_appendix_1">Appendix 1</h3>
+<div class="paragraph">
+<p>We have one more thing to do, prove that this method is valid regardless of our assumptions before derivation. Let’s look back what we assumed:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M=\left( \begin{matrix} A &amp; B \\ C &amp; D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 &amp; A_1 &amp; B_0 &amp; B_1 \\ A_2 &amp; A_3 &amp; B_2 &amp; B_3 \\ C_0 &amp; C_1 &amp; D_0 &amp; D_1 \\ C_2 &amp; C_3 &amp; D_2 &amp; D_3 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Assume these properties: submatrix \(A\) and \(D\) are invertible, \(C\) and \(D\) commute (\(CD=DC\)).</p>
+</div>
+<div class="paragraph">
+<p>Consider this example:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M'=\left( \begin{matrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 \\ \end{matrix} \right)\]
+</div>
+</div>
+<div class="paragraph">
+<p>Apparently none of our assumptions holds, but \(M'\) is invertible (its inverse is itself \((M')^{-1}=M'\)). If you use the above method to calculate the inverse of \(M'\), surprisingly you do get the correct result. Now we need to prove our calculation holds for any invertible 4x4 matrix, with no above assumptions.
+Here’s our final form for calculation:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{-1}={\left( \begin{matrix} A &amp; B \\ C &amp; D \\ \end{matrix} \right)}^{-1}=\frac{1}{\left|M\right|}{\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} &amp; (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} &amp; (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember the definition of adjugate matrix \(M^{-1}=\frac{1}{\left|M\right|}M^{\#}\), here we are going to prove</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[M^{\#}={\left( \begin{matrix} X &amp; Y \\ Z &amp; W \\ \end{matrix} \right)}={\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} &amp; (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} &amp; (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Starting from proving the top left submatrix \(X=(\left|D\right|A-B(D^{\#}C))^{\#}\),</p>
+</div>
+<div class="paragraph">
+<p>The adjugate matrix of \(M\) is the transpose of the cofactor matrix \(C\) of \(M\) (\(M^{\#}=C^{T}\)), and the cofactor matrix \(C=((-1)^{i+j} M_{ij})\) where \(M_{ij}\) is the determinant of the (i,j)-minor of \(M\). Thus \(M^{\#}= ((-1)^{j+i}M_{ji})\). Remember the <strong>TRANSPOSE</strong> here!
+For details visit Adjugate Matrix wiki page.</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+X&amp;={\left( \begin{matrix} \left| \begin{matrix} A_3 &amp; B_2 &amp; B_3 \\ C_1 &amp; D_0 &amp; D_1 \\ C_3 &amp; D_2 &amp; D_3 \end{matrix} \right| &amp; -\left| \begin{matrix} A_1 &amp; B_0 &amp; B_1 \\ C_1 &amp; D_0 &amp; D_1 \\ C_3 &amp; D_2 &amp; D_3 \end{matrix} \right| \\ -\left| \begin{matrix} A_2 &amp; B_2 &amp; B_3 \\ C_0 &amp; D_0 &amp; D_1 \\ C_2 &amp; D_2 &amp; D_3 \end{matrix} \right| &amp; \left| \begin{matrix} A_0 &amp; B_0 &amp; B_1 \\ C_0 &amp; D_0 &amp; D_1 \\ C_2 &amp; D_2 &amp; D_3 \end{matrix} \right| \\ \end{matrix} \right)}\\
+&amp;={\left( \begin{matrix} A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3) &amp; -(A_1\left|D\right|-B_0(D_3C_1-D_1C_3) + B_1(D_2C_1-D_0C_3)) \\ -(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) &amp; A_0\left|D\right|-B_0(D_3C_0-D_1C_2) + B_1(D_2C_0-D_0C_2) \\ \end{matrix} \right)}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &amp;{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} &amp; {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+X&amp;={\left( \begin{matrix} A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 &amp; -(A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3) \\ -(A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2) &amp; A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2 \\ \end{matrix} \right)} \\
+&amp;={\left( \begin{matrix} A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2  &amp; A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3 \\ A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2 &amp; A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 \\ \end{matrix} \right)}^{\#} \\
+&amp;=(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Similarly we can prove other submatrices \(Y\),\(Z\),\(W\).</p>
+</div>
+<div class="paragraph">
+<p>Now we need to prove the determinant form</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))\]
+</div>
+</div>
+<div class="paragraph">
+<p>Again we start from the left hand side</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\left|M\right|&amp;=A_0 \left| \begin{matrix} A_3 &amp; B_2 &amp; B_3 \\ C_1 &amp; D_0 &amp; D_1 \\ C_3 &amp; D_2 &amp; D_3 \end{matrix} \right| - A_1 \left| \begin{matrix} A_2 &amp; B_2 &amp; B_3 \\ C_0 &amp; D_0 &amp; D_1 \\ C_2 &amp; D_2 &amp; D_3 \end{matrix} \right| + B_0 \left| \begin{matrix} A_2 &amp; A_3 &amp; B_3 \\ C_0 &amp; C_1 &amp; D_1 \\ C_2 &amp; C_3 &amp; D_3 \end{matrix} \right| - B_1 \left| \begin{matrix} A_2 &amp; A_3 &amp; B_2 \\ C_0 &amp; C_1 &amp; D_0 \\ C_2 &amp; C_3 &amp; D_2 \end{matrix} \right| \\
+&amp;= A_0(A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3)) - A_1(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) \\
+&amp;+B_0(B_3\left|C\right|+A_2(D_3C_1-D_1C_3) - A_3(D_3C_0-D_1C_2)) - B_1(B_2\left|C\right|+A_2(D_2C_1-D_0C_3) - A_3(D_2C_0-D_0C_2)) \\
+&amp;= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|  \\
+&amp;- ({A_3}{B_0}-{A_1}{B_2})({D_3}{C_0}-{D_1}{C_2}) - ({A_3}{B_1}-{A_1}{B_3})({D_0}{C_2}-{D_2}{C_0}) \\
+&amp;- ({A_0}{B_2}-{A_2}{B_0})({D_3}{C_1}-{D_1}{C_3}) - ({A_0}{B_3}-{A_2}{B_1})({D_0}{C_3}-{D_2}{C_1})
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>Remember</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[A^{\#}B={\left( \begin{matrix}{} {A_3}{B_0}-{A_1}{B_2} &amp;{A_3}{B_1}-{A_1}{B_3} \\ {A_0}{B_2}-{A_2}{B_0} &amp; {A_0}{B_3}-{A_2}{B_1} \\ \end{matrix} \right)}\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &amp;{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} &amp; {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We have</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\begin{align*}
+\left|M\right|&amp;= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|- ({(A^{\#}B)}_0{(D^{\#}C)}_0 + {(A^{\#}B)}_1{(D^{\#}C)}_2 + {(A^{\#}B)}_2{(D^{\#}C)}_1 + {(A^{\#}B)}_3{(D^{\#}C)}_3) \\
+&amp;=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+\end{align*}\]
+</div>
+</div>
+<div class="paragraph">
+<p>We have proved the derivation result holds for any invertible 4x4 matrix. Why this is the case? I think it is due to special properties of 2x2 matrices. With that said I believe there must be a more elegant way to derive the same result, if you know such a way, please leave a comment below!</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_appendix_2">Appendix 2</h3>
 <div class="paragraph">
 <p>This is column major area. The first two functions for transform matrix is exactly the same in column major. Here is the general matrix inverse and helper functions:</p>
 </div>
