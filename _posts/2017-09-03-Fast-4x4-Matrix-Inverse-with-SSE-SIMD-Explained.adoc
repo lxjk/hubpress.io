@@ -84,16 +84,17 @@ public:
 
 Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle macros. Hopefully they will make it easier to read. We also make use of faster instructions for special shuffles.
 
+(Thank you *Stefan Kaps* for pointing out single register shuffle instruction _mm_shuffle_epi32!)
+
 [source,cpp]
 ----
 #define MakeShuffleMask(x,y,z,w)           (x | (y<<2) | (z<<4) | (w<<6))
 
 // vec(0, 1, 2, 3) -> (vec[x], vec[y], vec[z], vec[w])
-#define VecSwizzle(vec, x,y,z,w)           _mm_shuffle_ps(vec, vec, MakeShuffleMask(x,y,z,w))
-#define VecSwizzle1(vec, x)                _mm_shuffle_ps(vec, vec, MakeShuffleMask(x,x,x,x))
+#define VecSwizzleMask(vec, mask)          _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vec), mask))
+#define VecSwizzle(vec, x, y, z, w)        VecSwizzleMask(vec, MakeShuffleMask(x,y,z,w))
+#define VecSwizzle1(vec, x)                VecSwizzleMask(vec, MakeShuffleMask(x,x,x,x))
 // special swizzle
-#define VecSwizzle_0101(vec)               _mm_movelh_ps(vec, vec)
-#define VecSwizzle_2323(vec)               _mm_movehl_ps(vec, vec)
 #define VecSwizzle_0022(vec)               _mm_moveldup_ps(vec)
 #define VecSwizzle_1133(vec)               _mm_movehdup_ps(vec)
 
@@ -366,12 +367,12 @@ inline Matrix4 GetInverse(const Matrix4& inM)
 	__m128 C = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
 	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
 
+#if 0
 	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
 	__m128 detB = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
 	__m128 detC = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
 	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
-
-#if 0 // for determinant, float version is faster
+#else
 	// determinant as (|A| |B| |C| |D|)
 	__m128 detSub = _mm_sub_ps(
 		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
@@ -437,6 +438,8 @@ inline Matrix4 GetInverse(const Matrix4& inM)
 As side products of this function, it also gives you optimized version of calculating determinant and adjugate of 4x4 matrix. There are two things I want to talk a little bit more.
 
 When we calculate the determinants of sub matrices, I do have a version to calculate 4 determinants in one go. However calculate them separately and use _mm_set1_ps to load into vector unit is proven to be faster on my CPU. My guess is since we need them to be separated anyway, even if I can calculate them together I need to use 4 shuffles to separate them out, which is not worth the effort, but I’m not sure. You should test performance in both versions.
+
+(*Edit*: in my new CPU (Coffee Lake) the second method (4 determinants in one go) is 20% faster than the first method)
 
 Also when calculating trace, I’m using two _mm_hadd_ps to sum up 4 components and have the result in all 4 components. There are a lot of ways to do the same thing. From what I tested, they yield similar performance, so I choose the one with less instructions. Again it could be different on different target platforms, and you should test them. 
 
@@ -610,12 +613,12 @@ inline Matrix4 GetInverse(const Matrix4& inM)
 	__m128 B = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
 	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
 
+#if 0
 	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
 	__m128 detC = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
 	__m128 detB = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
 	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
-
-#if 0 // for determinant, float version is faster
+#else
 	// determinant as (|A| |C| |B| |D|)
 	__m128 detSub = _mm_sub_ps(
 		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
