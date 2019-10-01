@@ -1603,7 +1603,7 @@ Now you should see our custom editor mode show up in "Modes" panel.
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
-=== Create Point and Render 
+=== Render and Click
 
 With the basic framework ready, we can actually start implementing tool logic. First we make *ExampleTargetPoint* class in game module. This actor holds points data, and is what our tool will be operating on. Again remember to export the class with *TOOLEXAMPLE_API*.
 
@@ -1920,7 +1920,7 @@ With all of these you can start adding/removing points in the editor:
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
 
-=== Move Point 
+=== Use Transform Widget 
 
 The next mission is to be able to move point around in editor like moving any other actor. Go back to *ExampleEdMode*, this time we need to add support for custom transform widget, and handle *InputDelta* event. In *InputDelta* function, we don't use *FScopedTransaction* because undo/redo is already handled for this function. We still need to call *Modify()* though.
 
