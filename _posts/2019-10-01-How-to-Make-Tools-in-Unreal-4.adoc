@@ -1441,7 +1441,7 @@ private:
 
 Then for the main class *ExampleEdMode*. Since we are only try to set it up, we will leave it mostly empty, only setting up its ID and create toolkit object. We will fill it in heavily in the next section.
 
-.IExampleModuleInterface.h
+.ExampleEdMode.h
 [source,cpp]
 ----
 #pragma once
@@ -1458,7 +1458,7 @@ public:
 };
 ----
 
-.IExampleModuleInterface.h
+.ExampleEdMode.cpp
 [source,cpp]
 ----
 #include "ToolExampleEditor/ToolExampleEditor.h"
