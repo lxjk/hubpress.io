@@ -423,3 +423,544 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedc
 
 == Advanced Menu
 
+Before we jump to window, let's extend menu functionality for a bit, since there are a lot more you can do.
+
+First if you have a lot of items, it will be good to put them in a sub menu. Let's make two more commands *MenuCommand2* and *MenuCommand3*. You can search for *MenuCommand1* and create two more in each places, other than *MakeMenuEntry*, where we will add sub menu.
+
+In *MenuTool*, we add function for sub menu:
+
+.MenuTool.h
+[source,cpp]
+----
+void MakeSubMenu(FMenuBuilder &menuBuilder);
+----
+
+.MenuTool.cpp
+[source,cpp]
+----
+void MenuTool::MakeSubMenu(FMenuBuilder &menuBuilder)
+{
+    menuBuilder.AddMenuEntry(MenuToolCommands::Get().MenuCommand2);
+    menuBuilder.AddMenuEntry(MenuToolCommands::Get().MenuCommand3);
+}
+----
+
+Then we call AddSubMenu in MenuTool::MakeMenuEntry, after MenuCommand1 is registered so the submenu comes after that.
+
+.MenuTool.cpp
+[source,cpp]
+----
+void MenuTool::MakeMenuEntry(FMenuBuilder &menuBuilder)
+{
+    ...
+    menuBuilder.AddSubMenu(
+        FText::FromString("Sub Menu"),
+        FText::FromString("This is example sub menu"),
+        FNewMenuDelegate::CreateSP(this, &MenuTool::MakeSubMenu)
+    );
+}
+----
+
+Now you should see sub menu like the following:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+Not only you can add simple menu item, you can actually add any widget into the menu. We will try to make a small tool that you can type in a textbox and click a button to set that as tags for selected actors.
+
+I'm not going to go into details for each functions I used here, search them in Unreal engine and you should find plenty of use cases.
+
+First we add needed member and functions, note this time we are going to use custom widget, so we don't need to change command list. For *AddTag* fucntion, because it is going to be used for a button, return type have to be *FReply*.
+
+.MenuTool.cpp
+[source,cpp]
+----
+FReply MenuTool::AddTag()
+{
+    if (!TagToAdd.IsNone())
+    {
+        const FScopedTransaction Transaction(FText::FromString("Add Tag"));
+        for (FSelectionIterator It(GEditor->GetSelectedActorIterator()); It; ++It)
+        {
+            AActor* Actor = static_cast<AActor*>(*It);
+            if (!Actor->Tags.Contains(TagToAdd))
+            {
+                Actor->Modify();
+                Actor->Tags.Add(TagToAdd);
+            }
+        }
+    }
+    return FReply::Handled();
+}
+
+FText MenuTool::GetTagToAddText() const
+{
+    return FText::FromName(TagToAdd);
+}
+
+void MenuTool::OnTagToAddTextCommited(const FText& InText, ETextCommit::Type CommitInfo)
+{
+    FString str = InText.ToString();
+    TagToAdd = FName(*str.Trim());
+}
+----
+
+Then in *MenuTool::MakeMenuEntry*, we create the widget and add it to the menu. Again I will not go into Slate code details.
+
+.MenuTool.cpp
+[source,cpp]
+----
+void MenuTool::MakeMenuEntry(FMenuBuilder &menuBuilder)
+{
+    ...
+    TSharedRef<SWidget> AddTagWidget =
+        SNew(SHorizontalBox)
+        + SHorizontalBox::Slot()
+        .AutoWidth()
+        .VAlign(VAlign_Center)
+        [
+            SNew(SEditableTextBox)
+            .MinDesiredWidth(50)
+            .Text(this, &MenuTool::GetTagToAddText)
+            .OnTextCommitted(this, &MenuTool::OnTagToAddTextCommited)
+        ]
+        + SHorizontalBox::Slot()
+        .AutoWidth()
+        .Padding(5, 0, 0, 0)
+        .VAlign(VAlign_Center)
+        [
+            SNew(SButton)
+            .Text(FText::FromString("Add Tag"))
+            .OnClicked(this, &MenuTool::AddTag)
+        ];
+
+    menuBuilder.AddWidget(AddTagWidget, FText::FromString(""));
+}
+----
+Now you have a more complex tool sit in the menu, and you can set actor tags with it:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+== Create a Tab (Window)
+
+While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because create a tab from menu is a very common thing for tools, we will make a base case for it first.
+
+Add a new file:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+The base class is also inherit from *IExampleModuleListenerInterface*. In *OnStartupModule* we register a tab, and unregister it in *OnShutdownModule*. Then in *MakeMenuEntry*, we let *FGlobalTabmanager* to populate tab for this menu item.
+We leave *SpawnTab* function to be overriden by child class to set proper widget.
+
+.ExampleTabToolBase.h
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ToolExampleEditor/IExampleModuleInterface.h"
+#include "TabManager.h"
+#include "SDockTab.h"
+
+class FExampleTabToolBase : public IExampleModuleListenerInterface, public TSharedFromThis< FExampleTabToolBase >
+{
+public:
+    // IPixelopusToolBase
+    virtual void OnStartupModule() override
+    {
+        Initialize();
+        FGlobalTabmanager::Get()->RegisterNomadTabSpawner(TabName, FOnSpawnTab::CreateRaw(this, &FExampleTabToolBase::SpawnTab))
+            .SetGroup(FToolExampleEditor::Get().GetMenuRoot())
+            .SetDisplayName(TabDisplayName)
+            .SetTooltipText(ToolTipText);
+    };
+
+    virtual void OnShutdownModule() override
+    {
+        FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(TabName);
+    };
+    
+    // In this function set TabName/TabDisplayName/ToolTipText
+    virtual void Initialize() {};
+    virtual TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& TabSpawnArgs) { return SNew(SDockTab); };
+
+    virtual void MakeMenuEntry(FMenuBuilder &menuBuilder)
+    {
+        FGlobalTabmanager::Get()->PopulateTabSpawnerMenu(menuBuilder, TabName);
+    };
+
+protected:
+    FName TabName;
+    FText TabDisplayName;
+    FText ToolTipText;
+};
+----
+
+Now we add files for tab tool. Other than the normal tool class, we also need a custom panel widget class for the tab itself.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+Let's look at TabTool class first, it is inherited from *ExampleTabToolBase* defined above.
+
+We set tab name, display name and tool tips in *Initialize* function, and prepare the panel in *SpawnTab* function. Note here we send the tool object itself as a parameter when creating the panel. This is not necessary, but as an example how you can pass in an object to the widget.
+
+This tab tool is added in "Section 2" in the custom menu.
+
+.TabTool.h
+[source,cpp]
+----
+#include "ToolExampleEditor/ExampleTabToolBase.h"
+
+class TabTool : public FExampleTabToolBase
+{
+public:
+    virtual ~TabTool () {}
+    virtual void OnStartupModule() override;
+    virtual void OnShutdownModule() override;
+    virtual void Initialize() override;
+    virtual TSharedRef<SDockTab> SpawnTab(const FSpawnTabArgs& TabSpawnArgs) override;
+};
+----
+
+.TabTool.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "TabToolPanel.h"
+#include "TabTool.h"
+
+void TabTool::OnStartupModule()
+{
+    FExampleTabToolBase::OnStartupModule();
+    FToolExampleEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &TabTool::MakeMenuEntry), FName("Section_2"));
+}
+
+void TabTool::OnShutdownModule()
+{
+    FExampleTabToolBase::OnShutdownModule();
+}
+
+void TabTool::Initialize()
+{
+    TabName = "TabTool";
+    TabDisplayName = FText::FromString("Tab Tool");
+    ToolTipText = FText::FromString("Tab Tool Window");
+}
+
+TSharedRef<SDockTab> TabTool::SpawnTab(const FSpawnTabArgs& TabSpawnArgs)
+{
+    TSharedRef<SDockTab> SpawnedTab = SNew(SDockTab)
+        .TabRole(ETabRole::NomadTab)
+        [
+            SNew(TabToolPanel)
+            .Tool(SharedThis(this))
+        ];
+
+    return SpawnedTab;
+}
+----
+
+Now for the pannel:
+
+In the construct function we build the slate widget in *ChildSlot*. Here I'm add a scroll box, with a grey border inside, with a text box inside.
+
+.TabToolPanel.h
+[source,cpp]
+----
+#include "SDockTab.h"
+#include "SDockableTab.h"
+#include "SDockTabStack.h"
+#include "SlateApplication.h"
+#include "TabTool.h"
+
+class TabToolPanel : public SCompoundWidget
+{
+    SLATE_BEGIN_ARGS(TabToolPanel)
+    {}
+    SLATE_ARGUMENT(TWeakPtr<class TabTool>, Tool)
+    SLATE_END_ARGS()
+
+    void Construct(const FArguments& InArgs);
+
+protected:
+    TWeakPtr<TabTool> tool;
+};
+----
+
+.TabToolPanel.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "TabToolPanel.h"
+
+void TabToolPanel::Construct(const FArguments& InArgs)
+{
+    tool = InArgs._Tool;    
+    if (tool.IsValid())
+    {
+        // do anything you need from tool object
+    }
+
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5)
+        [
+            SNew(SBorder)
+            .BorderBackgroundColor(FColor(192, 192, 192, 255))
+            .Padding(15.0f)
+            [
+                SNew(STextBlock)
+                .Text(FText::FromString(TEXT("This is a tab example.")))
+            ]
+        ]
+    ];
+}
+----
+
+Finally remember to add this tool to editor module in *FToolExampleEditor::AddModuleListeners*:
+
+.ToolExampleEditor.cpp
+[source,cpp]
+----
+ModuleListeners.Add(MakeShareable(new TabTool));
+----
+
+Now you can see tab tool in our custom menu:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+When you click on it, it will populate a window you can dock anywhere as regular Unreal tab.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+== Customize Details Panel
+
+Another commonly used feature is to customize the details panel for any UObject.
+
+To show how it works, we will create an Actor class first in our game module "ToolExample". Add the follow file:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+In this class, we add 2 booleans in "Options" category, and an integer in "Test" category. Remember to add "*TOOLEXAMPLE_API*" in front of class name to export it from game module, otherwise we cannot use it in editor module.
+
+.ExampleActor.h
+[source,cpp]
+----
+#pragma once
+#include "ExampleActor.generated.h"
+
+UCLASS()
+class TOOLEXAMPLE_API AExampleActor : public AActor
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere, Category = "Options")
+    bool bOption1 = false;
+
+    UPROPERTY(EditAnywhere, Category = "Options")
+    bool bOption2 = false;
+    
+    UPROPERTY(EditAnywhere, Category = "Test")
+    int testInt = 0;
+};
+----
+
+Now if we load up Unreal and drag a "ExampleActor", you should see the following in the details panel:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+Now if we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.
+
+Add the following files to editor module "ToolExampleEditor":
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+The details customization implements *IDetailCustomization* interface. In the main entry point *CustomizeDetails* function, we first hide original properties option 1 and option 2 (you can comment out those two lines and see how it works). Then we add our custom widget, here the "RadioButton" is purely a visual style, it has nothing to do with mutually exclusive logic. You can implement the same logic with other visuals like regular check box, buttons, etc.
+
+In the widget functions for check box, *IsModeRadioChecked* and *OnModeRadioChanged* we add extra parameters "actor" and "optionIndex", so we can pass in the editing object and specify option when we construct the widget.
+
+.ExampleActorDetails.h
+[source,cpp]
+----
+#pragma once
+#include "IDetailCustomization.h"
+
+class AExampleActor;
+
+class FExampleActorDetails : public IDetailCustomization
+{
+public:
+    /** Makes a new instance of this detail layout class for a specific detail view requesting it */
+    static TSharedRef<IDetailCustomization> MakeInstance();
+
+    /** IDetailCustomization interface */
+    virtual void CustomizeDetails(IDetailLayoutBuilder& DetailLayout) override;
+
+protected:
+    // widget functions
+    ECheckBoxState IsModeRadioChecked(AExampleActor* actor, int optionIndex) const;
+    void OnModeRadioChanged(ECheckBoxState CheckType, AExampleActor* actor, int optionIndex);
+};
+----
+
+.ExampleActorDetails.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleActorDetails.h"
+#include "DetailsCustomization/ExampleActor.h"
+
+TSharedRef<IDetailCustomization> FExampleActorDetails::MakeInstance()
+{
+    return MakeShareable(new FExampleActorDetails);
+}
+
+void FExampleActorDetails::CustomizeDetails(IDetailLayoutBuilder& DetailLayout)
+{   
+    TArray<TWeakObjectPtr<UObject>> Objects;
+    DetailLayout.GetObjectsBeingCustomized(Objects);
+    if (Objects.Num() != 1)
+    {
+        // skip customization if select more than one objects
+        return;
+    }
+    AExampleActor* actor = (AExampleActor*)Objects[0].Get();
+
+    // hide original property
+    DetailLayout.HideProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(AExampleActor, bOption1)));
+    DetailLayout.HideProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(AExampleActor, bOption2)));
+
+    // add custom widget to "Options" category
+    IDetailCategoryBuilder& OptionsCategory = DetailLayout.EditCategory("Options", FText::FromString(""), ECategoryPriority::Important);
+    OptionsCategory.AddCustomRow(FText::FromString("Options"))
+                .WholeRowContent()
+                [
+                    SNew(SHorizontalBox)
+                    + SHorizontalBox::Slot()
+                    .AutoWidth()
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(SCheckBox)
+                        .Style(FEditorStyle::Get(), "RadioButton")
+                        .IsChecked(this, &FExampleActorDetails::IsModeRadioChecked, actor, 1)
+                        .OnCheckStateChanged(this, &FExampleActorDetails::OnModeRadioChanged, actor, 1)
+                        [
+                            SNew(STextBlock).Text(FText::FromString("Option 1"))
+                        ]
+                    ]
+                    + SHorizontalBox::Slot()
+                    .AutoWidth()
+                    .Padding(10.f, 0.f, 0.f, 0.f)
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(SCheckBox)
+                        .Style(FEditorStyle::Get(), "RadioButton")
+                        .IsChecked(this, &FExampleActorDetails::IsModeRadioChecked, actor, 2)
+                        .OnCheckStateChanged(this, &FExampleActorDetails::OnModeRadioChanged, actor, 2)
+                        [
+                            SNew(STextBlock).Text(FText::FromString("Option 2"))
+                        ]
+                    ]
+                ];  
+}
+
+ECheckBoxState FExampleActorDetails::IsModeRadioChecked(AExampleActor* actor, int optionIndex) const
+{
+    bool bFlag = false;
+    if (actor)
+    {
+        if (optionIndex == 1)
+            bFlag = actor->bOption1;
+        else if (optionIndex == 2)
+            bFlag = actor->bOption2;
+    }
+    return bFlag ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+}
+
+void FExampleActorDetails::OnModeRadioChanged(ECheckBoxState CheckType, AExampleActor* actor, int optionIndex)
+{
+    bool bFlag = (CheckType == ECheckBoxState::Checked);
+    if (actor)
+    {
+        actor->Modify();
+        if (bFlag)
+        {
+            // clear all options first
+            actor->bOption1 = false;
+            actor->bOption2 = false;
+        }
+        if (optionIndex == 1)
+            actor->bOption1 = bFlag;
+        else if (optionIndex == 2)
+            actor->bOption2 = bFlag;
+    }
+}
+----
+
+Then we need to register the layout in *FToolExampleEditor::StartupModule* and unregister it in *FToolExampleEditor::ShutdownModule*
+
+.ToolExampleEditor.cpp
+[source,cpp]
+----
+#include "DetailsCustomization/ExampleActor.h"
+#include "DetailsCustomization/ExampleActorDetails.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+    
+    // register custom layouts
+    {
+        static FName PropertyEditor("PropertyEditor");
+        FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>(PropertyEditor);
+        PropertyModule.RegisterCustomClassLayout(AExampleActor::StaticClass()->GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&FExampleActorDetails::MakeInstance));
+    }
+    
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{   
+    // unregister custom layouts
+    if (FModuleManager::Get().IsModuleLoaded("PropertyEditor"))
+    {
+        FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
+        PropertyModule.UnregisterCustomClassLayout(AExampleActor::StaticClass()->GetFName());
+    }
+
+    IExampleModuleInterface::ShutdownModule();
+}
+----
+
+Now you should see the customized details panel:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
