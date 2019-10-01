@@ -1345,5 +1345,893 @@ Now you can reimport your custom files.
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
+== Custom Editor Mode
+
+Editor Mode is probably the most powerful tool framework in Unreal. You will get and react to all user input; you can render to viewport; you can monitor any change in the scene and get Undo/Redo events. Remember you can enter a mode and paint foliage over objects? You can do the same degree of stuff in custom editor mode. Editor Mode has dedicated section in UI layout, and you can customize the widget here as well.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+Here as an example, we will create an editor mode to do a simple task. We have an actor "ExampleTargetPoint" inherit from "TargetPoint", with a list of locations. In this editor mode we want to visualize those points. You can create new points or delete points. You can also move points around as moving normal objects. Note this is not the best way for this functionality (you can use MakeEditWidget in UPROPERTY to do this easily), but rather as a way to demonstrate how to set it up and what you can potentially do.
+
+=== Setup Editor Mode
+
+First we need to create an icon for our editor mode. We make an 40x40 PNG file as \Content\EditorResources\IconExampleEditorMode.png
+
+Then add the following files in editor module:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+*SExampleEdModeWidget* is the widget we use in "Modes" panel. Here we will just create a simple one for now. We also include a commonly used util function to get EdMode object.
+
+.SExampleEdModeWidget.h
+[source,cpp]
+----
+#pragma once
+#include "SlateApplication.h"
+
+class SExampleEdModeWidget : public SCompoundWidget
+{
+public:
+    SLATE_BEGIN_ARGS(SExampleEdModeWidget) {}
+    SLATE_END_ARGS();
+
+    void Construct(const FArguments& InArgs);
+    
+    // Util Functions
+    class FExampleEdMode* GetEdMode() const;
+};
+----
+
+.SExampleEdModeWidget.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleEdMode.h"
+#include "SExampleEdModeWidget.h"
+
+void SExampleEdModeWidget::Construct(const FArguments& InArgs)
+{
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5.f)
+        [
+            SNew(STextBlock)
+            .Text(FText::FromString(TEXT("This is a editor mode example.")))
+        ]
+    ];
+}
+
+FExampleEdMode* SExampleEdModeWidget::GetEdMode() const
+{
+    return (FExampleEdMode*)GLevelEditorModeTools().GetActiveMode(FExampleEdMode::EM_Example);
+}
+----
+
+*ExampleEdModeToolkit* is a middle layer between EdMode and its widget:
+
+.ExampleEdModeToolkit.h
+[source,cpp]
+----
+#pragma once
+#include "BaseToolkit.h"
+#include "ExampleEdMode.h"
+#include "SExampleEdModeWidget.h"
+
+class FExampleEdModeToolkit: public FModeToolkit
+{
+public:
+    FExampleEdModeToolkit()
+    {
+        SAssignNew(ExampleEdModeWidget, SExampleEdModeWidget);
+    }
+
+    /** IToolkit interface */
+    virtual FName GetToolkitFName() const override { return FName("ExampleEdMode"); }
+    virtual FText GetBaseToolkitName() const override { return NSLOCTEXT("BuilderModeToolkit", "DisplayName", "Builder"); }
+    virtual class FEdMode* GetEditorMode() const override { return GLevelEditorModeTools().GetActiveMode(FExampleEdMode::EM_Example); }
+    virtual TSharedPtr<class SWidget> GetInlineContent() const override { return ExampleEdModeWidget; }
+
+private:
+    TSharedPtr<SExampleEdModeWidget> ExampleEdModeWidget;
+};
+----
+
+Then for the main class *ExampleEdMode*. Since we are only try to set it up, we will leave it mostly empty, only setting up its ID and create toolkit object. We will fill it in heavily in the next section.
+
+.IExampleModuleInterface.h
+[source,cpp]
+----
+#pragma once
+#include "EditorModes.h"
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    const static FEditorModeID EM_Example;
+
+    // FEdMode interface
+    virtual void Enter() override;
+    virtual void Exit() override;
+};
+----
+
+.IExampleModuleInterface.h
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "Editor/UnrealEd/Public/Toolkits/ToolkitManager.h"
+#include "ScopedTransaction.h"
+#include "ExampleEdModeToolkit.h"
+#include "ExampleEdMode.h"
+
+const FEditorModeID FExampleEdMode::EM_Example(TEXT("EM_Example"));
+
+void FExampleEdMode::Enter()
+{
+    FEdMode::Enter();
+    
+    if (!Toolkit.IsValid())
+    {
+        Toolkit = MakeShareable(new FExampleEdModeToolkit);
+        Toolkit->Init(Owner->GetToolkitHost());
+    }
+}
+
+void FExampleEdMode::Exit()
+{
+    FToolkitManager::Get().CloseToolkit(Toolkit.ToSharedRef());
+    Toolkit.Reset();
+    
+    FEdMode::Exit();
+}
+----
+
+As other tools, we need a tool class to handle registration. Here we need to register both editor mode and its icon.
+
+.ExampleEdModeTool.h
+[source,cpp]
+----
+#pragma once
+#include "ToolExampleEditor/ExampleTabToolBase.h"
+
+class ExampleEdModeTool : public FExampleTabToolBase
+{
+public:
+    virtual void OnStartupModule() override;
+    virtual void OnShutdownModule() override;
+
+    virtual ~ExampleEdModeTool() {}
+private:
+    static TSharedPtr< class FSlateStyleSet > StyleSet;
+
+    void RegisterStyleSet();
+    void UnregisterStyleSet();
+
+    void RegisterEditorMode();
+    void UnregisterEditorMode();
+};
+----
+
+.ExampleEdModeTool.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleEdModeTool.h"
+#include "ExampleEdMode.h"
+
+#define IMAGE_BRUSH(RelativePath, ...) FSlateImageBrush(StyleSet->RootToContentDir(RelativePath, TEXT(".png")), __VA_ARGS__)
+
+TSharedPtr< FSlateStyleSet > ExampleEdModeTool::StyleSet = nullptr;
+
+void ExampleEdModeTool::OnStartupModule()
+{
+    RegisterStyleSet();
+    RegisterEditorMode();
+}
+
+void ExampleEdModeTool::OnShutdownModule()
+{
+    UnregisterStyleSet();
+    UnregisterEditorMode();
+}
+
+void ExampleEdModeTool::RegisterStyleSet()
+{
+    // Const icon sizes
+    const FVector2D Icon20x20(20.0f, 20.0f);
+    const FVector2D Icon40x40(40.0f, 40.0f);
+
+    // Only register once
+    if (StyleSet.IsValid())
+    {
+        return;
+    }
+
+    StyleSet = MakeShareable(new FSlateStyleSet("ExampleEdModeToolStyle"));
+    StyleSet->SetContentRoot(FPaths::GameDir() / TEXT("Content/EditorResources"));
+    StyleSet->SetCoreContentRoot(FPaths::GameDir() / TEXT("Content/EditorResources"));
+
+    // Spline editor
+    {
+        StyleSet->Set("ExampleEdMode", new IMAGE_BRUSH(TEXT("IconExampleEditorMode"), Icon40x40));
+        StyleSet->Set("ExampleEdMode.Small", new IMAGE_BRUSH(TEXT("IconExampleEditorMode"), Icon20x20));
+    }
+
+    FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
+}
+
+void ExampleEdModeTool::UnregisterStyleSet()
+{
+    if (StyleSet.IsValid())
+    {
+        FSlateStyleRegistry::UnRegisterSlateStyle(*StyleSet.Get());
+        ensure(StyleSet.IsUnique());
+        StyleSet.Reset();
+    }
+}
+
+void ExampleEdModeTool::RegisterEditorMode()
+{
+    FEditorModeRegistry::Get().RegisterMode<FExampleEdMode>(
+        FExampleEdMode::EM_Example,
+        FText::FromString("Example Editor Mode"),
+        FSlateIcon(StyleSet->GetStyleSetName(), "ExampleEdMode", "ExampleEdMode.Small"),
+        true, 500
+        );
+}
+
+void ExampleEdModeTool::UnregisterEditorMode()
+{
+    FEditorModeRegistry::Get().UnregisterMode(FExampleEdMode::EM_Example);
+}
+
+#undef IMAGE_BRUSH
+----
+
+Finally as usual, we add the tool to editor module *FToolExampleEditor::AddModuleListeners*:
+
+.ToolExampleEditor.cpp
+[source,cpp]
+----
+ModuleListeners.Add(MakeShareable(new ExampleEdModeTool));
+----
+
+Now you should see our custom editor mode show up in "Modes" panel.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+=== Create Point and Render 
+
+With the basic framework ready, we can actually start implementing tool logic. First we make *ExampleTargetPoint* class in game module. This actor holds points data, and is what our tool will be operating on. Again remember to export the class with *TOOLEXAMPLE_API*.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+.ExampleTargetPoint.h
+[source,cpp]
+----
+#pragma once
+#include "Engine/Targetpoint.h"
+#include "ExampleTargetPoint.generated.h"
+
+UCLASS()
+class TOOLEXAMPLE_API AExampleTargetPoint : public ATargetPoint
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, Category = "Points")
+    TArray<FVector> Points;
+};
+----
+
+Now we modify *ExampleEdMode* to add functions to add point, remove point, and select point. We also save our current selection in variable, here we use weak object pointer to handle the case if the actor is removed.
+
+For adding point, we only allow that when you have exactly on *ExampleTargetPoint* actor selected in editor. For removing point, we simply remove the current selected point if there is any. If you select any point, we will deselect all actors and select the actor associated with that point.
+
+Note that we put *FScopedTransaction*, and called *Modify()* function whenever we modify data we need to save. This will make sure undo/redo is properly handled.
+
+.ExampleEdMode.h
+[source,cpp]
+----
+...
+class AExampleTargetPoint;
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    void AddPoint();
+    bool CanAddPoint() const;
+    void RemovePoint();
+    bool CanRemovePoint() const;
+    bool HasValidSelection() const;
+    void SelectPoint(AExampleTargetPoint* actor, int32 index);
+
+    TWeakObjectPtr<AExampleTargetPoint> currentSelectedTarget;
+    int32 currentSelectedIndex = -1;
+};
+----
+
+.ExampleEdMode.cpp
+[source,cpp]
+----
+void FExampleEdMode::Enter()
+{
+    ...
+
+    // reset
+    currentSelectedTarget = nullptr;
+    currentSelectedIndex = -1;
+}
+
+AExampleTargetPoint* GetSelectedTargetPointActor()
+{
+    TArray<UObject*> selectedObjects;
+    GEditor->GetSelectedActors()->GetSelectedObjects(selectedObjects);
+    if (selectedObjects.Num() == 1)
+    {
+        return Cast<AExampleTargetPoint>(selectedObjects[0]);
+    }
+    return nullptr;
+}
+
+void FExampleEdMode::AddPoint()
+{
+    AExampleTargetPoint* actor = GetSelectedTargetPointActor();
+    if (actor)
+    {
+        const FScopedTransaction Transaction(FText::FromString("Add Point"));
+
+        // add new point, slightly in front of camera
+        FEditorViewportClient* client = (FEditorViewportClient*)GEditor->GetActiveViewport()->GetClient();
+        FVector newPoint = client->GetViewLocation() + client->GetViewRotation().Vector() * 50.f;
+        actor->Modify();
+        actor->Points.Add(newPoint);
+        // auto select this new point
+        SelectPoint(actor, actor->Points.Num() - 1);
+    }
+}
+
+bool FExampleEdMode::CanAddPoint() const
+{
+    return GetSelectedTargetPointActor() != nullptr;
+}
+
+void FExampleEdMode::RemovePoint()
+{
+    if (HasValidSelection())
+    {
+        const FScopedTransaction Transaction(FText::FromString("Remove Point"));
+
+        currentSelectedTarget->Modify();
+        currentSelectedTarget->Points.RemoveAt(currentSelectedIndex);
+        // deselect the point
+        SelectPoint(nullptr, -1);
+    }
+}
+
+bool FExampleEdMode::CanRemovePoint() const
+{
+    return HasValidSelection();
+}
+
+bool FExampleEdMode::HasValidSelection() const
+{
+    return currentSelectedTarget.IsValid() && currentSelectedIndex >= 0 && currentSelectedIndex < currentSelectedTarget->Points.Num();
+}
+
+void FExampleEdMode::SelectPoint(AExampleTargetPoint* actor, int32 index)
+{
+    currentSelectedTarget = actor;
+    currentSelectedIndex = index;
+
+    // select this actor only
+    if (currentSelectedTarget.IsValid())
+    {
+        GEditor->SelectNone(true, true);
+        GEditor->SelectActor(currentSelectedTarget.Get(), true, true);
+    }
+}
+----
+
+Now we have functionality ready, we still need to hook it up with UI. Modify to *SExampleEdModeWidget*  add "Add" and "Remove" button, and we will check "CanAddPoint" and "CanRemovePoint" to determine if the button should be enabled.
+
+.SExampleEdModeWidget.h
+[source,cpp]
+----
+class SExampleEdModeWidget : public SCompoundWidget
+{
+public:
+    ...
+    FReply OnAddPoint();
+    bool CanAddPoint() const;
+    FReply OnRemovePoint();
+    bool CanRemovePoint() const;
+};
+----
+
+.SExampleEdModeWidget.cpp
+[source,cpp]
+----
+void SExampleEdModeWidget::Construct(const FArguments& InArgs)
+{
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5.f)
+        [
+            SNew(SVerticalBox)
+            + SVerticalBox::Slot()
+            .AutoHeight()
+            .Padding(0.f, 5.f, 0.f, 0.f)
+            [
+                SNew(STextBlock)
+                .Text(FText::FromString(TEXT("This is a editor mode example.")))
+            ]
+            + SVerticalBox::Slot()
+            .AutoHeight()
+            .Padding(0.f, 5.f, 0.f, 0.f)
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .Padding(2, 0, 0, 0)
+                .VAlign(VAlign_Center)
+                [
+                    SNew(SButton)
+                    .Text(FText::FromString("Add"))
+                    .OnClicked(this, &SExampleEdModeWidget::OnAddPoint)
+                    .IsEnabled(this, &SExampleEdModeWidget::CanAddPoint)
+                ]
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .VAlign(VAlign_Center)
+                .Padding(0, 0, 2, 0)
+                [
+                    SNew(SButton)
+                    .Text(FText::FromString("Remove"))
+                    .OnClicked(this, &SExampleEdModeWidget::OnRemovePoint)
+                    .IsEnabled(this, &SExampleEdModeWidget::CanRemovePoint)
+                ]
+            ]
+        ]
+    ];
+}
+
+FReply SExampleEdModeWidget::OnAddPoint()
+{
+    GetEdMode()->AddPoint();
+    return FReply::Handled();
+}
+
+bool SExampleEdModeWidget::CanAddPoint() const
+{
+    return GetEdMode()->CanAddPoint();
+}
+
+FReply SExampleEdModeWidget::OnRemovePoint()
+{
+    GetEdMode()->RemovePoint();
+    return FReply::Handled();
+}
+
+bool SExampleEdModeWidget::CanRemovePoint() const
+{
+    return GetEdMode()->CanRemovePoint();
+}
+----
+
+Now if you launch the editor, you should be able to drag in an "Example Target Point", switch to our editor mode, select that target point and add new points from the editor mode UI. However it is not visualized in the viewport yet, and you cannot click and select point. We will work on that next.
+
+To be able to click in editor and select something, we need to define a HitProxy struct. When we render the points, we render with this hit proxy along with some data attached to it. Then when we get the click event, we can retrieve those data back from the proxy and know what we clicked on.
+
+Back to *ExampleEdMode*, we define *HExamplePointProxy* with a reference object (the ExampleTargetPoint actor) and the point index, and we add *Render* and *HandleClick* override function.
+
+.ExampleEdMode.h
+[source,cpp]
+----
+struct HExamplePointProxy : public HHitProxy
+{
+    DECLARE_HIT_PROXY();
+
+    HExamplePointProxy(UObject* InRefObject, int32 InIndex)
+        : HHitProxy(HPP_UI), RefObject(InRefObject), Index(InIndex)
+    {}
+
+    UObject* RefObject;
+    int32 Index;
+};
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    virtual void Render(const FSceneView* View, FViewport* Viewport, FPrimitiveDrawInterface* PDI) override;
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &Click) override;
+};
+----
+
+Then in cpp file, we use macro *IMPLEMENT_HIT_PROXY* to implement the proxy. In *Render* we simply loops through all *ExampleTargetPoint* actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn't leak through to other draws). In *HandleClick*, we test hit proxy and select point if we have a valid hit. We don't test mouse button here, so you can select with left/right/middle click.
+
+.ExampleEdMode.cpp
+[source,cpp]
+----
+IMPLEMENT_HIT_PROXY(HExamplePointProxy, HHitProxy);
+...
+
+void FExampleEdMode::Render(const FSceneView* View, FViewport* Viewport, FPrimitiveDrawInterface* PDI)
+{
+    const FColor normalColor(200, 200, 200);
+    const FColor selectedColor(255, 128, 0);
+
+    UWorld* World = GetWorld();
+    for (TActorIterator<AExampleTargetPoint> It(World); It; ++It)
+    {
+        AExampleTargetPoint* actor = (*It);
+        if (actor)
+        {
+            FVector actorLoc = actor->GetActorLocation();
+            for (int i = 0; i < actor->Points.Num(); ++i)
+            {
+                bool bSelected = (actor == currentSelectedTarget && i == currentSelectedIndex);
+                const FColor& color = bSelected ? selectedColor : normalColor;
+                // set hit proxy and draw
+                PDI->SetHitProxy(new HExamplePointProxy(actor, i));
+                PDI->DrawPoint(actor->Points[i], color, 15.f, SDPG_Foreground);
+                PDI->DrawLine(actor->Points[i], actorLoc, color, SDPG_Foreground);
+                PDI->SetHitProxy(NULL);
+            }
+        }
+    }
+
+    FEdMode::Render(View, Viewport, PDI);
+}
+
+bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &Click)
+{
+    bool isHandled = false;
+
+    if (HitProxy)
+    {
+        if (HitProxy->IsA(HExamplePointProxy::StaticGetType()))
+        {
+            isHandled = true;
+            HExamplePointProxy* examplePointProxy = (HExamplePointProxy*)HitProxy;
+            AExampleTargetPoint* actor = Cast<AExampleTargetPoint>(examplePointProxy->RefObject);
+            int32 index = examplePointProxy->Index;
+            if (actor && index >= 0 && index < actor->Points.Num())
+            {
+                SelectPoint(actor, index);
+            }
+        }
+    }
+
+    return isHandled;
+}
+----
+
+With all of these you can start adding/removing points in the editor:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
 
+=== Move Point 
+
+The next mission is to be able to move point around in editor like moving any other actor. Go back to *ExampleEdMode*, this time we need to add support for custom transform widget, and handle *InputDelta* event. In *InputDelta* function, we don't use *FScopedTransaction* because undo/redo is already handled for this function. We still need to call *Modify()* though.
+
+.ExampleEdMode.h
+[source,cpp]
+----
+...
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    virtual bool InputDelta(FEditorViewportClient* InViewportClient, FViewport* InViewport, FVector& InDrag, FRotator& InRot, FVector& InScale) override;
+    virtual bool ShowModeWidgets() const override;
+    virtual bool ShouldDrawWidget() const override;
+    virtual bool UsesTransformWidget() const override;
+    virtual FVector GetWidgetLocation() const override;
+};
+----
+
+.ExampleEdMode.cpp
+[source,cpp]
+----
+bool FExampleEdMode::InputDelta(FEditorViewportClient* InViewportClient, FViewport* InViewport, FVector& InDrag, FRotator& InRot, FVector& InScale)
+{
+    if (InViewportClient->GetCurrentWidgetAxis() == EAxisList::None)
+    {
+        return false;
+    }
+    
+    if (HasValidSelection())
+    {
+        if (!InDrag.IsZero())
+        {
+            currentSelectedTarget->Modify();
+            currentSelectedTarget->Points[currentSelectedIndex] += InDrag;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool FExampleEdMode::ShowModeWidgets() const
+{
+    return true;
+}
+
+bool FExampleEdMode::ShouldDrawWidget() const
+{
+    return true;
+}
+
+bool FExampleEdMode::UsesTransformWidget() const
+{
+    return true;
+}
+
+FVector FExampleEdMode::GetWidgetLocation() const
+{
+    if (HasValidSelection())
+    {
+        return currentSelectedTarget->Points[currentSelectedIndex];
+    }
+    return FEdMode::GetWidgetLocation();
+}
+----
+
+Now you should have a transform widget to move your points around:
+
+[source,cpp]
+----
+virtual bool GetCustomDrawingCoordinateSystem(FMatrix& InMatrix, void* InData) override;
+virtual bool GetCustomInputCoordinateSystem(FMatrix& InMatrix, void* InData) override;
+----
+
+=== Key input support, right click menu, and others
+
+Next we will add some other common features: when we have a point selected, we want to hit delete button and remove it. Also we want to have a menu generated when you right click on a point, showing the point index, and an option to delete it.
+
+Remember in the "Menu Tool" tutorial, in order to make a menu, we would need a UI command list, here we will do the same thing. We also override *InputKey* function to handle input. Though we can simply call functions based on which key is pressed, since we have the same functionality in the menu, we will route the input through the UI command list instead. (when we define UI Commands, we pass in a key in *FInputGesture*)
+
+Finally we will modify *HandleClick* function to generate context menu when we right click on a point.
+
+.ExampleEdMode.h
+[source,cpp]
+----
+...
+class FExampleEdMode : public FEdMode
+{
+public:
+    ... 
+    FExampleEdMode();
+    ~FExampleEdMode();
+
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &Click) override;
+
+    TSharedPtr<FUICommandList> ExampleEdModeActions;
+    void MapCommands();
+    TSharedPtr<SWidget> GenerateContextMenu(FEditorViewportClient* InViewportClient) const;
+};
+----
+
+.ExampleEdMode.cpp
+[source,cpp]
+----
+class ExampleEditorCommands : public TCommands<ExampleEditorCommands>
+{
+public:
+    ExampleEditorCommands() : TCommands <ExampleEditorCommands>
+        (
+            "ExampleEditor",    // Context name for fast lookup
+            FText::FromString(TEXT("Example Editor")),  // context name for displaying
+            NAME_None,  // Parent
+            FEditorStyle::GetStyleSetName()
+            )
+    {
+    }
+
+#define LOCTEXT_NAMESPACE ""
+    virtual void RegisterCommands() override
+    {
+        UI_COMMAND(DeletePoint, "Delete Point", "Delete the currently selected point.", EUserInterfaceActionType::Button, FInputGesture(EKeys::Delete));
+    }
+#undef LOCTEXT_NAMESPACE
+
+public:
+    TSharedPtr<FUICommandInfo> DeletePoint;
+};
+
+
+FExampleEdMode::FExampleEdMode()
+{
+    ExampleEditorCommands::Register();
+    ExampleEdModeActions = MakeShareable(new FUICommandList);
+}
+
+FExampleEdMode::~FExampleEdMode()
+{
+    ExampleEditorCommands::Unregister();
+}
+
+void FExampleEdMode::MapCommands()
+{
+    const auto& Commands = ExampleEditorCommands::Get();
+
+    ExampleEdModeActions->MapAction(
+        Commands.DeletePoint,
+        FExecuteAction::CreateSP(this, &FExampleEdMode::RemovePoint),
+        FCanExecuteAction::CreateSP(this, &FExampleEdMode::CanRemovePoint));
+}
+
+bool FExampleEdMode::InputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
+{
+    bool isHandled = false;
+
+    if (!isHandled && Event == IE_Pressed)
+    {
+        isHandled = ExampleEdModeActions->ProcessCommandBindings(Key, FSlateApplication::Get().GetModifierKeys(), false);
+    }
+
+    return isHandled;
+}
+
+TSharedPtr<SWidget> FExampleEdMode::GenerateContextMenu(FEditorViewportClient* InViewportClient) const
+{
+    FMenuBuilder MenuBuilder(true, NULL);
+
+    MenuBuilder.PushCommandList(ExampleEdModeActions.ToSharedRef());
+    MenuBuilder.BeginSection("Example Section");
+    if (HasValidSelection())
+    {
+        // add label for point index
+        TSharedRef<SWidget> LabelWidget =
+            SNew(STextBlock)
+            .Text(FText::FromString(FString::FromInt(currentSelectedIndex)))
+            .ColorAndOpacity(FLinearColor::Green);
+        MenuBuilder.AddWidget(LabelWidget, FText::FromString(TEXT("Point Index: ")));
+        MenuBuilder.AddMenuSeparator();
+        // add delete point entry
+        MenuBuilder.AddMenuEntry(ExampleEditorCommands::Get().DeletePoint);
+    }
+    MenuBuilder.EndSection();
+    MenuBuilder.PopCommandList();
+
+    TSharedPtr<SWidget> MenuWidget = MenuBuilder.MakeWidget();
+    return MenuWidget;
+}
+
+
+bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &Click)
+{
+    ...
+
+    if (HitProxy && isHandled && Click.GetKey() == EKeys::RightMouseButton)
+    {
+        TSharedPtr<SWidget> MenuWidget = GenerateContextMenu(InViewportClient);
+        if (MenuWidget.IsValid())
+        {
+            FSlateApplication::Get().PushMenu(
+                Owner->GetToolkitHost()->GetParentWidget(),
+                FWidgetPath(),
+                MenuWidget.ToSharedRef(),
+                FSlateApplication::Get().GetCursorPos(),
+                FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu));
+        }
+    }
+
+    return isHandled;
+}
+----
+The following is the result:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+There are other virtual functions from FEdMode that can be very helpful. I'll list some of them here:
+
+[source,cpp]
+----
+    virtual void Tick(FEditorViewportClient* ViewportClient, float DeltaTime) override;
+    virtual bool CapturedMouseMove(FEditorViewportClient* InViewportClient, FViewport* InViewport, int32 InMouseX, int32 InMouseY) override;
+    virtual bool StartTracking(FEditorViewportClient* InViewportClient, FViewport* InViewport) override;
+    virtual bool EndTracking(FEditorViewportClient* InViewportClient, FViewport* InViewport) override;
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &Click) override;
+    virtual void PostUndo() override;
+    virtual void ActorsDuplicatedNotify(TArray<AActor*>& PreDuplicateSelection, TArray<AActor*>& PostDuplicateSelection, bool bOffsetLocations) override;
+    virtual void ActorMoveNotify() override;
+    virtual void ActorSelectionChangeNotify() override;
+    virtual void MapChangeNotify() override;
+    virtual void SelectionChanged() override;
+----
+
+
+== Custom Project Settings
+
+Remember you can you go to Edit → Project Settings in Unreal editor to change various game/editor settings? You can add your custom settings to this window as well.
+
+First we create a settings object. In this example we will create it in editor module, you can create in game module as well, just remember to export it with proper macro.
+In the UCLASS macro, we need specify which .ini file to write to. You can use existing .ini file like "Game" or "Editor". In this case we want this setting to be per user and not shared on source control, so we create a new ini file.
+For each UPROPERTY that you want to include in the settings, mark it with "*config*".
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+.ExampleSettings.h
+[source,cpp]
+----
+#pragma once
+#include "ExampleSettings.generated.h"
+
+UCLASS(config = EditorUserSettings, defaultconfig)
+class UExampleSettings : public UObject
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, config, Category = Test)
+    bool bTest = false;
+};
+----
+
+.ToolExampleEditor.cpp
+[source,cpp]
+----
+...
+#include "ISettingsModule.h"
+#include "Developer/Settings/Public/ISettingsContainer.h"
+#include "CustomProjectSettings/ExampleSettings.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+    // register settings:
+    {
+        ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings");
+        if (SettingsModule)
+        {
+            TSharedPtr<ISettingsContainer> ProjectSettingsContainer = SettingsModule->GetContainer("Project");
+            ProjectSettingsContainer->DescribeCategory("ExampleCategory", FText::FromString("Example Category"), FText::FromString("Example settings description text here"));
+
+            SettingsModule->RegisterSettings("Project", "ExampleCategory", "ExampleSettings",
+                FText::FromString("Example Settings"),
+                FText::FromString("Configure Example Settings"),
+                GetMutableDefault<UExampleSettings>()
+            );
+        }
+    }
+    
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{   
+    ...
+    // unregister settings
+    ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings");
+    if (SettingsModule)
+    {
+        SettingsModule->UnregisterSettings("Project", "ExampleCategory", "ExampleSettings");
+    }
+
+    IExampleModuleInterface::ShutdownModule();
+}
+----
+
+Now you should see your custom settings in "Project Settings" window. And when you change it, you should see DefaultEditorUserSettings.ini created in \ToolExample\Config
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+To get access to this settings, do the following:
+
+[source,cpp]
+----
+const UExampleSettings* ExampleSettings = GetDefault<UExampleSettings>();
+if(ExampleSettings && ExampleSettings->bTest)
+    // do something
+----
