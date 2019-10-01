@@ -2,9 +2,67 @@
 Eric Zhang
 v1.0, 2019-10-01
 :toc: macro
-:hp-tags: UE4
+:hp-tags: UE4, Unreal, Tools
 
 :source-highlighter: prettify | lang-glsl
 :figure-caption!:
 
 toc::[]
+
+== Setup Editor Module
+
+To make proper tools in Unreal it is almost a must to setup a custom editor module first. This will provide you an entry point for you custom tools, and also make sure your tool will not be included other than running in editor.
+
+Here we create a new ToolExample project. 
+
+First we want to create a "ToolExampleEditor" folder and add the following files. This will be our new editor module.
+
+=== IExampleModuleInterface.h
+
+In this header, we first define *IExampleModuleListenerInterface*, a convenient interface to provide event when out module starts up or shuts down. Almost all our later tools will need to implement this interface.
+
+Then we define *IExampleModuleInterface*, this is not necessary if you only have one editor module, but if you have more than that, this will handle event broadcasting for you.
+It is required that a module inherit from *IModuleInterface*, so our interface will inherit from the same class.
+
+[source,cpp]
+----
+// IExampleModuleInterface.h
+
+#include "ModuleManager.h"
+
+class IExampleModuleListenerInterface
+{
+public:
+    virtual void OnStartupModule() {};
+    virtual void OnShutdownModule() {};
+};
+
+class IExampleModuleInterface : public IModuleInterface
+{
+public:
+    void StartupModule() override
+    {
+        if (!IsRunningCommandlet())
+        {
+            AddModuleListeners();
+            for (int32 i = 0; i < ModuleListeners.Num(); ++i)
+            {
+                ModuleListeners[i]->OnStartupModule();
+            }
+        }
+    }
+
+    void ShutdownModule() override
+    {
+        for (int32 i = 0; i < ModuleListeners.Num(); ++i)
+        {
+            ModuleListeners[i]->OnShutdownModule();
+        }
+    }
+
+    virtual void AddModuleListeners() {};
+
+protected:
+    TArray<TSharedRef<IExampleModuleListenerInterface>> ModuleListeners;
+};
+----
