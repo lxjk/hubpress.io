@@ -936,31 +936,414 @@ Now you should see the customized details panel:
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
+== Custom Data Type
+
+=== New Custom Data
+
+For simple data, you can just inherit from *UDataAsset* class, then you can create your data object in Urneal content browser: Add New → miscellaneous → Data Asset
+
+If you want to add you data to a custom category, you need to do a bit more work.
+
+First we need to create a custom data type in game module (ExampleTool). We will make one with only one property.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+We add "SourceFilePath" for future sections.
+
+.ExampleData.h
+[source,cpp]
+----
+#pragma once
+#include "ExampleData.generated.h"
+
+UCLASS(Blueprintable)
+class UExampleData : public UObject
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, Category = "Properties")
+    FString ExampleString;
+
+#if WITH_EDITORONLY_DATA
+    UPROPERTY(Category = SourceAsset, VisibleAnywhere)
+    FString SourceFilePath;
+#endif
+};
+----
+
+Then in editor module, add the following files:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+We first make the factory:
+
+.ExampleDataFactory.h
+[source,cpp]
+----
+#pragma once
+#include "UnrealEd.h"
+#include "ExampleDataFactory.generated.h"
+
+UCLASS()
+class UExampleDataFactory : public UFactory
+{
+    GENERATED_UCLASS_BODY()
+public:
+    virtual UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn) override;
+};
+----
+
+.ExampleDataFactory.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleDataFactory.h"
+#include "CustomDataType/ExampleData.h"
+
+UExampleDataFactory::UExampleDataFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+    SupportedClass = UExampleData::StaticClass();
+    bCreateNew = true;
+    bEditAfterNew = true;
+}
+
+UObject* UExampleDataFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
+{
+    UExampleData* NewObjectAsset = NewObject<UExampleData>(InParent, Class, Name, Flags | RF_Transactional);
+    return NewObjectAsset;
+}
+----
+
+Then we make type actions, here we will pass in the asset category.
+
+.ExampleDataTypeActions.h
+[source,cpp]
+----
+#pragma once
+#include "AssetTypeActions_Base.h"
+
+class FExampleDataTypeActions : public FAssetTypeActions_Base
+{
+public:
+    FExampleDataTypeActions(EAssetTypeCategories::Type InAssetCategory);
+
+    // IAssetTypeActions interface
+    virtual FText GetName() const override;
+    virtual FColor GetTypeColor() const override;
+    virtual UClass* GetSupportedClass() const override;
+    virtual uint32 GetCategories() override;
+    // End of IAssetTypeActions interface
+
+private:
+    EAssetTypeCategories::Type MyAssetCategory;
+};
+----
+
+.ExampleDataTypeActions.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleDataTypeActions.h"
+#include "CustomDataType/ExampleData.h"
+
+FExampleDataTypeActions::FExampleDataTypeActions(EAssetTypeCategories::Type InAssetCategory)
+    : MyAssetCategory(InAssetCategory)
+{
+}
+
+FText FExampleDataTypeActions::GetName() const
+{
+    return FText::FromString("Example Data");
+}
+
+FColor FExampleDataTypeActions::GetTypeColor() const
+{
+    return FColor(230, 205, 165);
+}
+
+UClass* FExampleDataTypeActions::GetSupportedClass() const
+{
+    return UExampleData::StaticClass();
+}
+
+uint32 FExampleDataTypeActions::GetCategories()
+{
+    return MyAssetCategory;
+}
+----
+
+Finally we need to register type actions in editor module. We add an array *CreatedAssetTypeActions* to save all type actions we registered, so we can unregister them properly when module is unloaded:
+
+.ToolExampleEditor.h
+[source,cpp]
+----
+class FToolExampleEditor : public IExampleModuleInterface
+{
+    ...
+    TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
+}
+----
+
+In *StartupModule* function, we create a new "*Example*" category, and use that to register our type action.
+
+.ToolExampleEditor.cpp
+[source,cpp]
+----
+#include "CustomDataType/ExampleDataTypeActions.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+
+    // register custom types:
+    {       
+        IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+        // add custom category
+        EAssetTypeCategories::Type ExampleCategory = AssetTools.RegisterAdvancedAssetCategory(FName(TEXT("Example")), FText::FromString("Example"));
+        // register our custom asset with example category
+        TSharedPtr<IAssetTypeActions> Action = MakeShareable(new FExampleDataTypeActions(ExampleCategory));
+        AssetTools.RegisterAssetTypeActions(Action.ToSharedRef());
+        // saved it here for unregister later
+        CreatedAssetTypeActions.Add(Action);
+    }
+    
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{   
+    ...
+
+    // Unregister all the asset types that we registered
+    if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
+    {
+        IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+        for (int32 i = 0; i < CreatedAssetTypeActions.Num(); ++i)
+        {
+            AssetTools.UnregisterAssetTypeActions(CreatedAssetTypeActions[i].ToSharedRef());
+        }
+    }
+    CreatedAssetTypeActions.Empty();
+
+    IExampleModuleInterface::ShutdownModule();
+}
+----
+
+Now you will see your data in proper category.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+
+=== Import Custom Data
+
+For all the hard work we did above, we can now our data from a file, like the way you can drag and drop an PNG file to create a texture. In this case we will have a text file, with extension ".xmp", to be imported into unreal, and we just set the text from the file to "ExampleString" property.
+
+To make it work with import, we actually have to disable the ability to be able to create a new data from scratch. Modify factory class as following:
+
+.ExampleDataFactory.h
+[source,cpp]
+----
+class UExampleDataFactory : public UFactory
+{
+    ...
+
+    virtual UObject* FactoryCreateText(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn) override;
+    virtual bool FactoryCanImport(const FString& Filename) override;
+
+    // helper function
+    static void MakeExampleDataFromText(class UExampleData* Data, const TCHAR*& Buffer, const TCHAR* BufferEnd);
+};
+----
+
+.ExampleDataFactory.cpp
+[source,cpp]
+----
+UExampleDataFactory::UExampleDataFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+    Formats.Add(TEXT("xmp;Example Data"));
+    SupportedClass = UExampleData::StaticClass();
+    bCreateNew = false; // turned off for import
+    bEditAfterNew = false; // turned off for import
+    bEditorImport = true;
+    bText = true;
+}
 
 
+UObject* UExampleDataFactory::FactoryCreateText(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const TCHAR*& Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn)
+{
+    FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Type);
 
+    // if class type or extension doesn't match, return
+    if (InClass != UExampleData::StaticClass() ||
+        FCString::Stricmp(Type, TEXT("xmp")) != 0)
+        return nullptr;
+    
+    UExampleData* Data = CastChecked<UExampleData>(NewObject<UExampleData>(InParent, InName, Flags));
+    MakeExampleDataFromText(Data, Buffer, BufferEnd);
 
+    // save the source file path
+    Data->SourceFilePath = UAssetImportData::SanitizeImportFilename(CurrentFilename, Data->GetOutermost());
 
+    FEditorDelegates::OnAssetPostImport.Broadcast(this, Data);
 
+    return Data;
+}
 
+bool UExampleDataFactory::FactoryCanImport(const FString& Filename)
+{
+    return FPaths::GetExtension(Filename).Equals(TEXT("xmp"));
+}
 
+void UExampleDataFactory::MakeExampleDataFromText(class UExampleData* Data, const TCHAR*& Buffer, const TCHAR* BufferEnd)
+{
+    Data->ExampleString = Buffer;
+}
+----
 
+Note we changed *bCreateNew* and *bEditAfterNew* to false. We set "*SourceFilePath&*" so we can do reimport later. If you want to import binary file, set *bText = false*, and override *FactoryCreateBinary* function instead.
 
+Now you can drag & drop a xmp file and have the content imported automatically.
 
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
+If you want to have custom editor for the data, you can follow "Customize Details Panel" section to create custom widget. Or you can override *OpenAssetEditor* function in *ExampleDataTypeActions*, to create a complete different editor. We are not going to dive in here, search "*OpenAssetEditor*" in Unreal engine for examples.
 
+=== Reimport
 
+To reimport a file, we need to implement a different factory class. The implementation should be straight forward.
 
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
+.ReimportExampleDataFactory.h
+[source,cpp]
+----
+#pragma once
+#include "ExampleDataFactory.h"
+#include "ReimportExampleDataFactory.generated.h"
 
+UCLASS()
+class UReimportExampleDataFactory : public UExampleDataFactory, public FReimportHandler
+{
+    GENERATED_BODY()
 
+    // Begin FReimportHandler interface
+    virtual bool CanReimport(UObject* Obj, TArray<FString>& OutFilenames) override;
+    virtual void SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths) override;
+    virtual EReimportResult::Type Reimport(UObject* Obj) override;
+    // End FReimportHandler interface
+};
+----
 
+.ReimportExampleDataFactory.cpp
+[source,cpp]
+----
+#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ReimportExampleDataFactory.h"
+#include "ExampleDataFactory.h"
+#include "CustomDataType/ExampleData.h"
 
+bool UReimportExampleDataFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
+{
+    UExampleData* ExampleData = Cast<UExampleData>(Obj);
+    if (ExampleData)
+    {
+        OutFilenames.Add(UAssetImportData::ResolveImportFilename(ExampleData->SourceFilePath, ExampleData->GetOutermost()));
+        return true;
+    }
+    return false;
+}
 
+void UReimportExampleDataFactory::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
+{
+    UExampleData* ExampleData = Cast<UExampleData>(Obj);
+    if (ExampleData && ensure(NewReimportPaths.Num() == 1))
+    {
+        ExampleData->SourceFilePath = UAssetImportData::SanitizeImportFilename(NewReimportPaths[0], ExampleData->GetOutermost());
+    }
+}
 
+EReimportResult::Type UReimportExampleDataFactory::Reimport(UObject* Obj)
+{
+    UExampleData* ExampleData = Cast<UExampleData>(Obj);
+    if (!ExampleData)
+    {
+        return EReimportResult::Failed;
+    }
 
+    const FString Filename = UAssetImportData::ResolveImportFilename(ExampleData->SourceFilePath, ExampleData->GetOutermost());
+    if (!FPaths::GetExtension(Filename).Equals(TEXT("xmp")))
+    {
+        return EReimportResult::Failed;
+    }
 
+    CurrentFilename = Filename;
+    FString Data;
+    if (FFileHelper::LoadFileToString(Data, *CurrentFilename))
+    {
+        const TCHAR* Ptr = *Data;
+        ExampleData->Modify();
+        ExampleData->MarkPackageDirty();
 
+        UExampleDataFactory::MakeExampleDataFromText(ExampleData, Ptr, Ptr + Data.Len());
+
+        // save the source file path and timestamp
+        ExampleData->SourceFilePath = UAssetImportData::SanitizeImportFilename(CurrentFilename, ExampleData->GetOutermost());
+    }
+
+    return EReimportResult::Succeeded;
+}
+----
+
+And just for fun, let's add "*Reimport*" to right click menu on this asset. This is also an example for how to add more actions on specific asset type. Modify *ExampleDataTypeActions* class:
+
+.ExampleDataTypeActions.h
+[source,cpp]
+----
+class FExampleDataTypeActions : public FAssetTypeActions_Base
+{
+public:
+    ...
+    virtual bool HasActions(const TArray<UObject*>& InObjects) const override { return true; }
+    virtual void GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder) override;
+
+    void ExecuteReimport(TArray<TWeakObjectPtr<UExampleData>> Objects);
+};
+----
+
+.ExampleDataTypeActions.cpp
+[source,cpp]
+----
+void FExampleDataTypeActions::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)
+{
+    auto ExampleDataImports = GetTypedWeakObjectPtrs<UExampleData>(InObjects);
+
+    MenuBuilder.AddMenuEntry(
+        FText::FromString("Reimport"),
+        FText::FromString("Reimports example data."),
+        FSlateIcon(),
+        FUIAction(
+            FExecuteAction::CreateSP(this, &FExampleDataTypeActions::ExecuteReimport, ExampleDataImports),
+            FCanExecuteAction()
+        )
+    );
+}
+
+void FExampleDataTypeActions::ExecuteReimport(TArray<TWeakObjectPtr<UExampleData>> Objects)
+{
+    for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt)
+    {
+        auto Object = (*ObjIt).Get();
+        if (Object)
+        {
+            FReimportManager::Instance()->Reimport(Object, /*bAskForNewFileIfMissing=*/true);
+        }
+    }
+}
+----
+
+Now you can reimport your custom files.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
 
 
 
