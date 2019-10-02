@@ -9,6 +9,8 @@ v1.0, 2019-10-01
 
 *_Disclaimer: This article is based on Unreal 4.17._*
 
+This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial for its own, and there are lots of SLATE example in Unreal already. With that said there will be some basic SLATE code in this tutorial to build UI widget, and I will try to show some different use cases for each example.
+
 toc::[]
 
 == Setup Editor Module
@@ -157,19 +159,7 @@ public:
 #include "ToolExampleEditor.h"
 #include "IExampleModuleInterface.h"
 
-class FToolExampleEditor : public IExampleModuleInterface
-{
-public:
-    /** IModuleInterface implementation */
-    virtual void StartupModule() override;
-    virtual void ShutdownModule() override;
-
-    virtual void AddModuleListeners() override;
-
-};
-
 IMPLEMENT_GAME_MODULE(FToolExampleEditor, ToolExampleEditor)
-
 
 void FToolExampleEditor::AddModuleListeners()
 {
