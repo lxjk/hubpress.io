@@ -4,12 +4,15 @@ v1.0, 2019-10-01
 :toc: macro
 :hp-tags: UE4, Unreal, Tools
 
-:source-highlighter: prettify | lang-glsl
+:source-highlighter: prettify
 :figure-caption!:
 
-*_Disclaimer: This article is based on Unreal 4.17._*
+*_This article is based on Unreal 4.17 code base, tested in Unreal 4.23._*
 
 This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial for its own, and there are lots of SLATE example in Unreal already. With that said there will be some basic SLATE code in this tutorial to build UI widget, and I will try to show some different use cases for each example.
+
+The example project is available in . Right click on the "*ToolExample.uproject*" and choose Switch Unreal Engine version to link to your engine. 
+
 
 toc::[]
 
@@ -338,7 +341,7 @@ class MenuToolCommands : public TCommands<MenuToolCommands>
 {
 public:
 
-    MenuToolCommands::MenuToolCommands()
+    MenuToolCommands()
         : TCommands<MenuToolCommands>(
         TEXT("MenuTool"), // Context name for fast lookup
         FText::FromString("Example Menu tool"), // Context name for displaying
@@ -2227,3 +2230,96 @@ const UExampleSettings* ExampleSettings = GetDefault<UExampleSettings>();
 if(ExampleSettings && ExampleSettings->bTest)
     // do something
 ----
+
+== Tricks
+
+=== Use Widget Reflector
+
+The best way to learn SLATE and Unreal tools, is to use Widget Reflector. In Window → Developer Tool → Widget Reflector to launch the reflector. Click on "Pick Live Widget" and mouse over the widget you want to see, then hit "ESC" to freeze.
+
+For example we can mouse over our editor mode widget, and you can see the structure showing in the reflector window. You can click on the file and it will take you to the exact place that widget is constructed. This is powerful tool to debug your widget or to learn how Unreal build their widget.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/030.png[,1466,align="left"]
+
+=== Is my tool running in the editor or game?
+
+There 3 conditions that your tool is running: 
+
+. Editor: game not started, you can do all normal editing.
+. Game: game started, cannot do any editing.
+. Simulate: either hit “Simulate” or hit “Play” then “Eject”, game started and you can do limited editing.
+Here is how you can determine which state you are in:
+
+|===
+||*Editor*|*Game*|*Simulate*
+|*FApp::IsGame()*|false|true|true
+|*Cast<UEditorEngine>(GEngine)->bIsSimulatingInEditor*|false|false|true
+|===
+
+Note: this do NOT work in SLATE call (any UI tick for example), because that is in SLATE world.
+ 
+=== Useful UPROPERTY() meta marker
+
+* *MakeEditWidget*: If you just need to visualize a point in the level and be able to drag it around, this is the quick way to do it. It works for FVector or FTransform, and it works with TArray of those as well. +
+example: UPROPERTY(meta = (MakeEditWidget = true))
+* *DisplayName, ToolTip*: Useful if you want to have a different display name than the variable name; or if you want add a mouse over tooltip. There are plenty of examples in Unreal code base.
+* *ClampMin, ClampMax, UIMin, UIMax*: You can specify a range for the value that can be input for this field. +
+example: UPROPERTY(meta = (ClampMin = "0", ClampMax = "180"))
+* *EditCondition*: You can specify a bool to determine whether this field is editable. +
+example: UPROPERTY(meta = (EditCondition = "bIsThisFieldEnabled")))
+
+For a complete list, search for *ObjectMacros.h* in Unreal code base.
+
+=== Make custom Animation Blueprint Node
+
+To make a custom Animation Blueprint Node, you need to first inherit from *FAnimNode_Base* class in game module, this class will process animation pose at runtime.
+
+Then in the editor module, inherit from *UAnimGraphNode_Base* class, and define how you want this node to be in editor.
+
+=== Debug Draw Tricks
+
+* Easy way to draw circle/box/sphere +
+FPrimitiveDrawInterface only provides basic draw methods (DrawSprite, DrawPoint, DrawLine, DrawMesh). However Unreal already has a collection of “advanced” draw methods for their own use. Defined in “PrimitiveDrawingUtils.cpp” and declared in “SceneManagement.h”. Check out “PrimitiveDrawingUtils.cpp” for details. Necessary files should already be included, so just call “DrawCircle” or “DrawBox”.
+* Draw point with world space size +
+The default *FPrimitiveDrawInterface::DrawPoint* function will only draw point with screen space size, but sometimes you want to give it a world space size, here’s how you can do it:
+
+[source,cpp]
+----
+void DrawPointWS (
+    FPrimitiveDrawInterface* PDI,
+    const FVector& Position,
+    const FLinearColor& Color,
+    float PointSize,
+    uint8 DepthPriorityGroup,
+    bool bScreenSpaceSize
+)
+{
+    float ScaledPointSize = PointSize;
+    if (!bScreenSpaceSize)
+    {
+        FVector PositionVS = PDI->View->ViewMatrices.GetViewMatrix().TransformPosition(Position);
+        float factor = FMath::Max(FMath::Abs(PositionVS.Z), 0.001f);
+        ScaledPointSize /= factor;
+        ScaledPointSize *= PDI->View->ViewRect.Width();
+    }
+    PDI->DrawPoint(Position, Color, ScaledPointSize, DepthPriorityGroup);
+}
+----
+
+=== Other Tricks for Editor Mode
+
+* It is quite common you need a viewport client to do something, and not all functions has viewport client passed in. Here is the call you can get that from anywhere:
+[source,cpp]
+----
+FEditorViewportClient* client = (FEditorViewportClient*)GEditor->GetActiveViewport()->GetClient();
+----
+
+* It is also quite common you want to refresh rendering for the whole viewport after the user did some edit in your tool. Use the following call:
+[source,cpp]
+----
+GEditor->RedrawAllViewports(true);
+----
+
+* If the Editor Mode is not responding, or lagging behind, make sure you have "Realtime" checked in viewport.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/031.png[,487,align="left"]
