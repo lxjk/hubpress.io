@@ -21,7 +21,7 @@ Here we create a new ToolExample project.
 
 First we want to create a "ToolExampleEditor" folder and add the following files. This will be our new editor module.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/001.png[,331,align="left"]
 
 === IExampleModuleInterface.h
 
@@ -286,11 +286,11 @@ void FToolExampleEditor::StartupModule()
 ----
 Now if you run it you should see the custom menu get added with two sections.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/002.png[,329,align="left"]
 
 Next we can add our first tool to register to our menu. First add two new files:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/003.png[,190,align="left"]
 
 This class will inherit from *IExampleModuleListenerInterface*, and we add function to create menu entry. We also add FUICommandList, which will define and map a menu item to a function. Finally we add our only menu function *MenuCommand1*, this function will be called when user click on the menu item.
 
@@ -409,7 +409,7 @@ Now if you build the project, you should see your menu item in the menu. And if 
 
 By now you have a basic framework for tools, You can run anything you want based on a menu click.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/004.png[,236,align="left"]
 
 == Advanced Menu
 
@@ -453,7 +453,7 @@ void MenuTool::MakeMenuEntry(FMenuBuilder &menuBuilder)
 
 Now you should see sub menu like the following:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/005.png[,269,align="left"]
 
 Not only you can add simple menu item, you can actually add any widget into the menu. We will try to make a small tool that you can type in a textbox and click a button to set that as tags for selected actors.
 
@@ -528,7 +528,7 @@ void MenuTool::MakeMenuEntry(FMenuBuilder &menuBuilder)
 ----
 Now you have a more complex tool sit in the menu, and you can set actor tags with it:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/006.png[,174,align="left"]
 
 == Create a Tab (Window)
 
@@ -536,7 +536,7 @@ While we can do a lot in the menu, it is still more convenient and flexible if y
 
 Add a new file:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/007.png[,217,align="left"]
 
 The base class is also inherit from *IExampleModuleListenerInterface*. In *OnStartupModule* we register a tab, and unregister it in *OnShutdownModule*. Then in *MakeMenuEntry*, we let *FGlobalTabmanager* to populate tab for this menu item.
 We leave *SpawnTab* function to be overriden by child class to set proper widget.
@@ -585,7 +585,7 @@ protected:
 
 Now we add files for tab tool. Other than the normal tool class, we also need a custom panel widget class for the tab itself.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/008.png[,218,align="left"]
 
 Let's look at TabTool class first, it is inherited from *ExampleTabToolBase* defined above.
 
@@ -717,11 +717,11 @@ ModuleListeners.Add(MakeShareable(new TabTool));
 
 Now you can see tab tool in our custom menu:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/009.png[,231,align="left"]
 
 When you click on it, it will populate a window you can dock anywhere as regular Unreal tab.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/010.png[,436,align="left"]
 
 == Customize Details Panel
 
@@ -729,7 +729,7 @@ Another commonly used feature is to customize the details panel for any UObject.
 
 To show how it works, we will create an Actor class first in our game module "ToolExample". Add the follow file:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/011.png[,235,align="left"]
 
 In this class, we add 2 booleans in "Options" category, and an integer in "Test" category. Remember to add "*TOOLEXAMPLE_API*" in front of class name to export it from game module, otherwise we cannot use it in editor module.
 
@@ -757,13 +757,13 @@ public:
 
 Now if we load up Unreal and drag a "ExampleActor", you should see the following in the details panel:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/012.png[,269,align="left"]
 
 Now if we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.
 
 Add the following files to editor module "ToolExampleEditor":
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/013.png[,244,align="left"]
 
 The details customization implements *IDetailCustomization* interface. In the main entry point *CustomizeDetails* function, we first hide original properties option 1 and option 2 (you can comment out those two lines and see how it works). Then we add our custom widget, here the "RadioButton" is purely a visual style, it has nothing to do with mutually exclusive logic. You can implement the same logic with other visuals like regular check box, buttons, etc.
 
@@ -924,7 +924,7 @@ void FToolExampleEditor::ShutdownModule()
 
 Now you should see the customized details panel:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/014.png[,271,align="left"]
 
 == Custom Data Type
 
@@ -936,7 +936,7 @@ If you want to add you data to a custom category, you need to do a bit more work
 
 First we need to create a custom data type in game module (ExampleTool). We will make one with only one property.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/015.png[,236,align="left"]
 
 We add "SourceFilePath" for future sections.
 
@@ -964,7 +964,7 @@ public:
 
 Then in editor module, add the following files:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/016.png[,380,align="left"]
 
 We first make the factory:
 
@@ -1122,7 +1122,7 @@ void FToolExampleEditor::ShutdownModule()
 
 Now you will see your data in proper category.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/017.png[,380,align="left"]
 
 === Import Custom Data
 
@@ -1194,7 +1194,7 @@ Note we changed *bCreateNew* and *bEditAfterNew* to false. We set "*SourceFilePa
 
 Now you can drag & drop a xmp file and have the content imported automatically.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/018.png[,789,align="left"]
 
 If you want to have custom editor for the data, you can follow "Customize Details Panel" section to create custom widget. Or you can override *OpenAssetEditor* function in *ExampleDataTypeActions*, to create a complete different editor. We are not going to dive in here, search "*OpenAssetEditor*" in Unreal engine for examples.
 
@@ -1202,7 +1202,7 @@ If you want to have custom editor for the data, you can follow "Customize Detail
 
 To reimport a file, we need to implement a different factory class. The implementation should be straight forward.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/019.png[,299,align="left"]
 
 .ReimportExampleDataFactory.h
 [source,cpp]
@@ -1333,13 +1333,13 @@ void FExampleDataTypeActions::ExecuteReimport(TArray<TWeakObjectPtr<UExampleData
 
 Now you can reimport your custom files.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/020.png[,405,align="left"]
 
 == Custom Editor Mode
 
 Editor Mode is probably the most powerful tool framework in Unreal. You will get and react to all user input; you can render to viewport; you can monitor any change in the scene and get Undo/Redo events. Remember you can enter a mode and paint foliage over objects? You can do the same degree of stuff in custom editor mode. Editor Mode has dedicated section in UI layout, and you can customize the widget here as well.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/021.png[,480,align="left"]
 
 Here as an example, we will create an editor mode to do a simple task. We have an actor "ExampleTargetPoint" inherit from "TargetPoint", with a list of locations. In this editor mode we want to visualize those points. You can create new points or delete points. You can also move points around as moving normal objects. Note this is not the best way for this functionality (you can use MakeEditWidget in UPROPERTY to do this easily), but rather as a way to demonstrate how to set it up and what you can potentially do.
 
@@ -1349,7 +1349,7 @@ First we need to create an icon for our editor mode. We make an 40x40 PNG file a
 
 Then add the following files in editor module:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/022.png[,251,align="left"]
 
 *SExampleEdModeWidget* is the widget we use in "Modes" panel. Here we will just create a simple one for now. We also include a commonly used util function to get EdMode object.
 
@@ -1591,13 +1591,13 @@ ModuleListeners.Add(MakeShareable(new ExampleEdModeTool));
 
 Now you should see our custom editor mode show up in "Modes" panel.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/023.png[,457,align="left"]
 
 === Render and Click
 
 With the basic framework ready, we can actually start implementing tool logic. First we make *ExampleTargetPoint* class in game module. This actor holds points data, and is what our tool will be operating on. Again remember to export the class with *TOOLEXAMPLE_API*.
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/024.png[,222,align="left"]
 
 .ExampleTargetPoint.h
 [source,cpp]
@@ -1907,7 +1907,7 @@ bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitPr
 
 With all of these you can start adding/removing points in the editor:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/025.png[,1325,align="left"]
 
 
 === Use Transform Widget 
@@ -1979,6 +1979,8 @@ FVector FExampleEdMode::GetWidgetLocation() const
 ----
 
 Now you should have a transform widget to move your points around:
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/026.png[,475,align="left"]
 
 [source,cpp]
 ----
@@ -2123,7 +2125,7 @@ bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitPr
 ----
 The following is the result:
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/027.png[,463,align="left"]
 
 There are other virtual functions from FEdMode that can be very helpful. I'll list some of them here:
 
@@ -2151,7 +2153,7 @@ First we create a settings object. In this example we will create it in editor m
 In the UCLASS macro, we need specify which .ini file to write to. You can use existing .ini file like "Game" or "Editor". In this case we want this setting to be per user and not shared on source control, so we create a new ini file.
 For each UPROPERTY that you want to include in the settings, mark it with "*config*".
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/028.png[,213,align="left"]
 
 .ExampleSettings.h
 [source,cpp]
@@ -2215,7 +2217,7 @@ void FToolExampleEditor::ShutdownModule()
 
 Now you should see your custom settings in "Project Settings" window. And when you change it, you should see DefaultEditorUserSettings.ini created in \ToolExample\Config
 
-image::https://github.com/lxjk/lxjk.github.io/raw/master/images/sphericalslicedcone/fig2.png[, 600,align="center"]
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/029.png[,1060,align="left"]
 
 To get access to this settings, do the following:
 
