@@ -1,4 +1,4 @@
-= How to Make Tools in Unreal 4
+= How to Make Tools in UE4
 Eric Zhang
 v1.0, 2019-10-01
 :toc: macro
@@ -11,7 +11,7 @@ v1.0, 2019-10-01
 
 This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial for its own, and there are lots of SLATE example in Unreal already. With that said there will be some basic SLATE code in this tutorial to build UI widget, and I will try to show some different use cases for each example.
 
-The example project is available in . Right click on the "*ToolExample.uproject*" and choose Switch Unreal Engine version to link to your engine. 
+The example project is available in https://github.com/lxjk/ToolExample . Right click on the "*ToolExample.uproject*" and choose Switch Unreal Engine version to link to your engine. 
 
 
 toc::[]
