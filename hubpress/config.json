@@ -2,17 +2,30 @@
   "meta": {
     "username": "lxjk",
     "repositoryName": "lxjk.github.io",
-    "branch": "master"
+    "branch": "master",
+    "cname": ""
   },
   "site": {
     "title": "Eric's Blog",
-    "description": "- Game Dev - Tool Dev - Math - Machine Learning -",
+    "description": "- Game - Engine - Tool  - Math -",
     "googleAnalytics": "UA-86497933-1",
-    "disqus": "lxjkgithub"
+    "disqus": "lxjkgithub",
+    "logo": "",
+    "cover": "",
+    "delay": "",
+    "postsPerPage": ""
   },
   "socialnetwork": {
     "email": "lxjk001@gmail.com",
-    "linkedin": "https://www.linkedin.com/in/lxjk001"
+    "linkedin": "https://www.linkedin.com/in/lxjk001",
+    "github": "",
+    "twitter": "https://twitter.com/lxjk001",
+    "facebook": "",
+    "googleplus": "",
+    "instagram": "",
+    "pinterest": "",
+    "flickr": "",
+    "stackoverflow": ""
   },
   "theme": {
     "name": "uno"
