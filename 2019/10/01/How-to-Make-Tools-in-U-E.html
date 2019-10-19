@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>How to Make Tools in UE4 - Eric&#x27;s Blog</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="How to Make Tools in UE4">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How to Make Tools in UE4">
+    <meta property="og:description" content="">
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1571529474126" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1571529474126"/>
+
+    <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+	
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1571529474126" />
+	
+    <link rel="canonical" href="https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Eric&#x27;s Blog" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="How to Make Tools in UE4" />
+    <meta property="og:description" content="This article is based on Unreal 4.17 code base, tested in Unreal 4.23. This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial" />
+    <meta property="og:url" content="https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html" />
+    <meta property="article:published_time" content="2019-10-01T00:00:00.000Z" />
+    <meta property="article:tag" content="UE4" />
+    <meta property="article:tag" content="Unreal" />
+    <meta property="article:tag" content="Tools" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="How to Make Tools in UE4" />
+    <meta name="twitter:description" content="This article is based on Unreal 4.17 code base, tested in Unreal 4.23. This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial" />
+    <meta name="twitter:url" content="https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html" />
+    
+    <script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "Article",
+    "publisher": "Eric's Blog",
+    "author": {
+        "@type": "Person",
+        "name": "Eric Zhang",
+        "image": "https://avatars0.githubusercontent.com/u/3803294?v=4",
+        "url": "https://lxjk.github.io/author/lxjk/",
+        "sameAs": "https://lxjk.github.io/"
+    },
+    "headline": "How to Make Tools in UE4",
+    "url": "https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html",
+    "datePublished": "2019-10-01T00:00:00.000Z",
+    "keywords": "UE4, Unreal, Tools",
+    "description": "This article is based on Unreal 4.17 code base, tested in Unreal 4.23. This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial"
+}
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Eric&#x27;s Blog" href="https://lxjk.github.io/rss/" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/styles/atom-one-dark.min.css">
+    
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+
+</head>
+<body class="post-template tag-U-E tag-Unreal tag-Tools no-js">
+
+    <span class="mobile btn-mobile-menu">
+        <i class="icon icon-list btn-mobile-menu__icon"></i>
+        <i class="icon icon-x-circle btn-mobile-close__icon hidden"></i>
+    </span>
+
+    <header class="panel-cover panel-cover--collapsed " >
+      <div class="panel-main">
+    
+        <div class="panel-main__inner panel-inverted">
+        <div class="panel-main__content">
+    
+            <h1 class="panel-cover__title panel-title"><a href="https://lxjk.github.io" title="link to homepage for Eric&#x27;s Blog">Eric&#x27;s Blog</a></h1>
+            <hr class="panel-cover__divider" />
+            <p class="panel-cover__description">- Game - Engine - Tool  - Math -</p>
+            <hr class="panel-cover__divider panel-cover__divider--secondary" />
+    
+            <div class="navigation-wrapper">
+    
+              <nav class="cover-navigation cover-navigation--primary">
+                <ul class="navigation">
+                  <li class="navigation__item"><a href="https://lxjk.github.io/#blog" title="link to Eric&#x27;s Blog blog" class="blog-button">Blog</a></li>
+                </ul>
+              </nav>
+    
+              
+              
+              <nav class="cover-navigation navigation--social">
+                <ul class="navigation">
+              
+              
+                  <!-- Twitter -->
+                  <li class="navigation__item">
+                    <a href="https://twitter.com/lxjk001" title="Twitter account">
+                      <i class='icon icon-social-twitter'></i>
+                      <span class="label">Twitter</span>
+                    </a>
+                  </li>
+              
+              
+              
+              
+              
+              
+                  <!-- LinkedIn -->
+                  <li class="navigation__item">
+                    <a href="https://www.linkedin.com/in/lxjk001" title="LinkedIn account">
+                      <i class='icon icon-social-linkedin'></i>
+                      <span class="label">LinkedIn</span>
+                    </a>
+                  </li>
+              
+                  <!-- Email -->
+                  <li class="navigation__item">
+                    <a href="mailto:lxjk001@gmail.com" title="Email lxjk001@gmail.com">
+                      <i class='icon icon-mail'></i>
+                      <span class="label">Email</span>
+                    </a>
+                  </li>
+              
+                </ul>
+              </nav>
+              
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
+        <div class="panel-cover--overlay"></div>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+        <div class="content-wrapper__inner">
+            
+
+  <article class="post-container post-container--single">
+
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime="Oct 01 2019" class="post-meta__date date">Oct 01 2019</time> &#8226; <span class="post-meta__tags tags">on <a href="https://lxjk.github.io/tag/U-E/">UE4</a>, <a href="https://lxjk.github.io/tag/Unreal/">Unreal</a>, <a href="https://lxjk.github.io/tag/Tools/">Tools</a></span>
+        <span class="post-meta__author author"><img src="https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4" alt="profile image for Eric Zhang" class="avatar post-meta__avatar" /> by Eric Zhang</span>
+      </div>
+      <h1 class="post-title">How to Make Tools in UE4</h1>
+    </header>
+
+    <section class="post tag-U-E tag-Unreal tag-Tools">
+      <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong><em>This article is based on Unreal 4.17 code base, tested in Unreal 4.23.</em></strong></p>
+</div>
+<div class="paragraph">
+<p>This is a step by step tutorial to write tools for your Unreal project. I would assume you are familiar with Unreal already. This is NOT a tutorial for SLATE code, that deserves a tutorial for its own, and there are lots of SLATE example in Unreal already. With that said there will be some basic SLATE code in this tutorial to build UI widget, and I will try to show some different use cases for each example.</p>
+</div>
+<div class="paragraph">
+<p>The example project is available in <a href="https://github.com/lxjk/ToolExample" class="bare">https://github.com/lxjk/ToolExample</a> . Right click on the "<strong>ToolExample.uproject</strong>" and choose Switch Unreal Engine version to link to your engine.</p>
+</div>
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_setup_editor_module">Setup Editor Module</a>
+<ul class="sectlevel2">
+<li><a href="#_iexamplemoduleinterface_h">IExampleModuleInterface.h</a></li>
+<li><a href="#_toolexmampleeditor_build_cs">ToolExmampleEditor.Build.cs</a></li>
+<li><a href="#_toolexampleeditor_h_toolexampleeditor_cpp">ToolExampleEditor.h &amp; ToolExampleEditor.cpp</a></li>
+<li><a href="#_toolexampleeditor_target_cs">ToolExampleEditor.Target.cs</a></li>
+<li><a href="#_toolexample_uproject">ToolExample.uproject</a></li>
+</ul>
+</li>
+<li><a href="#_add_custom_menu">Add Custom Menu</a></li>
+<li><a href="#_advanced_menu">Advanced Menu</a></li>
+<li><a href="#_create_a_tab_window">Create a Tab (Window)</a></li>
+<li><a href="#_customize_details_panel">Customize Details Panel</a></li>
+<li><a href="#_custom_data_type">Custom Data Type</a>
+<ul class="sectlevel2">
+<li><a href="#_new_custom_data">New Custom Data</a></li>
+<li><a href="#_import_custom_data">Import Custom Data</a></li>
+<li><a href="#_reimport">Reimport</a></li>
+</ul>
+</li>
+<li><a href="#_custom_editor_mode">Custom Editor Mode</a>
+<ul class="sectlevel2">
+<li><a href="#_setup_editor_mode">Setup Editor Mode</a></li>
+<li><a href="#_render_and_click">Render and Click</a></li>
+<li><a href="#_use_transform_widget">Use Transform Widget</a></li>
+<li><a href="#_key_input_support_right_click_menu_and_others">Key input support, right click menu, and others</a></li>
+</ul>
+</li>
+<li><a href="#_custom_project_settings">Custom Project Settings</a></li>
+<li><a href="#_tricks">Tricks</a>
+<ul class="sectlevel2">
+<li><a href="#_use_widget_reflector">Use Widget Reflector</a></li>
+<li><a href="#_is_my_tool_running_in_the_editor_or_game">Is my tool running in the editor or game?</a></li>
+<li><a href="#_useful_uproperty_meta_marker">Useful UPROPERTY() meta marker</a></li>
+<li><a href="#_make_custom_animation_blueprint_node">Make custom Animation Blueprint Node</a></li>
+<li><a href="#_debug_draw_tricks">Debug Draw Tricks</a></li>
+<li><a href="#_other_tricks_for_editor_mode">Other Tricks for Editor Mode</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_setup_editor_module">Setup Editor Module</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To make proper tools in Unreal it is almost a must to setup a custom editor module first. This will provide you an entry point for you custom tools, and also make sure your tool will not be included other than running in editor.</p>
+</div>
+<div class="paragraph">
+<p>Here we create a new ToolExample project.</p>
+</div>
+<div class="paragraph">
+<p>First we want to create a "ToolExampleEditor" folder and add the following files. This will be our new editor module.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/001.png" alt="001.png" width="331">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_iexamplemoduleinterface_h">IExampleModuleInterface.h</h3>
+<div class="paragraph">
+<p>In this header, we first define <strong>IExampleModuleListenerInterface</strong>, a convenient interface to provide event when out module starts up or shuts down. Almost all our later tools will need to implement this interface.</p>
+</div>
+<div class="paragraph">
+<p>Then we define <strong>IExampleModuleInterface</strong>, this is not necessary if you only have one editor module, but if you have more than that, this will handle event broadcasting for you.
+It is required that a module inherit from <strong>IModuleInterface</strong>, so our interface will inherit from the same class.</p>
+</div>
+<div class="listingblock">
+<div class="title">IExampleModuleInterface.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ModuleManager.h"
+
+class IExampleModuleListenerInterface
+{
+public:
+    virtual void OnStartupModule() {};
+    virtual void OnShutdownModule() {};
+};
+
+class IExampleModuleInterface : public IModuleInterface
+{
+public:
+    void StartupModule() override
+    {
+        if (!IsRunningCommandlet())
+        {
+            AddModuleListeners();
+            for (int32 i = 0; i &lt; ModuleListeners.Num(); ++i)
+            {
+                ModuleListeners[i]-&gt;OnStartupModule();
+            }
+        }
+    }
+
+    void ShutdownModule() override
+    {
+        for (int32 i = 0; i &lt; ModuleListeners.Num(); ++i)
+        {
+            ModuleListeners[i]-&gt;OnShutdownModule();
+        }
+    }
+
+    virtual void AddModuleListeners() {};
+
+protected:
+    TArray&lt;TSharedRef&lt;IExampleModuleListenerInterface&gt;&gt; ModuleListeners;
+};</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_toolexmampleeditor_build_cs">ToolExmampleEditor.Build.cs</h3>
+<div class="paragraph">
+<p>This file you can copy from ToolExample.Build.cs. We added commonly used module names to dependency. Note we add "ToolExample" module here as well.</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExmampleEditor.Build.cs</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">PublicDependencyModuleNames.AddRange(
+            new string[] {
+                "Core",
+                "Engine",
+                "CoreUObject",
+                "InputCore",
+                "LevelEditor",
+                "Slate",
+                "EditorStyle",
+                "AssetTools",
+                "EditorWidgets",
+                "UnrealEd",
+                "BlueprintGraph",
+                "AnimGraph",
+                "ComponentVisualizers",
+                "ToolExample"
+        }
+        );
+
+
+PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "AppFramework",
+                "SlateCore",
+                "AnimGraph",
+                "UnrealEd",
+                "KismetWidgets",
+                "MainFrame",
+                "PropertyEditor",
+                "ComponentVisualizers",
+                "ToolExample"
+            }
+            );</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_toolexampleeditor_h_toolexampleeditor_cpp">ToolExampleEditor.h &amp; ToolExampleEditor.cpp</h3>
+<div class="paragraph">
+<p>Here we define the actual module class, implementing <strong>IExampleModuleInterface</strong> we defined above. We include headers we need for following sections as well. Make sure the module name you use the get module is the same as the one you pass in <strong>IMPLEMENT_GAME_MODULE</strong> macro.</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "UnrealEd.h"
+#include "SlateBasics.h"
+#include "SlateExtras.h"
+#include "Editor/LevelEditor/Public/LevelEditor.h"
+#include "Editor/PropertyEditor/Public/PropertyEditing.h"
+#include "IAssetTypeActions.h"
+#include "IExampleModuleInterface.h"
+
+class FToolExampleEditor : public IExampleModuleInterface
+{
+public:
+    /** IModuleInterface implementation */
+    virtual void StartupModule() override;
+    virtual void ShutdownModule() override;
+
+    virtual void AddModuleListeners() override;
+
+    static inline FToolExampleEditor&amp; Get()
+    {
+        return FModuleManager::LoadModuleChecked&lt; FToolExampleEditor &gt;("ToolExampleEditor");
+    }
+
+    static inline bool IsAvailable()
+    {
+        return FModuleManager::Get().IsModuleLoaded("ToolExampleEditor");
+    }
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor.h"
+#include "IExampleModuleInterface.h"
+
+IMPLEMENT_GAME_MODULE(FToolExampleEditor, ToolExampleEditor)
+
+void FToolExampleEditor::AddModuleListeners()
+{
+    // add tools later
+}
+
+void FToolExampleEditor::StartupModule()
+{
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{
+    IExampleModuleInterface::ShutdownModule();
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_toolexampleeditor_target_cs">ToolExampleEditor.Target.cs</h3>
+<div class="paragraph">
+<p>We need to modify this file to load our module in Editor mode (Don&#8217;t change ToolExample.Target.cs), add the following:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.Target.cs</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">ExtraModuleNames.AddRange( new string[] { "ToolExampleEditor" });</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_toolexample_uproject">ToolExample.uproject</h3>
+<div class="paragraph">
+<p>Similarly, we need to include our modules here, add the following:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExample.uproject</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">{
+    "Name": "ToolExampleEditor",
+    "Type": "Editor",
+    "LoadingPhase": "PostEngineInit",
+    "AdditionalDependencies": [
+        "Engine"
+    ]
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now the editor module should be setup properly.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_add_custom_menu">Add Custom Menu</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Next we are going to add a custom menu, so we can add widget in the menu to run a command or open up a window.</p>
+</div>
+<div class="paragraph">
+<p>First we need to add menu extensions related functions in our editor module <strong>ToolExampleEditor</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">public:
+    void AddMenuExtension(const FMenuExtensionDelegate &amp;extensionDelegate, FName extensionHook, const TSharedPtr&lt;FUICommandList&gt; &amp;CommandList = NULL, EExtensionHook::Position position = EExtensionHook::Before);
+    TSharedRef&lt;FWorkspaceItem&gt; GetMenuRoot() { return MenuRoot; };
+
+protected:
+    TSharedPtr&lt;FExtensibilityManager&gt; LevelEditorMenuExtensibilityManager;
+    TSharedPtr&lt;FExtender&gt; MenuExtender;
+
+    static TSharedRef&lt;FWorkspaceItem&gt; MenuRoot;
+
+    void MakePulldownMenu(FMenuBarBuilder &amp;menuBuilder);
+    void FillPulldownMenu(FMenuBuilder &amp;menuBuilder);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the cpp file, define <strong>MenuRoot</strong> and add the implement all the functions. Here we will add a menu called "Example" and create 2 sections: "Section 1" and "Section 2", with extension hook name "Section_1" and "Section_2".</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">TSharedRef&lt;FWorkspaceItem&gt; FToolExampleEditor::MenuRoot = FWorkspaceItem::NewGroup(FText::FromString("Menu Root"));
+
+
+void FToolExampleEditor::AddMenuExtension(const FMenuExtensionDelegate &amp;extensionDelegate, FName extensionHook, const TSharedPtr&lt;FUICommandList&gt; &amp;CommandList, EExtensionHook::Position position)
+{
+    MenuExtender-&gt;AddMenuExtension(extensionHook, position, CommandList, extensionDelegate);
+}
+
+void FToolExampleEditor::MakePulldownMenu(FMenuBarBuilder &amp;menuBuilder)
+{
+    menuBuilder.AddPullDownMenu(
+        FText::FromString("Example"),
+        FText::FromString("Open the Example menu"),
+        FNewMenuDelegate::CreateRaw(this, &amp;FToolExampleEditor::FillPulldownMenu),
+        "Example",
+        FName(TEXT("ExampleMenu"))
+    );
+}
+
+void FToolExampleEditor::FillPulldownMenu(FMenuBuilder &amp;menuBuilder)
+{
+    // just a frame for tools to fill in
+    menuBuilder.BeginSection("ExampleSection", FText::FromString("Section 1"));
+    menuBuilder.AddMenuSeparator(FName("Section_1"));
+    menuBuilder.EndSection();
+
+    menuBuilder.BeginSection("ExampleSection", FText::FromString("Section 2"));
+    menuBuilder.AddMenuSeparator(FName("Section_2"));
+    menuBuilder.EndSection();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally in <strong>StartupModule</strong> we add the following before we call the parent function. We add our menu after "Window" menu.</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void FToolExampleEditor::StartupModule()
+{
+    if (!IsRunningCommandlet())
+    {
+        FLevelEditorModule&amp; LevelEditorModule = FModuleManager::LoadModuleChecked&lt;FLevelEditorModule&gt;("LevelEditor");
+        LevelEditorMenuExtensibilityManager = LevelEditorModule.GetMenuExtensibilityManager();
+        MenuExtender = MakeShareable(new FExtender);
+        MenuExtender-&gt;AddMenuBarExtension("Window", EExtensionHook::After, NULL, FMenuBarExtensionDelegate::CreateRaw(this, &amp;FToolExampleEditor::MakePulldownMenu));
+        LevelEditorMenuExtensibilityManager-&gt;AddExtender(MenuExtender);
+    }
+    IExampleModuleInterface::StartupModule();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if you run it you should see the custom menu get added with two sections.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/002.png" alt="002.png" width="329">
+</div>
+</div>
+<div class="paragraph">
+<p>Next we can add our first tool to register to our menu. First add two new files:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/003.png" alt="003.png" width="190">
+</div>
+</div>
+<div class="paragraph">
+<p>This class will inherit from <strong>IExampleModuleListenerInterface</strong>, and we add function to create menu entry. We also add FUICommandList, which will define and map a menu item to a function. Finally we add our only menu function <strong>MenuCommand1</strong>, this function will be called when user click on the menu item.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/IExampleModuleInterface.h"
+
+class MenuTool : public IExampleModuleListenerInterface, public TSharedFromThis&lt;MenuTool&gt;
+{
+public:
+    virtual ~MenuTool() {}
+
+    virtual void OnStartupModule() override;
+    virtual void OnShutdownModule() override;
+
+    void MakeMenuEntry(FMenuBuilder &amp;menuBuilder);
+
+protected:
+    TSharedPtr&lt;FUICommandList&gt; CommandList;
+
+    void MapCommands();
+
+    // UI Command functions
+    void MenuCommand1();
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>On the cpp side, we got a lot more to do. First we need to define <strong>LOCTEXT_NAMESPACE</strong> at the beginning, and un-define it at the end. This is required to use <strong>UI_COMMAND</strong> macro.
+Then we start filling in each command, first create a <strong>FUICommandInfo</strong> member for each command in command list class, fill in <strong>RegisterCommands</strong> function by using <strong>UI_COMMAND</strong> marcro. Then in <strong>MapCommands</strong> function map each command info to a function. And of course define the command function <strong>MenuTool::MenuCommand1</strong>.</p>
+</div>
+<div class="paragraph">
+<p>In <strong>OnStartupModule</strong>, we create command list, register it, map it, then register to menu extension. In this case we want our item in "Section 1", and <strong>MakeMenuEntry</strong> will be called when Unreal build the menu, in which we simply add <strong>MenuCommand1</strong> to the menu.</p>
+</div>
+<div class="paragraph">
+<p>In <strong>OnShutdownModule</strong>, we need to unregister command list.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "MenuTool.h"
+
+#define LOCTEXT_NAMESPACE "MenuTool"
+
+class MenuToolCommands : public TCommands&lt;MenuToolCommands&gt;
+{
+public:
+
+    MenuToolCommands()
+        : TCommands&lt;MenuToolCommands&gt;(
+        TEXT("MenuTool"), // Context name for fast lookup
+        FText::FromString("Example Menu tool"), // Context name for displaying
+        NAME_None,   // No parent context
+        FEditorStyle::GetStyleSetName() // Icon Style Set
+        )
+    {
+    }
+
+    virtual void RegisterCommands() override
+    {
+        UI_COMMAND(MenuCommand1, "Menu Command 1", "Test Menu Command 1.", EUserInterfaceActionType::Button, FInputGesture());
+
+    }
+
+public:
+    TSharedPtr&lt;FUICommandInfo&gt; MenuCommand1;
+};
+
+void MenuTool::MapCommands()
+{
+    const auto&amp; Commands = MenuToolCommands::Get();
+
+    CommandList-&gt;MapAction(
+        Commands.MenuCommand1,
+        FExecuteAction::CreateSP(this, &amp;MenuTool::MenuCommand1),
+        FCanExecuteAction());
+}
+
+void MenuTool::OnStartupModule()
+{
+    CommandList = MakeShareable(new FUICommandList);
+    MenuToolCommands::Register();
+    MapAction();
+    FToolExampleEditor::Get().AddMenuExtension(
+        FMenuExtensionDelegate::CreateRaw(this, &amp;MenuTool::MakeMenuEntry),
+        FName("Section_1"),
+        CommandList);
+}
+
+void MenuTool::OnShutdownModule()
+{
+    MenuToolCommands::Unregister();
+}
+
+void MenuTool::MakeMenuEntry(FMenuBuilder &amp;menuBuilder)
+{
+    menuBuilder.AddMenuEntry(MenuToolCommands::Get().MenuCommand1);
+}
+
+void MenuTool::MenuCommand1()
+{
+    UE_LOG(LogClass, Log, TEXT("clicked MenuCommand1"));
+}
+
+#undef LOCTEXT_NAMESPACE</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When this is all done, remember to add this tool as a listener to editor module in <strong>FToolExampleEditor::AddModuleListeners</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">ModuleListeners.Add(MakeShareable(new MenuTool));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if you build the project, you should see your menu item in the menu. And if you click on it, it will print "clicked MenuCommand1".</p>
+</div>
+<div class="paragraph">
+<p>By now you have a basic framework for tools, You can run anything you want based on a menu click.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/004.png" alt="004.png" width="236">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_advanced_menu">Advanced Menu</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before we jump to window, let&#8217;s extend menu functionality for a bit, since there are a lot more you can do.</p>
+</div>
+<div class="paragraph">
+<p>First if you have a lot of items, it will be good to put them in a sub menu. Let&#8217;s make two more commands <strong>MenuCommand2</strong> and <strong>MenuCommand3</strong>. You can search for <strong>MenuCommand1</strong> and create two more in each places, other than <strong>MakeMenuEntry</strong>, where we will add sub menu.</p>
+</div>
+<div class="paragraph">
+<p>In <strong>MenuTool</strong>, we add function for sub menu:</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void MakeSubMenu(FMenuBuilder &amp;menuBuilder);</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void MenuTool::MakeSubMenu(FMenuBuilder &amp;menuBuilder)
+{
+    menuBuilder.AddMenuEntry(MenuToolCommands::Get().MenuCommand2);
+    menuBuilder.AddMenuEntry(MenuToolCommands::Get().MenuCommand3);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then we call AddSubMenu in MenuTool::MakeMenuEntry, after MenuCommand1 is registered so the submenu comes after that.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void MenuTool::MakeMenuEntry(FMenuBuilder &amp;menuBuilder)
+{
+    ...
+    menuBuilder.AddSubMenu(
+        FText::FromString("Sub Menu"),
+        FText::FromString("This is example sub menu"),
+        FNewMenuDelegate::CreateSP(this, &amp;MenuTool::MakeSubMenu)
+    );
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you should see sub menu like the following:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/005.png" alt="005.png" width="269">
+</div>
+</div>
+<div class="paragraph">
+<p>Not only you can add simple menu item, you can actually add any widget into the menu. We will try to make a small tool that you can type in a textbox and click a button to set that as tags for selected actors.</p>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not going to go into details for each functions I used here, search them in Unreal engine and you should find plenty of use cases.</p>
+</div>
+<div class="paragraph">
+<p>First we add needed member and functions, note this time we are going to use custom widget, so we don&#8217;t need to change command list. For <strong>AddTag</strong> fucntion, because it is going to be used for a button, return type have to be <strong>FReply</strong>.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">FReply MenuTool::AddTag()
+{
+    if (!TagToAdd.IsNone())
+    {
+        const FScopedTransaction Transaction(FText::FromString("Add Tag"));
+        for (FSelectionIterator It(GEditor-&gt;GetSelectedActorIterator()); It; ++It)
+        {
+            AActor* Actor = static_cast&lt;AActor*&gt;(*It);
+            if (!Actor-&gt;Tags.Contains(TagToAdd))
+            {
+                Actor-&gt;Modify();
+                Actor-&gt;Tags.Add(TagToAdd);
+            }
+        }
+    }
+    return FReply::Handled();
+}
+
+FText MenuTool::GetTagToAddText() const
+{
+    return FText::FromName(TagToAdd);
+}
+
+void MenuTool::OnTagToAddTextCommited(const FText&amp; InText, ETextCommit::Type CommitInfo)
+{
+    FString str = InText.ToString();
+    TagToAdd = FName(*str.Trim());
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then in <strong>MenuTool::MakeMenuEntry</strong>, we create the widget and add it to the menu. Again I will not go into Slate code details.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void MenuTool::MakeMenuEntry(FMenuBuilder &amp;menuBuilder)
+{
+    ...
+    TSharedRef&lt;SWidget&gt; AddTagWidget =
+        SNew(SHorizontalBox)
+        + SHorizontalBox::Slot()
+        .AutoWidth()
+        .VAlign(VAlign_Center)
+        [
+            SNew(SEditableTextBox)
+            .MinDesiredWidth(50)
+            .Text(this, &amp;MenuTool::GetTagToAddText)
+            .OnTextCommitted(this, &amp;MenuTool::OnTagToAddTextCommited)
+        ]
+        + SHorizontalBox::Slot()
+        .AutoWidth()
+        .Padding(5, 0, 0, 0)
+        .VAlign(VAlign_Center)
+        [
+            SNew(SButton)
+            .Text(FText::FromString("Add Tag"))
+            .OnClicked(this, &amp;MenuTool::AddTag)
+        ];
+
+    menuBuilder.AddWidget(AddTagWidget, FText::FromString(""));
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you have a more complex tool sit in the menu, and you can set actor tags with it:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/006.png" alt="006.png" width="174">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_create_a_tab_window">Create a Tab (Window)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because create a tab from menu is a very common thing for tools, we will make a base case for it first.</p>
+</div>
+<div class="paragraph">
+<p>Add a new file:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/007.png" alt="007.png" width="217">
+</div>
+</div>
+<div class="paragraph">
+<p>The base class is also inherit from <strong>IExampleModuleListenerInterface</strong>. In <strong>OnStartupModule</strong> we register a tab, and unregister it in <strong>OnShutdownModule</strong>. Then in <strong>MakeMenuEntry</strong>, we let <strong>FGlobalTabmanager</strong> to populate tab for this menu item.
+We leave <strong>SpawnTab</strong> function to be overriden by child class to set proper widget.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleTabToolBase.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ToolExampleEditor/IExampleModuleInterface.h"
+#include "TabManager.h"
+#include "SDockTab.h"
+
+class FExampleTabToolBase : public IExampleModuleListenerInterface, public TSharedFromThis&lt; FExampleTabToolBase &gt;
+{
+public:
+    // IPixelopusToolBase
+    virtual void OnStartupModule() override
+    {
+        Initialize();
+        FGlobalTabmanager::Get()-&gt;RegisterNomadTabSpawner(TabName, FOnSpawnTab::CreateRaw(this, &amp;FExampleTabToolBase::SpawnTab))
+            .SetGroup(FToolExampleEditor::Get().GetMenuRoot())
+            .SetDisplayName(TabDisplayName)
+            .SetTooltipText(ToolTipText);
+    };
+
+    virtual void OnShutdownModule() override
+    {
+        FGlobalTabmanager::Get()-&gt;UnregisterNomadTabSpawner(TabName);
+    };
+
+    // In this function set TabName/TabDisplayName/ToolTipText
+    virtual void Initialize() {};
+    virtual TSharedRef&lt;SDockTab&gt; SpawnTab(const FSpawnTabArgs&amp; TabSpawnArgs) { return SNew(SDockTab); };
+
+    virtual void MakeMenuEntry(FMenuBuilder &amp;menuBuilder)
+    {
+        FGlobalTabmanager::Get()-&gt;PopulateTabSpawnerMenu(menuBuilder, TabName);
+    };
+
+protected:
+    FName TabName;
+    FText TabDisplayName;
+    FText ToolTipText;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we add files for tab tool. Other than the normal tool class, we also need a custom panel widget class for the tab itself.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/008.png" alt="008.png" width="218">
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s look at TabTool class first, it is inherited from <strong>ExampleTabToolBase</strong> defined above.</p>
+</div>
+<div class="paragraph">
+<p>We set tab name, display name and tool tips in <strong>Initialize</strong> function, and prepare the panel in <strong>SpawnTab</strong> function. Note here we send the tool object itself as a parameter when creating the panel. This is not necessary, but as an example how you can pass in an object to the widget.</p>
+</div>
+<div class="paragraph">
+<p>This tab tool is added in "Section 2" in the custom menu.</p>
+</div>
+<div class="listingblock">
+<div class="title">TabTool.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ExampleTabToolBase.h"
+
+class TabTool : public FExampleTabToolBase
+{
+public:
+    virtual ~TabTool () {}
+    virtual void OnStartupModule() override;
+    virtual void OnShutdownModule() override;
+    virtual void Initialize() override;
+    virtual TSharedRef&lt;SDockTab&gt; SpawnTab(const FSpawnTabArgs&amp; TabSpawnArgs) override;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">TabTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "TabToolPanel.h"
+#include "TabTool.h"
+
+void TabTool::OnStartupModule()
+{
+    FExampleTabToolBase::OnStartupModule();
+    FToolExampleEditor::Get().AddMenuExtension(FMenuExtensionDelegate::CreateRaw(this, &amp;TabTool::MakeMenuEntry), FName("Section_2"));
+}
+
+void TabTool::OnShutdownModule()
+{
+    FExampleTabToolBase::OnShutdownModule();
+}
+
+void TabTool::Initialize()
+{
+    TabName = "TabTool";
+    TabDisplayName = FText::FromString("Tab Tool");
+    ToolTipText = FText::FromString("Tab Tool Window");
+}
+
+TSharedRef&lt;SDockTab&gt; TabTool::SpawnTab(const FSpawnTabArgs&amp; TabSpawnArgs)
+{
+    TSharedRef&lt;SDockTab&gt; SpawnedTab = SNew(SDockTab)
+        .TabRole(ETabRole::NomadTab)
+        [
+            SNew(TabToolPanel)
+            .Tool(SharedThis(this))
+        ];
+
+    return SpawnedTab;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now for the pannel:</p>
+</div>
+<div class="paragraph">
+<p>In the construct function we build the slate widget in <strong>ChildSlot</strong>. Here I&#8217;m add a scroll box, with a grey border inside, with a text box inside.</p>
+</div>
+<div class="listingblock">
+<div class="title">TabToolPanel.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "SDockTab.h"
+#include "SDockableTab.h"
+#include "SDockTabStack.h"
+#include "SlateApplication.h"
+#include "TabTool.h"
+
+class TabToolPanel : public SCompoundWidget
+{
+    SLATE_BEGIN_ARGS(TabToolPanel)
+    {}
+    SLATE_ARGUMENT(TWeakPtr&lt;class TabTool&gt;, Tool)
+    SLATE_END_ARGS()
+
+    void Construct(const FArguments&amp; InArgs);
+
+protected:
+    TWeakPtr&lt;TabTool&gt; tool;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">TabToolPanel.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "TabToolPanel.h"
+
+void TabToolPanel::Construct(const FArguments&amp; InArgs)
+{
+    tool = InArgs._Tool;
+    if (tool.IsValid())
+    {
+        // do anything you need from tool object
+    }
+
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5)
+        [
+            SNew(SBorder)
+            .BorderBackgroundColor(FColor(192, 192, 192, 255))
+            .Padding(15.0f)
+            [
+                SNew(STextBlock)
+                .Text(FText::FromString(TEXT("This is a tab example.")))
+            ]
+        ]
+    ];
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally remember to add this tool to editor module in <strong>FToolExampleEditor::AddModuleListeners</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">ModuleListeners.Add(MakeShareable(new TabTool));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you can see tab tool in our custom menu:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/009.png" alt="009.png" width="231">
+</div>
+</div>
+<div class="paragraph">
+<p>When you click on it, it will populate a window you can dock anywhere as regular Unreal tab.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/010.png" alt="010.png" width="436">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_customize_details_panel">Customize Details Panel</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Another commonly used feature is to customize the details panel for any UObject.</p>
+</div>
+<div class="paragraph">
+<p>To show how it works, we will create an Actor class first in our game module "ToolExample". Add the follow file:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/011.png" alt="011.png" width="235">
+</div>
+</div>
+<div class="paragraph">
+<p>In this class, we add 2 booleans in "Options" category, and an integer in "Test" category. Remember to add "<strong>TOOLEXAMPLE_API</strong>" in front of class name to export it from game module, otherwise we cannot use it in editor module.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleActor.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "ExampleActor.generated.h"
+
+UCLASS()
+class TOOLEXAMPLE_API AExampleActor : public AActor
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere, Category = "Options")
+    bool bOption1 = false;
+
+    UPROPERTY(EditAnywhere, Category = "Options")
+    bool bOption2 = false;
+
+    UPROPERTY(EditAnywhere, Category = "Test")
+    int testInt = 0;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we load up Unreal and drag a "ExampleActor", you should see the following in the details panel:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/012.png" alt="012.png" width="269">
+</div>
+</div>
+<div class="paragraph">
+<p>Now if we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.</p>
+</div>
+<div class="paragraph">
+<p>Add the following files to editor module "ToolExampleEditor":</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/013.png" alt="013.png" width="244">
+</div>
+</div>
+<div class="paragraph">
+<p>The details customization implements <strong>IDetailCustomization</strong> interface. In the main entry point <strong>CustomizeDetails</strong> function, we first hide original properties option 1 and option 2 (you can comment out those two lines and see how it works). Then we add our custom widget, here the "RadioButton" is purely a visual style, it has nothing to do with mutually exclusive logic. You can implement the same logic with other visuals like regular check box, buttons, etc.</p>
+</div>
+<div class="paragraph">
+<p>In the widget functions for check box, <strong>IsModeRadioChecked</strong> and <strong>OnModeRadioChanged</strong> we add extra parameters "actor" and "optionIndex", so we can pass in the editing object and specify option when we construct the widget.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleActorDetails.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "IDetailCustomization.h"
+
+class AExampleActor;
+
+class FExampleActorDetails : public IDetailCustomization
+{
+public:
+    /** Makes a new instance of this detail layout class for a specific detail view requesting it */
+    static TSharedRef&lt;IDetailCustomization&gt; MakeInstance();
+
+    /** IDetailCustomization interface */
+    virtual void CustomizeDetails(IDetailLayoutBuilder&amp; DetailLayout) override;
+
+protected:
+    // widget functions
+    ECheckBoxState IsModeRadioChecked(AExampleActor* actor, int optionIndex) const;
+    void OnModeRadioChanged(ECheckBoxState CheckType, AExampleActor* actor, int optionIndex);
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleActorDetails.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleActorDetails.h"
+#include "DetailsCustomization/ExampleActor.h"
+
+TSharedRef&lt;IDetailCustomization&gt; FExampleActorDetails::MakeInstance()
+{
+    return MakeShareable(new FExampleActorDetails);
+}
+
+void FExampleActorDetails::CustomizeDetails(IDetailLayoutBuilder&amp; DetailLayout)
+{
+    TArray&lt;TWeakObjectPtr&lt;UObject&gt;&gt; Objects;
+    DetailLayout.GetObjectsBeingCustomized(Objects);
+    if (Objects.Num() != 1)
+    {
+        // skip customization if select more than one objects
+        return;
+    }
+    AExampleActor* actor = (AExampleActor*)Objects[0].Get();
+
+    // hide original property
+    DetailLayout.HideProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(AExampleActor, bOption1)));
+    DetailLayout.HideProperty(DetailLayout.GetProperty(GET_MEMBER_NAME_CHECKED(AExampleActor, bOption2)));
+
+    // add custom widget to "Options" category
+    IDetailCategoryBuilder&amp; OptionsCategory = DetailLayout.EditCategory("Options", FText::FromString(""), ECategoryPriority::Important);
+    OptionsCategory.AddCustomRow(FText::FromString("Options"))
+                .WholeRowContent()
+                [
+                    SNew(SHorizontalBox)
+                    + SHorizontalBox::Slot()
+                    .AutoWidth()
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(SCheckBox)
+                        .Style(FEditorStyle::Get(), "RadioButton")
+                        .IsChecked(this, &amp;FExampleActorDetails::IsModeRadioChecked, actor, 1)
+                        .OnCheckStateChanged(this, &amp;FExampleActorDetails::OnModeRadioChanged, actor, 1)
+                        [
+                            SNew(STextBlock).Text(FText::FromString("Option 1"))
+                        ]
+                    ]
+                    + SHorizontalBox::Slot()
+                    .AutoWidth()
+                    .Padding(10.f, 0.f, 0.f, 0.f)
+                    .VAlign(VAlign_Center)
+                    [
+                        SNew(SCheckBox)
+                        .Style(FEditorStyle::Get(), "RadioButton")
+                        .IsChecked(this, &amp;FExampleActorDetails::IsModeRadioChecked, actor, 2)
+                        .OnCheckStateChanged(this, &amp;FExampleActorDetails::OnModeRadioChanged, actor, 2)
+                        [
+                            SNew(STextBlock).Text(FText::FromString("Option 2"))
+                        ]
+                    ]
+                ];
+}
+
+ECheckBoxState FExampleActorDetails::IsModeRadioChecked(AExampleActor* actor, int optionIndex) const
+{
+    bool bFlag = false;
+    if (actor)
+    {
+        if (optionIndex == 1)
+            bFlag = actor-&gt;bOption1;
+        else if (optionIndex == 2)
+            bFlag = actor-&gt;bOption2;
+    }
+    return bFlag ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+}
+
+void FExampleActorDetails::OnModeRadioChanged(ECheckBoxState CheckType, AExampleActor* actor, int optionIndex)
+{
+    bool bFlag = (CheckType == ECheckBoxState::Checked);
+    if (actor)
+    {
+        actor-&gt;Modify();
+        if (bFlag)
+        {
+            // clear all options first
+            actor-&gt;bOption1 = false;
+            actor-&gt;bOption2 = false;
+        }
+        if (optionIndex == 1)
+            actor-&gt;bOption1 = bFlag;
+        else if (optionIndex == 2)
+            actor-&gt;bOption2 = bFlag;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then we need to register the layout in <strong>FToolExampleEditor::StartupModule</strong> and unregister it in <strong>FToolExampleEditor::ShutdownModule</strong></p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "DetailsCustomization/ExampleActor.h"
+#include "DetailsCustomization/ExampleActorDetails.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+
+    // register custom layouts
+    {
+        static FName PropertyEditor("PropertyEditor");
+        FPropertyEditorModule&amp; PropertyModule = FModuleManager::GetModuleChecked&lt;FPropertyEditorModule&gt;(PropertyEditor);
+        PropertyModule.RegisterCustomClassLayout(AExampleActor::StaticClass()-&gt;GetFName(), FOnGetDetailCustomizationInstance::CreateStatic(&amp;FExampleActorDetails::MakeInstance));
+    }
+
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{
+    // unregister custom layouts
+    if (FModuleManager::Get().IsModuleLoaded("PropertyEditor"))
+    {
+        FPropertyEditorModule&amp; PropertyModule = FModuleManager::GetModuleChecked&lt;FPropertyEditorModule&gt;("PropertyEditor");
+        PropertyModule.UnregisterCustomClassLayout(AExampleActor::StaticClass()-&gt;GetFName());
+    }
+
+    IExampleModuleInterface::ShutdownModule();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you should see the customized details panel:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/014.png" alt="014.png" width="271">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_data_type">Custom Data Type</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_new_custom_data">New Custom Data</h3>
+<div class="paragraph">
+<p>For simple data, you can just inherit from <strong>UDataAsset</strong> class, then you can create your data object in Urneal content browser: Add New → miscellaneous → Data Asset</p>
+</div>
+<div class="paragraph">
+<p>If you want to add you data to a custom category, you need to do a bit more work.</p>
+</div>
+<div class="paragraph">
+<p>First we need to create a custom data type in game module (ExampleTool). We will make one with only one property.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/015.png" alt="015.png" width="236">
+</div>
+</div>
+<div class="paragraph">
+<p>We add "SourceFilePath" for future sections.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleData.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "ExampleData.generated.h"
+
+UCLASS(Blueprintable)
+class UExampleData : public UObject
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, Category = "Properties")
+    FString ExampleString;
+
+#if WITH_EDITORONLY_DATA
+    UPROPERTY(Category = SourceAsset, VisibleAnywhere)
+    FString SourceFilePath;
+#endif
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then in editor module, add the following files:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/016.png" alt="016.png" width="380">
+</div>
+</div>
+<div class="paragraph">
+<p>We first make the factory:</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataFactory.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "UnrealEd.h"
+#include "ExampleDataFactory.generated.h"
+
+UCLASS()
+class UExampleDataFactory : public UFactory
+{
+    GENERATED_UCLASS_BODY()
+public:
+    virtual UObject* FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn) override;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataFactory.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleDataFactory.h"
+#include "CustomDataType/ExampleData.h"
+
+UExampleDataFactory::UExampleDataFactory(const FObjectInitializer&amp; ObjectInitializer) : Super(ObjectInitializer)
+{
+    SupportedClass = UExampleData::StaticClass();
+    bCreateNew = true;
+    bEditAfterNew = true;
+}
+
+UObject* UExampleDataFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
+{
+    UExampleData* NewObjectAsset = NewObject&lt;UExampleData&gt;(InParent, Class, Name, Flags | RF_Transactional);
+    return NewObjectAsset;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then we make type actions, here we will pass in the asset category.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataTypeActions.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "AssetTypeActions_Base.h"
+
+class FExampleDataTypeActions : public FAssetTypeActions_Base
+{
+public:
+    FExampleDataTypeActions(EAssetTypeCategories::Type InAssetCategory);
+
+    // IAssetTypeActions interface
+    virtual FText GetName() const override;
+    virtual FColor GetTypeColor() const override;
+    virtual UClass* GetSupportedClass() const override;
+    virtual uint32 GetCategories() override;
+    // End of IAssetTypeActions interface
+
+private:
+    EAssetTypeCategories::Type MyAssetCategory;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataTypeActions.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleDataTypeActions.h"
+#include "CustomDataType/ExampleData.h"
+
+FExampleDataTypeActions::FExampleDataTypeActions(EAssetTypeCategories::Type InAssetCategory)
+    : MyAssetCategory(InAssetCategory)
+{
+}
+
+FText FExampleDataTypeActions::GetName() const
+{
+    return FText::FromString("Example Data");
+}
+
+FColor FExampleDataTypeActions::GetTypeColor() const
+{
+    return FColor(230, 205, 165);
+}
+
+UClass* FExampleDataTypeActions::GetSupportedClass() const
+{
+    return UExampleData::StaticClass();
+}
+
+uint32 FExampleDataTypeActions::GetCategories()
+{
+    return MyAssetCategory;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally we need to register type actions in editor module. We add an array <strong>CreatedAssetTypeActions</strong> to save all type actions we registered, so we can unregister them properly when module is unloaded:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">class FToolExampleEditor : public IExampleModuleInterface
+{
+    ...
+    TArray&lt;TSharedPtr&lt;IAssetTypeActions&gt;&gt; CreatedAssetTypeActions;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In <strong>StartupModule</strong> function, we create a new "<strong>Example</strong>" category, and use that to register our type action.</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "CustomDataType/ExampleDataTypeActions.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+
+    // register custom types:
+    {
+        IAssetTools&amp; AssetTools = FModuleManager::LoadModuleChecked&lt;FAssetToolsModule&gt;("AssetTools").Get();
+        // add custom category
+        EAssetTypeCategories::Type ExampleCategory = AssetTools.RegisterAdvancedAssetCategory(FName(TEXT("Example")), FText::FromString("Example"));
+        // register our custom asset with example category
+        TSharedPtr&lt;IAssetTypeActions&gt; Action = MakeShareable(new FExampleDataTypeActions(ExampleCategory));
+        AssetTools.RegisterAssetTypeActions(Action.ToSharedRef());
+        // saved it here for unregister later
+        CreatedAssetTypeActions.Add(Action);
+    }
+
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{
+    ...
+
+    // Unregister all the asset types that we registered
+    if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
+    {
+        IAssetTools&amp; AssetTools = FModuleManager::GetModuleChecked&lt;FAssetToolsModule&gt;("AssetTools").Get();
+        for (int32 i = 0; i &lt; CreatedAssetTypeActions.Num(); ++i)
+        {
+            AssetTools.UnregisterAssetTypeActions(CreatedAssetTypeActions[i].ToSharedRef());
+        }
+    }
+    CreatedAssetTypeActions.Empty();
+
+    IExampleModuleInterface::ShutdownModule();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you will see your data in proper category.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/017.png" alt="017.png" width="380">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_import_custom_data">Import Custom Data</h3>
+<div class="paragraph">
+<p>For all the hard work we did above, we can now our data from a file, like the way you can drag and drop an PNG file to create a texture. In this case we will have a text file, with extension ".xmp", to be imported into unreal, and we just set the text from the file to "ExampleString" property.</p>
+</div>
+<div class="paragraph">
+<p>To make it work with import, we actually have to disable the ability to be able to create a new data from scratch. Modify factory class as following:</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataFactory.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">class UExampleDataFactory : public UFactory
+{
+    ...
+
+    virtual UObject* FactoryCreateText(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const TCHAR*&amp; Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn) override;
+    virtual bool FactoryCanImport(const FString&amp; Filename) override;
+
+    // helper function
+    static void MakeExampleDataFromText(class UExampleData* Data, const TCHAR*&amp; Buffer, const TCHAR* BufferEnd);
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataFactory.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">UExampleDataFactory::UExampleDataFactory(const FObjectInitializer&amp; ObjectInitializer) : Super(ObjectInitializer)
+{
+    Formats.Add(TEXT("xmp;Example Data"));
+    SupportedClass = UExampleData::StaticClass();
+    bCreateNew = false; // turned off for import
+    bEditAfterNew = false; // turned off for import
+    bEditorImport = true;
+    bText = true;
+}
+
+
+UObject* UExampleDataFactory::FactoryCreateText(UClass* InClass, UObject* InParent, FName InName, EObjectFlags Flags, UObject* Context, const TCHAR* Type, const TCHAR*&amp; Buffer, const TCHAR* BufferEnd, FFeedbackContext* Warn)
+{
+    FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Type);
+
+    // if class type or extension doesn't match, return
+    if (InClass != UExampleData::StaticClass() ||
+        FCString::Stricmp(Type, TEXT("xmp")) != 0)
+        return nullptr;
+
+    UExampleData* Data = CastChecked&lt;UExampleData&gt;(NewObject&lt;UExampleData&gt;(InParent, InName, Flags));
+    MakeExampleDataFromText(Data, Buffer, BufferEnd);
+
+    // save the source file path
+    Data-&gt;SourceFilePath = UAssetImportData::SanitizeImportFilename(CurrentFilename, Data-&gt;GetOutermost());
+
+    FEditorDelegates::OnAssetPostImport.Broadcast(this, Data);
+
+    return Data;
+}
+
+bool UExampleDataFactory::FactoryCanImport(const FString&amp; Filename)
+{
+    return FPaths::GetExtension(Filename).Equals(TEXT("xmp"));
+}
+
+void UExampleDataFactory::MakeExampleDataFromText(class UExampleData* Data, const TCHAR*&amp; Buffer, const TCHAR* BufferEnd)
+{
+    Data-&gt;ExampleString = Buffer;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note we changed <strong>bCreateNew</strong> and <strong>bEditAfterNew</strong> to false. We set "<strong>SourceFilePath&amp;</strong>" so we can do reimport later. If you want to import binary file, set <strong>bText = false</strong>, and override <strong>FactoryCreateBinary</strong> function instead.</p>
+</div>
+<div class="paragraph">
+<p>Now you can drag &amp; drop a xmp file and have the content imported automatically.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/018.png" alt="018.png" width="789">
+</div>
+</div>
+<div class="paragraph">
+<p>If you want to have custom editor for the data, you can follow "Customize Details Panel" section to create custom widget. Or you can override <strong>OpenAssetEditor</strong> function in <strong>ExampleDataTypeActions</strong>, to create a complete different editor. We are not going to dive in here, search "<strong>OpenAssetEditor</strong>" in Unreal engine for examples.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reimport">Reimport</h3>
+<div class="paragraph">
+<p>To reimport a file, we need to implement a different factory class. The implementation should be straight forward.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/019.png" alt="019.png" width="299">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ReimportExampleDataFactory.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "ExampleDataFactory.h"
+#include "ReimportExampleDataFactory.generated.h"
+
+UCLASS()
+class UReimportExampleDataFactory : public UExampleDataFactory, public FReimportHandler
+{
+    GENERATED_BODY()
+
+    // Begin FReimportHandler interface
+    virtual bool CanReimport(UObject* Obj, TArray&lt;FString&gt;&amp; OutFilenames) override;
+    virtual void SetReimportPaths(UObject* Obj, const TArray&lt;FString&gt;&amp; NewReimportPaths) override;
+    virtual EReimportResult::Type Reimport(UObject* Obj) override;
+    // End FReimportHandler interface
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ReimportExampleDataFactory.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ReimportExampleDataFactory.h"
+#include "ExampleDataFactory.h"
+#include "CustomDataType/ExampleData.h"
+
+bool UReimportExampleDataFactory::CanReimport(UObject* Obj, TArray&lt;FString&gt;&amp; OutFilenames)
+{
+    UExampleData* ExampleData = Cast&lt;UExampleData&gt;(Obj);
+    if (ExampleData)
+    {
+        OutFilenames.Add(UAssetImportData::ResolveImportFilename(ExampleData-&gt;SourceFilePath, ExampleData-&gt;GetOutermost()));
+        return true;
+    }
+    return false;
+}
+
+void UReimportExampleDataFactory::SetReimportPaths(UObject* Obj, const TArray&lt;FString&gt;&amp; NewReimportPaths)
+{
+    UExampleData* ExampleData = Cast&lt;UExampleData&gt;(Obj);
+    if (ExampleData &amp;&amp; ensure(NewReimportPaths.Num() == 1))
+    {
+        ExampleData-&gt;SourceFilePath = UAssetImportData::SanitizeImportFilename(NewReimportPaths[0], ExampleData-&gt;GetOutermost());
+    }
+}
+
+EReimportResult::Type UReimportExampleDataFactory::Reimport(UObject* Obj)
+{
+    UExampleData* ExampleData = Cast&lt;UExampleData&gt;(Obj);
+    if (!ExampleData)
+    {
+        return EReimportResult::Failed;
+    }
+
+    const FString Filename = UAssetImportData::ResolveImportFilename(ExampleData-&gt;SourceFilePath, ExampleData-&gt;GetOutermost());
+    if (!FPaths::GetExtension(Filename).Equals(TEXT("xmp")))
+    {
+        return EReimportResult::Failed;
+    }
+
+    CurrentFilename = Filename;
+    FString Data;
+    if (FFileHelper::LoadFileToString(Data, *CurrentFilename))
+    {
+        const TCHAR* Ptr = *Data;
+        ExampleData-&gt;Modify();
+        ExampleData-&gt;MarkPackageDirty();
+
+        UExampleDataFactory::MakeExampleDataFromText(ExampleData, Ptr, Ptr + Data.Len());
+
+        // save the source file path and timestamp
+        ExampleData-&gt;SourceFilePath = UAssetImportData::SanitizeImportFilename(CurrentFilename, ExampleData-&gt;GetOutermost());
+    }
+
+    return EReimportResult::Succeeded;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And just for fun, let&#8217;s add "<strong>Reimport</strong>" to right click menu on this asset. This is also an example for how to add more actions on specific asset type. Modify <strong>ExampleDataTypeActions</strong> class:</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataTypeActions.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">class FExampleDataTypeActions : public FAssetTypeActions_Base
+{
+public:
+    ...
+    virtual bool HasActions(const TArray&lt;UObject*&gt;&amp; InObjects) const override { return true; }
+    virtual void GetActions(const TArray&lt;UObject*&gt;&amp; InObjects, FMenuBuilder&amp; MenuBuilder) override;
+
+    void ExecuteReimport(TArray&lt;TWeakObjectPtr&lt;UExampleData&gt;&gt; Objects);
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleDataTypeActions.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void FExampleDataTypeActions::GetActions(const TArray&lt;UObject*&gt;&amp; InObjects, FMenuBuilder&amp; MenuBuilder)
+{
+    auto ExampleDataImports = GetTypedWeakObjectPtrs&lt;UExampleData&gt;(InObjects);
+
+    MenuBuilder.AddMenuEntry(
+        FText::FromString("Reimport"),
+        FText::FromString("Reimports example data."),
+        FSlateIcon(),
+        FUIAction(
+            FExecuteAction::CreateSP(this, &amp;FExampleDataTypeActions::ExecuteReimport, ExampleDataImports),
+            FCanExecuteAction()
+        )
+    );
+}
+
+void FExampleDataTypeActions::ExecuteReimport(TArray&lt;TWeakObjectPtr&lt;UExampleData&gt;&gt; Objects)
+{
+    for (auto ObjIt = Objects.CreateConstIterator(); ObjIt; ++ObjIt)
+    {
+        auto Object = (*ObjIt).Get();
+        if (Object)
+        {
+            FReimportManager::Instance()-&gt;Reimport(Object, /*bAskForNewFileIfMissing=*/true);
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you can reimport your custom files.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/020.png" alt="020.png" width="405">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_editor_mode">Custom Editor Mode</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Editor Mode is probably the most powerful tool framework in Unreal. You will get and react to all user input; you can render to viewport; you can monitor any change in the scene and get Undo/Redo events. Remember you can enter a mode and paint foliage over objects? You can do the same degree of stuff in custom editor mode. Editor Mode has dedicated section in UI layout, and you can customize the widget here as well.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/021.png" alt="021.png" width="480">
+</div>
+</div>
+<div class="paragraph">
+<p>Here as an example, we will create an editor mode to do a simple task. We have an actor "ExampleTargetPoint" inherit from "TargetPoint", with a list of locations. In this editor mode we want to visualize those points. You can create new points or delete points. You can also move points around as moving normal objects. Note this is not the best way for this functionality (you can use MakeEditWidget in UPROPERTY to do this easily), but rather as a way to demonstrate how to set it up and what you can potentially do.</p>
+</div>
+<div class="sect2">
+<h3 id="_setup_editor_mode">Setup Editor Mode</h3>
+<div class="paragraph">
+<p>First we need to create an icon for our editor mode. We make an 40x40 PNG file as \Content\EditorResources\IconExampleEditorMode.png</p>
+</div>
+<div class="paragraph">
+<p>Then add the following files in editor module:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/022.png" alt="022.png" width="251">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>SExampleEdModeWidget</strong> is the widget we use in "Modes" panel. Here we will just create a simple one for now. We also include a commonly used util function to get EdMode object.</p>
+</div>
+<div class="listingblock">
+<div class="title">SExampleEdModeWidget.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "SlateApplication.h"
+
+class SExampleEdModeWidget : public SCompoundWidget
+{
+public:
+    SLATE_BEGIN_ARGS(SExampleEdModeWidget) {}
+    SLATE_END_ARGS();
+
+    void Construct(const FArguments&amp; InArgs);
+
+    // Util Functions
+    class FExampleEdMode* GetEdMode() const;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">SExampleEdModeWidget.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleEdMode.h"
+#include "SExampleEdModeWidget.h"
+
+void SExampleEdModeWidget::Construct(const FArguments&amp; InArgs)
+{
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5.f)
+        [
+            SNew(STextBlock)
+            .Text(FText::FromString(TEXT("This is a editor mode example.")))
+        ]
+    ];
+}
+
+FExampleEdMode* SExampleEdModeWidget::GetEdMode() const
+{
+    return (FExampleEdMode*)GLevelEditorModeTools().GetActiveMode(FExampleEdMode::EM_Example);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>ExampleEdModeToolkit</strong> is a middle layer between EdMode and its widget:</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdModeToolkit.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "BaseToolkit.h"
+#include "ExampleEdMode.h"
+#include "SExampleEdModeWidget.h"
+
+class FExampleEdModeToolkit: public FModeToolkit
+{
+public:
+    FExampleEdModeToolkit()
+    {
+        SAssignNew(ExampleEdModeWidget, SExampleEdModeWidget);
+    }
+
+    /** IToolkit interface */
+    virtual FName GetToolkitFName() const override { return FName("ExampleEdMode"); }
+    virtual FText GetBaseToolkitName() const override { return NSLOCTEXT("BuilderModeToolkit", "DisplayName", "Builder"); }
+    virtual class FEdMode* GetEditorMode() const override { return GLevelEditorModeTools().GetActiveMode(FExampleEdMode::EM_Example); }
+    virtual TSharedPtr&lt;class SWidget&gt; GetInlineContent() const override { return ExampleEdModeWidget; }
+
+private:
+    TSharedPtr&lt;SExampleEdModeWidget&gt; ExampleEdModeWidget;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then for the main class <strong>ExampleEdMode</strong>. Since we are only try to set it up, we will leave it mostly empty, only setting up its ID and create toolkit object. We will fill it in heavily in the next section.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "EditorModes.h"
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    const static FEditorModeID EM_Example;
+
+    // FEdMode interface
+    virtual void Enter() override;
+    virtual void Exit() override;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "Editor/UnrealEd/Public/Toolkits/ToolkitManager.h"
+#include "ScopedTransaction.h"
+#include "ExampleEdModeToolkit.h"
+#include "ExampleEdMode.h"
+
+const FEditorModeID FExampleEdMode::EM_Example(TEXT("EM_Example"));
+
+void FExampleEdMode::Enter()
+{
+    FEdMode::Enter();
+
+    if (!Toolkit.IsValid())
+    {
+        Toolkit = MakeShareable(new FExampleEdModeToolkit);
+        Toolkit-&gt;Init(Owner-&gt;GetToolkitHost());
+    }
+}
+
+void FExampleEdMode::Exit()
+{
+    FToolkitManager::Get().CloseToolkit(Toolkit.ToSharedRef());
+    Toolkit.Reset();
+
+    FEdMode::Exit();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As other tools, we need a tool class to handle registration. Here we need to register both editor mode and its icon.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdModeTool.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "ToolExampleEditor/ExampleTabToolBase.h"
+
+class ExampleEdModeTool : public FExampleTabToolBase
+{
+public:
+    virtual void OnStartupModule() override;
+    virtual void OnShutdownModule() override;
+
+    virtual ~ExampleEdModeTool() {}
+private:
+    static TSharedPtr&lt; class FSlateStyleSet &gt; StyleSet;
+
+    void RegisterStyleSet();
+    void UnregisterStyleSet();
+
+    void RegisterEditorMode();
+    void UnregisterEditorMode();
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdModeTool.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "ToolExampleEditor/ToolExampleEditor.h"
+#include "ExampleEdModeTool.h"
+#include "ExampleEdMode.h"
+
+#define IMAGE_BRUSH(RelativePath, ...) FSlateImageBrush(StyleSet-&gt;RootToContentDir(RelativePath, TEXT(".png")), __VA_ARGS__)
+
+TSharedPtr&lt; FSlateStyleSet &gt; ExampleEdModeTool::StyleSet = nullptr;
+
+void ExampleEdModeTool::OnStartupModule()
+{
+    RegisterStyleSet();
+    RegisterEditorMode();
+}
+
+void ExampleEdModeTool::OnShutdownModule()
+{
+    UnregisterStyleSet();
+    UnregisterEditorMode();
+}
+
+void ExampleEdModeTool::RegisterStyleSet()
+{
+    // Const icon sizes
+    const FVector2D Icon20x20(20.0f, 20.0f);
+    const FVector2D Icon40x40(40.0f, 40.0f);
+
+    // Only register once
+    if (StyleSet.IsValid())
+    {
+        return;
+    }
+
+    StyleSet = MakeShareable(new FSlateStyleSet("ExampleEdModeToolStyle"));
+    StyleSet-&gt;SetContentRoot(FPaths::GameDir() / TEXT("Content/EditorResources"));
+    StyleSet-&gt;SetCoreContentRoot(FPaths::GameDir() / TEXT("Content/EditorResources"));
+
+    // Spline editor
+    {
+        StyleSet-&gt;Set("ExampleEdMode", new IMAGE_BRUSH(TEXT("IconExampleEditorMode"), Icon40x40));
+        StyleSet-&gt;Set("ExampleEdMode.Small", new IMAGE_BRUSH(TEXT("IconExampleEditorMode"), Icon20x20));
+    }
+
+    FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
+}
+
+void ExampleEdModeTool::UnregisterStyleSet()
+{
+    if (StyleSet.IsValid())
+    {
+        FSlateStyleRegistry::UnRegisterSlateStyle(*StyleSet.Get());
+        ensure(StyleSet.IsUnique());
+        StyleSet.Reset();
+    }
+}
+
+void ExampleEdModeTool::RegisterEditorMode()
+{
+    FEditorModeRegistry::Get().RegisterMode&lt;FExampleEdMode&gt;(
+        FExampleEdMode::EM_Example,
+        FText::FromString("Example Editor Mode"),
+        FSlateIcon(StyleSet-&gt;GetStyleSetName(), "ExampleEdMode", "ExampleEdMode.Small"),
+        true, 500
+        );
+}
+
+void ExampleEdModeTool::UnregisterEditorMode()
+{
+    FEditorModeRegistry::Get().UnregisterMode(FExampleEdMode::EM_Example);
+}
+
+#undef IMAGE_BRUSH</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finally as usual, we add the tool to editor module <strong>FToolExampleEditor::AddModuleListeners</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">ModuleListeners.Add(MakeShareable(new ExampleEdModeTool));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you should see our custom editor mode show up in "Modes" panel.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/023.png" alt="023.png" width="457">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_render_and_click">Render and Click</h3>
+<div class="paragraph">
+<p>With the basic framework ready, we can actually start implementing tool logic. First we make <strong>ExampleTargetPoint</strong> class in game module. This actor holds points data, and is what our tool will be operating on. Again remember to export the class with <strong>TOOLEXAMPLE_API</strong>.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/024.png" alt="024.png" width="222">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleTargetPoint.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "Engine/Targetpoint.h"
+#include "ExampleTargetPoint.generated.h"
+
+UCLASS()
+class TOOLEXAMPLE_API AExampleTargetPoint : public ATargetPoint
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, Category = "Points")
+    TArray&lt;FVector&gt; Points;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we modify <strong>ExampleEdMode</strong> to add functions to add point, remove point, and select point. We also save our current selection in variable, here we use weak object pointer to handle the case if the actor is removed.</p>
+</div>
+<div class="paragraph">
+<p>For adding point, we only allow that when you have exactly on <strong>ExampleTargetPoint</strong> actor selected in editor. For removing point, we simply remove the current selected point if there is any. If you select any point, we will deselect all actors and select the actor associated with that point.</p>
+</div>
+<div class="paragraph">
+<p>Note that we put <strong>FScopedTransaction</strong>, and called <strong>Modify()</strong> function whenever we modify data we need to save. This will make sure undo/redo is properly handled.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">...
+class AExampleTargetPoint;
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    void AddPoint();
+    bool CanAddPoint() const;
+    void RemovePoint();
+    bool CanRemovePoint() const;
+    bool HasValidSelection() const;
+    void SelectPoint(AExampleTargetPoint* actor, int32 index);
+
+    TWeakObjectPtr&lt;AExampleTargetPoint&gt; currentSelectedTarget;
+    int32 currentSelectedIndex = -1;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void FExampleEdMode::Enter()
+{
+    ...
+
+    // reset
+    currentSelectedTarget = nullptr;
+    currentSelectedIndex = -1;
+}
+
+AExampleTargetPoint* GetSelectedTargetPointActor()
+{
+    TArray&lt;UObject*&gt; selectedObjects;
+    GEditor-&gt;GetSelectedActors()-&gt;GetSelectedObjects(selectedObjects);
+    if (selectedObjects.Num() == 1)
+    {
+        return Cast&lt;AExampleTargetPoint&gt;(selectedObjects[0]);
+    }
+    return nullptr;
+}
+
+void FExampleEdMode::AddPoint()
+{
+    AExampleTargetPoint* actor = GetSelectedTargetPointActor();
+    if (actor)
+    {
+        const FScopedTransaction Transaction(FText::FromString("Add Point"));
+
+        // add new point, slightly in front of camera
+        FEditorViewportClient* client = (FEditorViewportClient*)GEditor-&gt;GetActiveViewport()-&gt;GetClient();
+        FVector newPoint = client-&gt;GetViewLocation() + client-&gt;GetViewRotation().Vector() * 50.f;
+        actor-&gt;Modify();
+        actor-&gt;Points.Add(newPoint);
+        // auto select this new point
+        SelectPoint(actor, actor-&gt;Points.Num() - 1);
+    }
+}
+
+bool FExampleEdMode::CanAddPoint() const
+{
+    return GetSelectedTargetPointActor() != nullptr;
+}
+
+void FExampleEdMode::RemovePoint()
+{
+    if (HasValidSelection())
+    {
+        const FScopedTransaction Transaction(FText::FromString("Remove Point"));
+
+        currentSelectedTarget-&gt;Modify();
+        currentSelectedTarget-&gt;Points.RemoveAt(currentSelectedIndex);
+        // deselect the point
+        SelectPoint(nullptr, -1);
+    }
+}
+
+bool FExampleEdMode::CanRemovePoint() const
+{
+    return HasValidSelection();
+}
+
+bool FExampleEdMode::HasValidSelection() const
+{
+    return currentSelectedTarget.IsValid() &amp;&amp; currentSelectedIndex &gt;= 0 &amp;&amp; currentSelectedIndex &lt; currentSelectedTarget-&gt;Points.Num();
+}
+
+void FExampleEdMode::SelectPoint(AExampleTargetPoint* actor, int32 index)
+{
+    currentSelectedTarget = actor;
+    currentSelectedIndex = index;
+
+    // select this actor only
+    if (currentSelectedTarget.IsValid())
+    {
+        GEditor-&gt;SelectNone(true, true);
+        GEditor-&gt;SelectActor(currentSelectedTarget.Get(), true, true);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we have functionality ready, we still need to hook it up with UI. Modify to <strong>SExampleEdModeWidget</strong>  add "Add" and "Remove" button, and we will check "CanAddPoint" and "CanRemovePoint" to determine if the button should be enabled.</p>
+</div>
+<div class="listingblock">
+<div class="title">SExampleEdModeWidget.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">class SExampleEdModeWidget : public SCompoundWidget
+{
+public:
+    ...
+    FReply OnAddPoint();
+    bool CanAddPoint() const;
+    FReply OnRemovePoint();
+    bool CanRemovePoint() const;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">SExampleEdModeWidget.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void SExampleEdModeWidget::Construct(const FArguments&amp; InArgs)
+{
+    ChildSlot
+    [
+        SNew(SScrollBox)
+        + SScrollBox::Slot()
+        .VAlign(VAlign_Top)
+        .Padding(5.f)
+        [
+            SNew(SVerticalBox)
+            + SVerticalBox::Slot()
+            .AutoHeight()
+            .Padding(0.f, 5.f, 0.f, 0.f)
+            [
+                SNew(STextBlock)
+                .Text(FText::FromString(TEXT("This is a editor mode example.")))
+            ]
+            + SVerticalBox::Slot()
+            .AutoHeight()
+            .Padding(0.f, 5.f, 0.f, 0.f)
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .Padding(2, 0, 0, 0)
+                .VAlign(VAlign_Center)
+                [
+                    SNew(SButton)
+                    .Text(FText::FromString("Add"))
+                    .OnClicked(this, &amp;SExampleEdModeWidget::OnAddPoint)
+                    .IsEnabled(this, &amp;SExampleEdModeWidget::CanAddPoint)
+                ]
+                + SHorizontalBox::Slot()
+                .AutoWidth()
+                .VAlign(VAlign_Center)
+                .Padding(0, 0, 2, 0)
+                [
+                    SNew(SButton)
+                    .Text(FText::FromString("Remove"))
+                    .OnClicked(this, &amp;SExampleEdModeWidget::OnRemovePoint)
+                    .IsEnabled(this, &amp;SExampleEdModeWidget::CanRemovePoint)
+                ]
+            ]
+        ]
+    ];
+}
+
+FReply SExampleEdModeWidget::OnAddPoint()
+{
+    GetEdMode()-&gt;AddPoint();
+    return FReply::Handled();
+}
+
+bool SExampleEdModeWidget::CanAddPoint() const
+{
+    return GetEdMode()-&gt;CanAddPoint();
+}
+
+FReply SExampleEdModeWidget::OnRemovePoint()
+{
+    GetEdMode()-&gt;RemovePoint();
+    return FReply::Handled();
+}
+
+bool SExampleEdModeWidget::CanRemovePoint() const
+{
+    return GetEdMode()-&gt;CanRemovePoint();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if you launch the editor, you should be able to drag in an "Example Target Point", switch to our editor mode, select that target point and add new points from the editor mode UI. However it is not visualized in the viewport yet, and you cannot click and select point. We will work on that next.</p>
+</div>
+<div class="paragraph">
+<p>To be able to click in editor and select something, we need to define a HitProxy struct. When we render the points, we render with this hit proxy along with some data attached to it. Then when we get the click event, we can retrieve those data back from the proxy and know what we clicked on.</p>
+</div>
+<div class="paragraph">
+<p>Back to <strong>ExampleEdMode</strong>, we define <strong>HExamplePointProxy</strong> with a reference object (the ExampleTargetPoint actor) and the point index, and we add <strong>Render</strong> and <strong>HandleClick</strong> override function.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">struct HExamplePointProxy : public HHitProxy
+{
+    DECLARE_HIT_PROXY();
+
+    HExamplePointProxy(UObject* InRefObject, int32 InIndex)
+        : HHitProxy(HPP_UI), RefObject(InRefObject), Index(InIndex)
+    {}
+
+    UObject* RefObject;
+    int32 Index;
+};
+
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    virtual void Render(const FSceneView* View, FViewport* Viewport, FPrimitiveDrawInterface* PDI) override;
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &amp;Click) override;
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then in cpp file, we use macro <strong>IMPLEMENT_HIT_PROXY</strong> to implement the proxy. In <strong>Render</strong> we simply loops through all <strong>ExampleTargetPoint</strong> actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn&#8217;t leak through to other draws). In <strong>HandleClick</strong>, we test hit proxy and select point if we have a valid hit. We don&#8217;t test mouse button here, so you can select with left/right/middle click.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">IMPLEMENT_HIT_PROXY(HExamplePointProxy, HHitProxy);
+...
+
+void FExampleEdMode::Render(const FSceneView* View, FViewport* Viewport, FPrimitiveDrawInterface* PDI)
+{
+    const FColor normalColor(200, 200, 200);
+    const FColor selectedColor(255, 128, 0);
+
+    UWorld* World = GetWorld();
+    for (TActorIterator&lt;AExampleTargetPoint&gt; It(World); It; ++It)
+    {
+        AExampleTargetPoint* actor = (*It);
+        if (actor)
+        {
+            FVector actorLoc = actor-&gt;GetActorLocation();
+            for (int i = 0; i &lt; actor-&gt;Points.Num(); ++i)
+            {
+                bool bSelected = (actor == currentSelectedTarget &amp;&amp; i == currentSelectedIndex);
+                const FColor&amp; color = bSelected ? selectedColor : normalColor;
+                // set hit proxy and draw
+                PDI-&gt;SetHitProxy(new HExamplePointProxy(actor, i));
+                PDI-&gt;DrawPoint(actor-&gt;Points[i], color, 15.f, SDPG_Foreground);
+                PDI-&gt;DrawLine(actor-&gt;Points[i], actorLoc, color, SDPG_Foreground);
+                PDI-&gt;SetHitProxy(NULL);
+            }
+        }
+    }
+
+    FEdMode::Render(View, Viewport, PDI);
+}
+
+bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &amp;Click)
+{
+    bool isHandled = false;
+
+    if (HitProxy)
+    {
+        if (HitProxy-&gt;IsA(HExamplePointProxy::StaticGetType()))
+        {
+            isHandled = true;
+            HExamplePointProxy* examplePointProxy = (HExamplePointProxy*)HitProxy;
+            AExampleTargetPoint* actor = Cast&lt;AExampleTargetPoint&gt;(examplePointProxy-&gt;RefObject);
+            int32 index = examplePointProxy-&gt;Index;
+            if (actor &amp;&amp; index &gt;= 0 &amp;&amp; index &lt; actor-&gt;Points.Num())
+            {
+                SelectPoint(actor, index);
+            }
+        }
+    }
+
+    return isHandled;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With all of these you can start adding/removing points in the editor:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/025.png" alt="025.png" width="1325">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_transform_widget">Use Transform Widget</h3>
+<div class="paragraph">
+<p>The next mission is to be able to move point around in editor like moving any other actor. Go back to <strong>ExampleEdMode</strong>, this time we need to add support for custom transform widget, and handle <strong>InputDelta</strong> event. In <strong>InputDelta</strong> function, we don&#8217;t use <strong>FScopedTransaction</strong> because undo/redo is already handled for this function. We still need to call <strong>Modify()</strong> though.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">...
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    virtual bool InputDelta(FEditorViewportClient* InViewportClient, FViewport* InViewport, FVector&amp; InDrag, FRotator&amp; InRot, FVector&amp; InScale) override;
+    virtual bool ShowModeWidgets() const override;
+    virtual bool ShouldDrawWidget() const override;
+    virtual bool UsesTransformWidget() const override;
+    virtual FVector GetWidgetLocation() const override;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">bool FExampleEdMode::InputDelta(FEditorViewportClient* InViewportClient, FViewport* InViewport, FVector&amp; InDrag, FRotator&amp; InRot, FVector&amp; InScale)
+{
+    if (InViewportClient-&gt;GetCurrentWidgetAxis() == EAxisList::None)
+    {
+        return false;
+    }
+
+    if (HasValidSelection())
+    {
+        if (!InDrag.IsZero())
+        {
+            currentSelectedTarget-&gt;Modify();
+            currentSelectedTarget-&gt;Points[currentSelectedIndex] += InDrag;
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool FExampleEdMode::ShowModeWidgets() const
+{
+    return true;
+}
+
+bool FExampleEdMode::ShouldDrawWidget() const
+{
+    return true;
+}
+
+bool FExampleEdMode::UsesTransformWidget() const
+{
+    return true;
+}
+
+FVector FExampleEdMode::GetWidgetLocation() const
+{
+    if (HasValidSelection())
+    {
+        return currentSelectedTarget-&gt;Points[currentSelectedIndex];
+    }
+    return FEdMode::GetWidgetLocation();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you should have a transform widget to move your points around:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/026.png" alt="026.png" width="475">
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">virtual bool GetCustomDrawingCoordinateSystem(FMatrix&amp; InMatrix, void* InData) override;
+virtual bool GetCustomInputCoordinateSystem(FMatrix&amp; InMatrix, void* InData) override;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_key_input_support_right_click_menu_and_others">Key input support, right click menu, and others</h3>
+<div class="paragraph">
+<p>Next we will add some other common features: when we have a point selected, we want to hit delete button and remove it. Also we want to have a menu generated when you right click on a point, showing the point index, and an option to delete it.</p>
+</div>
+<div class="paragraph">
+<p>Remember in the "Menu Tool" tutorial, in order to make a menu, we would need a UI command list, here we will do the same thing. We also override <strong>InputKey</strong> function to handle input. Though we can simply call functions based on which key is pressed, since we have the same functionality in the menu, we will route the input through the UI command list instead. (when we define UI Commands, we pass in a key in <strong>FInputGesture</strong>)</p>
+</div>
+<div class="paragraph">
+<p>Finally we will modify <strong>HandleClick</strong> function to generate context menu when we right click on a point.</p>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">...
+class FExampleEdMode : public FEdMode
+{
+public:
+    ...
+    FExampleEdMode();
+    ~FExampleEdMode();
+
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &amp;Click) override;
+
+    TSharedPtr&lt;FUICommandList&gt; ExampleEdModeActions;
+    void MapCommands();
+    TSharedPtr&lt;SWidget&gt; GenerateContextMenu(FEditorViewportClient* InViewportClient) const;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleEdMode.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">class ExampleEditorCommands : public TCommands&lt;ExampleEditorCommands&gt;
+{
+public:
+    ExampleEditorCommands() : TCommands &lt;ExampleEditorCommands&gt;
+        (
+            "ExampleEditor",    // Context name for fast lookup
+            FText::FromString(TEXT("Example Editor")),  // context name for displaying
+            NAME_None,  // Parent
+            FEditorStyle::GetStyleSetName()
+            )
+    {
+    }
+
+#define LOCTEXT_NAMESPACE ""
+    virtual void RegisterCommands() override
+    {
+        UI_COMMAND(DeletePoint, "Delete Point", "Delete the currently selected point.", EUserInterfaceActionType::Button, FInputGesture(EKeys::Delete));
+    }
+#undef LOCTEXT_NAMESPACE
+
+public:
+    TSharedPtr&lt;FUICommandInfo&gt; DeletePoint;
+};
+
+
+FExampleEdMode::FExampleEdMode()
+{
+    ExampleEditorCommands::Register();
+    ExampleEdModeActions = MakeShareable(new FUICommandList);
+}
+
+FExampleEdMode::~FExampleEdMode()
+{
+    ExampleEditorCommands::Unregister();
+}
+
+void FExampleEdMode::MapCommands()
+{
+    const auto&amp; Commands = ExampleEditorCommands::Get();
+
+    ExampleEdModeActions-&gt;MapAction(
+        Commands.DeletePoint,
+        FExecuteAction::CreateSP(this, &amp;FExampleEdMode::RemovePoint),
+        FCanExecuteAction::CreateSP(this, &amp;FExampleEdMode::CanRemovePoint));
+}
+
+bool FExampleEdMode::InputKey(FEditorViewportClient* ViewportClient, FViewport* Viewport, FKey Key, EInputEvent Event)
+{
+    bool isHandled = false;
+
+    if (!isHandled &amp;&amp; Event == IE_Pressed)
+    {
+        isHandled = ExampleEdModeActions-&gt;ProcessCommandBindings(Key, FSlateApplication::Get().GetModifierKeys(), false);
+    }
+
+    return isHandled;
+}
+
+TSharedPtr&lt;SWidget&gt; FExampleEdMode::GenerateContextMenu(FEditorViewportClient* InViewportClient) const
+{
+    FMenuBuilder MenuBuilder(true, NULL);
+
+    MenuBuilder.PushCommandList(ExampleEdModeActions.ToSharedRef());
+    MenuBuilder.BeginSection("Example Section");
+    if (HasValidSelection())
+    {
+        // add label for point index
+        TSharedRef&lt;SWidget&gt; LabelWidget =
+            SNew(STextBlock)
+            .Text(FText::FromString(FString::FromInt(currentSelectedIndex)))
+            .ColorAndOpacity(FLinearColor::Green);
+        MenuBuilder.AddWidget(LabelWidget, FText::FromString(TEXT("Point Index: ")));
+        MenuBuilder.AddMenuSeparator();
+        // add delete point entry
+        MenuBuilder.AddMenuEntry(ExampleEditorCommands::Get().DeletePoint);
+    }
+    MenuBuilder.EndSection();
+    MenuBuilder.PopCommandList();
+
+    TSharedPtr&lt;SWidget&gt; MenuWidget = MenuBuilder.MakeWidget();
+    return MenuWidget;
+}
+
+
+bool FExampleEdMode::HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &amp;Click)
+{
+    ...
+
+    if (HitProxy &amp;&amp; isHandled &amp;&amp; Click.GetKey() == EKeys::RightMouseButton)
+    {
+        TSharedPtr&lt;SWidget&gt; MenuWidget = GenerateContextMenu(InViewportClient);
+        if (MenuWidget.IsValid())
+        {
+            FSlateApplication::Get().PushMenu(
+                Owner-&gt;GetToolkitHost()-&gt;GetParentWidget(),
+                FWidgetPath(),
+                MenuWidget.ToSharedRef(),
+                FSlateApplication::Get().GetCursorPos(),
+                FPopupTransitionEffect(FPopupTransitionEffect::ContextMenu));
+        }
+    }
+
+    return isHandled;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following is the result:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/027.png" alt="027.png" width="463">
+</div>
+</div>
+<div class="paragraph">
+<p>There are other virtual functions from FEdMode that can be very helpful. I&#8217;ll list some of them here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">    virtual void Tick(FEditorViewportClient* ViewportClient, float DeltaTime) override;
+    virtual bool CapturedMouseMove(FEditorViewportClient* InViewportClient, FViewport* InViewport, int32 InMouseX, int32 InMouseY) override;
+    virtual bool StartTracking(FEditorViewportClient* InViewportClient, FViewport* InViewport) override;
+    virtual bool EndTracking(FEditorViewportClient* InViewportClient, FViewport* InViewport) override;
+    virtual bool HandleClick(FEditorViewportClient* InViewportClient, HHitProxy *HitProxy, const FViewportClick &amp;Click) override;
+    virtual void PostUndo() override;
+    virtual void ActorsDuplicatedNotify(TArray&lt;AActor*&gt;&amp; PreDuplicateSelection, TArray&lt;AActor*&gt;&amp; PostDuplicateSelection, bool bOffsetLocations) override;
+    virtual void ActorMoveNotify() override;
+    virtual void ActorSelectionChangeNotify() override;
+    virtual void MapChangeNotify() override;
+    virtual void SelectionChanged() override;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_custom_project_settings">Custom Project Settings</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Remember you can you go to Edit → Project Settings in Unreal editor to change various game/editor settings? You can add your custom settings to this window as well.</p>
+</div>
+<div class="paragraph">
+<p>First we create a settings object. In this example we will create it in editor module, you can create in game module as well, just remember to export it with proper macro.
+In the UCLASS macro, we need specify which .ini file to write to. You can use existing .ini file like "Game" or "Editor". In this case we want this setting to be per user and not shared on source control, so we create a new ini file.
+For each UPROPERTY that you want to include in the settings, mark it with "<strong>config</strong>".</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/028.png" alt="028.png" width="213">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ExampleSettings.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#pragma once
+#include "ExampleSettings.generated.h"
+
+UCLASS(config = EditorUserSettings, defaultconfig)
+class UExampleSettings : public UObject
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, config, Category = Test)
+    bool bTest = false;
+};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ToolExampleEditor.cpp</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">...
+#include "ISettingsModule.h"
+#include "Developer/Settings/Public/ISettingsContainer.h"
+#include "CustomProjectSettings/ExampleSettings.h"
+
+void FToolExampleEditor::StartupModule()
+{
+    ...
+    // register settings:
+    {
+        ISettingsModule* SettingsModule = FModuleManager::GetModulePtr&lt;ISettingsModule&gt;("Settings");
+        if (SettingsModule)
+        {
+            TSharedPtr&lt;ISettingsContainer&gt; ProjectSettingsContainer = SettingsModule-&gt;GetContainer("Project");
+            ProjectSettingsContainer-&gt;DescribeCategory("ExampleCategory", FText::FromString("Example Category"), FText::FromString("Example settings description text here"));
+
+            SettingsModule-&gt;RegisterSettings("Project", "ExampleCategory", "ExampleSettings",
+                FText::FromString("Example Settings"),
+                FText::FromString("Configure Example Settings"),
+                GetMutableDefault&lt;UExampleSettings&gt;()
+            );
+        }
+    }
+
+    IExampleModuleInterface::StartupModule();
+}
+
+void FToolExampleEditor::ShutdownModule()
+{
+    ...
+    // unregister settings
+    ISettingsModule* SettingsModule = FModuleManager::GetModulePtr&lt;ISettingsModule&gt;("Settings");
+    if (SettingsModule)
+    {
+        SettingsModule-&gt;UnregisterSettings("Project", "ExampleCategory", "ExampleSettings");
+    }
+
+    IExampleModuleInterface::ShutdownModule();
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you should see your custom settings in "Project Settings" window. And when you change it, you should see DefaultEditorUserSettings.ini created in \ToolExample\Config</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/029.png" alt="029.png" width="1060">
+</div>
+</div>
+<div class="paragraph">
+<p>To get access to this settings, do the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">const UExampleSettings* ExampleSettings = GetDefault&lt;UExampleSettings&gt;();
+if(ExampleSettings &amp;&amp; ExampleSettings-&gt;bTest)
+    // do something</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tricks">Tricks</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_use_widget_reflector">Use Widget Reflector</h3>
+<div class="paragraph">
+<p>The best way to learn SLATE and Unreal tools, is to use Widget Reflector. In Window → Developer Tool → Widget Reflector to launch the reflector. Click on "Pick Live Widget" and mouse over the widget you want to see, then hit "ESC" to freeze.</p>
+</div>
+<div class="paragraph">
+<p>For example we can mouse over our editor mode widget, and you can see the structure showing in the reflector window. You can click on the file and it will take you to the exact place that widget is constructed. This is powerful tool to debug your widget or to learn how Unreal build their widget.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/030.png" alt="030.png" width="1466">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_is_my_tool_running_in_the_editor_or_game">Is my tool running in the editor or game?</h3>
+<div class="paragraph">
+<p>There 3 conditions that your tool is running:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Editor: game not started, you can do all normal editing.</p>
+</li>
+<li>
+<p>Game: game started, cannot do any editing.</p>
+</li>
+<li>
+<p>Simulate: either hit “Simulate” or hit “Play” then “Eject”, game started and you can do limited editing.
+Here is how you can determine which state you are in:</p>
+</li>
+</ol>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Editor</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Game</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Simulate</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>FApp::IsGame()</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Cast&lt;UEditorEngine&gt;(GEngine)&#8594;bIsSimulatingInEditor</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Note: this do NOT work in SLATE call (any UI tick for example), because that is in SLATE world.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_useful_uproperty_meta_marker">Useful UPROPERTY() meta marker</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>MakeEditWidget</strong>: If you just need to visualize a point in the level and be able to drag it around, this is the quick way to do it. It works for FVector or FTransform, and it works with TArray of those as well.<br>
+example: UPROPERTY(meta = (MakeEditWidget = true))</p>
+</li>
+<li>
+<p><strong>DisplayName, ToolTip</strong>: Useful if you want to have a different display name than the variable name; or if you want add a mouse over tooltip. There are plenty of examples in Unreal code base.</p>
+</li>
+<li>
+<p><strong>ClampMin, ClampMax, UIMin, UIMax</strong>: You can specify a range for the value that can be input for this field.<br>
+example: UPROPERTY(meta = (ClampMin = "0", ClampMax = "180"))</p>
+</li>
+<li>
+<p><strong>EditCondition</strong>: You can specify a bool to determine whether this field is editable.<br>
+example: UPROPERTY(meta = (EditCondition = "bIsThisFieldEnabled")))</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a complete list, search for <strong>ObjectMacros.h</strong> in Unreal code base.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_make_custom_animation_blueprint_node">Make custom Animation Blueprint Node</h3>
+<div class="paragraph">
+<p>To make a custom Animation Blueprint Node, you need to first inherit from <strong>FAnimNode_Base</strong> class in game module, this class will process animation pose at runtime.</p>
+</div>
+<div class="paragraph">
+<p>Then in the editor module, inherit from <strong>UAnimGraphNode_Base</strong> class, and define how you want this node to be in editor.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_debug_draw_tricks">Debug Draw Tricks</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Easy way to draw circle/box/sphere<br>
+FPrimitiveDrawInterface only provides basic draw methods (DrawSprite, DrawPoint, DrawLine, DrawMesh). However Unreal already has a collection of “advanced” draw methods for their own use. Defined in “PrimitiveDrawingUtils.cpp” and declared in “SceneManagement.h”. Check out “PrimitiveDrawingUtils.cpp” for details. Necessary files should already be included, so just call “DrawCircle” or “DrawBox”.</p>
+</li>
+<li>
+<p>Draw point with world space size<br>
+The default <strong>FPrimitiveDrawInterface::DrawPoint</strong> function will only draw point with screen space size, but sometimes you want to give it a world space size, here’s how you can do it:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void DrawPointWS (
+    FPrimitiveDrawInterface* PDI,
+    const FVector&amp; Position,
+    const FLinearColor&amp; Color,
+    float PointSize,
+    uint8 DepthPriorityGroup,
+    bool bScreenSpaceSize
+)
+{
+    float ScaledPointSize = PointSize;
+    if (!bScreenSpaceSize)
+    {
+        FVector PositionVS = PDI-&gt;View-&gt;ViewMatrices.GetViewMatrix().TransformPosition(Position);
+        float factor = FMath::Max(FMath::Abs(PositionVS.Z), 0.001f);
+        ScaledPointSize /= factor;
+        ScaledPointSize *= PDI-&gt;View-&gt;ViewRect.Width();
+    }
+    PDI-&gt;DrawPoint(Position, Color, ScaledPointSize, DepthPriorityGroup);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_other_tricks_for_editor_mode">Other Tricks for Editor Mode</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>It is quite common you need a viewport client to do something, and not all functions has viewport client passed in. Here is the call you can get that from anywhere:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>FEditorViewportClient* client = (FEditorViewportClient*)GEditor-&gt;GetActiveViewport()-&gt;GetClient();</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It is also quite common you want to refresh rendering for the whole viewport after the user did some edit in your tool. Use the following call:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>GEditor-&gt;RedrawAllViewports(true);</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If the Editor Mode is not responding, or lagging behind, make sure you have "Realtime" checked in viewport.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/031.png" alt="031.png" width="487">
+</div>
+</div>
+</div>
+</div>
+</div>
+    </section>
+	
+	<footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://lxjk.github.io/author/lxjk/" style="background-image: url(https://avatars0.githubusercontent.com/u/3803294?v&#x3D;4)"><span class="hidden">Eric Zhang's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h5>WRITTEN BY</h5>
+                <h4>Eric Zhang</h4>
+
+				
+            </section>
+
+
+            <section class="share">
+                <h5>SHARE THIS POST</h5>
+                <a href="https://twitter.com/intent/tweet?text=How%20to%20Make%20Tools%20in%20UE4&amp;url=https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+					<i class='icon icon-social-twitter'></i>
+					<span class="hidden">Twitter</span>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+					<i class='icon icon-social-facebook'></i>
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2019/10/01/How-to-Make-Tools-in-U-E.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+					<i class='icon icon-social-google-plus'></i>
+					<span class="hidden">Google-plus</span>
+                </a>
+            </section>
+
+        </footer>
+
+  </article>
+
+  
+  <section class="post-comments">
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'lxjkgithub'; // required: replace example with your forum shortname
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  </section>
+  
+
+
+
+            <footer class="footer">
+                <span class="footer__copyright">&copy; 2019. All rights reserved.</span>
+                <span class="footer__copyright"><a href="http://uno.daleanthony.com" title="link to page for Uno Ghost theme">Uno theme</a> by <a href="http://daleanthony.com" title="link to website for Dale-Anthony">Dale-Anthony</a></span>
+                <span class="footer__copyright">Proudly published with <a href="http://hubpress.io" title="link to Hubpress website">Hubpress</a></span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.10.0/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1571529474126"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/lang-glsl.js?v=1571529474126"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1571529474126"></script>
+    
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-86497933-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+</body>
+</html>
