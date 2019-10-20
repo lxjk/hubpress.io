@@ -28,7 +28,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/001.png
 
 === IExampleModuleInterface.h
 
-In this header, we first define *IExampleModuleListenerInterface*, a convenient interface to provide event when out module starts up or shuts down. Almost all our later tools will need to implement this interface.
+In this header, we first define *IExampleModuleListenerInterface*, a convenient interface to provide event when our module starts up or shuts down. Almost all our later tools will need to implement this interface.
 
 Then we define *IExampleModuleInterface*, this is not necessary if you only have one editor module, but if you have more than that, this will handle event broadcasting for you.
 It is required that a module inherit from *IModuleInterface*, so our interface will inherit from the same class.
@@ -122,7 +122,7 @@ PrivateDependencyModuleNames.AddRange(
 ----
 
 === ToolExampleEditor.h & ToolExampleEditor.cpp
-Here we define the actual module class, implementing *IExampleModuleInterface* we defined above. We include headers we need for following sections as well. Make sure the module name you use the get module is the same as the one you pass in *IMPLEMENT_GAME_MODULE* macro.
+Here we define the actual module class, implementing *IExampleModuleInterface* we defined above. We include headers we need for following sections as well. Make sure the module name you use to get module is the same as the one you pass in *IMPLEMENT_GAME_MODULE* macro.
 
 .ToolExampleEditor.h
 [source,cpp]
@@ -295,7 +295,7 @@ Next we can add our first tool to register to our menu. First add two new files:
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/003.png[,190,align="left"]
 
-This class will inherit from *IExampleModuleListenerInterface*, and we add function to create menu entry. We also add FUICommandList, which will define and map a menu item to a function. Finally we add our only menu function *MenuCommand1*, this function will be called when user click on the menu item.
+This class will inherit from *IExampleModuleListenerInterface*, and we add function to create menu entry. We also add *FUICommandList*, which will define and map a menu item to a function. Finally we add our only menu function *MenuCommand1*, this function will be called when user click on the menu item.
 
 .MenuTool.h
 [source,cpp]
@@ -438,7 +438,7 @@ void MenuTool::MakeSubMenu(FMenuBuilder &menuBuilder)
 }
 ----
 
-Then we call AddSubMenu in MenuTool::MakeMenuEntry, after MenuCommand1 is registered so the submenu comes after that.
+Then we call *AddSubMenu* in *MenuTool::MakeMenuEntry*, after MenuCommand1 is registered so the submenu comes after that.
 
 .MenuTool.cpp
 [source,cpp]
@@ -463,6 +463,18 @@ Not only you can add simple menu item, you can actually add any widget into the 
 I'm not going to go into details for each functions I used here, search them in Unreal engine and you should find plenty of use cases.
 
 First we add needed member and functions, note this time we are going to use custom widget, so we don't need to change command list. For *AddTag* fucntion, because it is going to be used for a button, return type have to be *FReply*.
+
+.MenuTool.h
+[source,cpp]
+----
+FName TagToAdd;
+
+FReply AddTag();
+FText GetTagToAddText() const;
+void OnTagToAddTextCommited(const FText& InText, ETextCommit::Type CommitInfo);
+----
+
+Then we fill in those functions. If you type in a text, we save it to *TagToAdd*. If you click on the button, we search all selected actors and make the tag change. We wrap it around a transaction so it will support undo. To use transaction we need to include "ScopedTransaction.h".
 
 .MenuTool.cpp
 [source,cpp]
@@ -535,7 +547,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/006.png
 
 == Create a Tab (Window)
 
-While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because create a tab from menu is a very common thing for tools, we will make a base case for it first.
+While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because creating a tab from menu is very common for tools, we will make a base class for it first.
 
 Add a new file:
 
@@ -590,7 +602,7 @@ Now we add files for tab tool. Other than the normal tool class, we also need a 
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/008.png[,218,align="left"]
 
-Let's look at TabTool class first, it is inherited from *ExampleTabToolBase* defined above.
+Let's look at *TabTool* class first, it is inherited from *ExampleTabToolBase* defined above.
 
 We set tab name, display name and tool tips in *Initialize* function, and prepare the panel in *SpawnTab* function. Note here we send the tool object itself as a parameter when creating the panel. This is not necessary, but as an example how you can pass in an object to the widget.
 
@@ -762,7 +774,7 @@ Now if we load up Unreal and drag a "ExampleActor", you should see the following
 
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/012.png[,269,align="left"]
 
-Now if we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.
+If we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.
 
 Add the following files to editor module "ToolExampleEditor":
 
@@ -933,7 +945,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/ue4tools/014.png
 
 === New Custom Data
 
-For simple data, you can just inherit from *UDataAsset* class, then you can create your data object in Urneal content browser: Add New → miscellaneous → Data Asset
+For simple data, you can just inherit from *UDataAsset* class, then you can create your data object in Unreal content browser: Add New → miscellaneous → Data Asset
 
 If you want to add you data to a custom category, you need to do a bit more work.
 
@@ -1193,7 +1205,7 @@ void UExampleDataFactory::MakeExampleDataFromText(class UExampleData* Data, cons
 }
 ----
 
-Note we changed *bCreateNew* and *bEditAfterNew* to false. We set "*SourceFilePath&*" so we can do reimport later. If you want to import binary file, set *bText = false*, and override *FactoryCreateBinary* function instead.
+Note we changed *bCreateNew* and *bEditAfterNew* to false. We set "*SourceFilePath*" so we can do reimport later. If you want to import binary file, set *bText = false*, and override *FactoryCreateBinary* function instead.
 
 Now you can drag & drop a xmp file and have the content imported automatically.
 
@@ -1849,7 +1861,7 @@ public:
 };
 ----
 
-Then in cpp file, we use macro *IMPLEMENT_HIT_PROXY* to implement the proxy. In *Render* we simply loops through all *ExampleTargetPoint* actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn't leak through to other draws). In *HandleClick*, we test hit proxy and select point if we have a valid hit. We don't test mouse button here, so you can select with left/right/middle click.
+Then in cpp file, we use macro *IMPLEMENT_HIT_PROXY* to implement the proxy. In *Render* we simply loops through all *ExampleTargetPoint* actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn't leak through to other draws). In *HandleClick*, we test hit proxy and select point if we have a valid hit. We don't check mouse button here, so you can select with left/right/middle click.
 
 .ExampleEdMode.cpp
 [source,cpp]
