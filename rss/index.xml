@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sat, 19 Oct 2019 23:57:54 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[How to Make Tools in UE4]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 20 Oct 2019 00:31:43 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[How to Make Tools in UE4]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p><strong><em>This article is based on Unreal 4.17 code base, tested in Unreal 4.23.</em></strong></p>
@@ -75,7 +75,7 @@
 <div class="sect2">
 <h3 id="_iexamplemoduleinterface_h">IExampleModuleInterface.h</h3>
 <div class="paragraph">
-<p>In this header, we first define <strong>IExampleModuleListenerInterface</strong>, a convenient interface to provide event when out module starts up or shuts down. Almost all our later tools will need to implement this interface.</p>
+<p>In this header, we first define <strong>IExampleModuleListenerInterface</strong>, a convenient interface to provide event when our module starts up or shuts down. Almost all our later tools will need to implement this interface.</p>
 </div>
 <div class="paragraph">
 <p>Then we define <strong>IExampleModuleInterface</strong>, this is not necessary if you only have one editor module, but if you have more than that, this will handle event broadcasting for you.
@@ -175,7 +175,7 @@ PrivateDependencyModuleNames.AddRange(
 <div class="sect2">
 <h3 id="_toolexampleeditor_h_toolexampleeditor_cpp">ToolExampleEditor.h &amp; ToolExampleEditor.cpp</h3>
 <div class="paragraph">
-<p>Here we define the actual module class, implementing <strong>IExampleModuleInterface</strong> we defined above. We include headers we need for following sections as well. Make sure the module name you use the get module is the same as the one you pass in <strong>IMPLEMENT_GAME_MODULE</strong> macro.</p>
+<p>Here we define the actual module class, implementing <strong>IExampleModuleInterface</strong> we defined above. We include headers we need for following sections as well. Make sure the module name you use to get module is the same as the one you pass in <strong>IMPLEMENT_GAME_MODULE</strong> macro.</p>
 </div>
 <div class="listingblock">
 <div class="title">ToolExampleEditor.h</div>
@@ -371,7 +371,7 @@ void FToolExampleEditor::FillPulldownMenu(FMenuBuilder &amp;menuBuilder)
 </div>
 </div>
 <div class="paragraph">
-<p>This class will inherit from <strong>IExampleModuleListenerInterface</strong>, and we add function to create menu entry. We also add FUICommandList, which will define and map a menu item to a function. Finally we add our only menu function <strong>MenuCommand1</strong>, this function will be called when user click on the menu item.</p>
+<p>This class will inherit from <strong>IExampleModuleListenerInterface</strong>, and we add function to create menu entry. We also add <strong>FUICommandList</strong>, which will define and map a menu item to a function. Finally we add our only menu function <strong>MenuCommand1</strong>, this function will be called when user click on the menu item.</p>
 </div>
 <div class="listingblock">
 <div class="title">MenuTool.h</div>
@@ -530,7 +530,7 @@ void MenuTool::MenuCommand1()
 </div>
 </div>
 <div class="paragraph">
-<p>Then we call AddSubMenu in MenuTool::MakeMenuEntry, after MenuCommand1 is registered so the submenu comes after that.</p>
+<p>Then we call <strong>AddSubMenu</strong> in <strong>MenuTool::MakeMenuEntry</strong>, after MenuCommand1 is registered so the submenu comes after that.</p>
 </div>
 <div class="listingblock">
 <div class="title">MenuTool.cpp</div>
@@ -562,6 +562,19 @@ void MenuTool::MenuCommand1()
 </div>
 <div class="paragraph">
 <p>First we add needed member and functions, note this time we are going to use custom widget, so we don&#8217;t need to change command list. For <strong>AddTag</strong> fucntion, because it is going to be used for a button, return type have to be <strong>FReply</strong>.</p>
+</div>
+<div class="listingblock">
+<div class="title">MenuTool.h</div>
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">FName TagToAdd;
+
+FReply AddTag();
+FText GetTagToAddText() const;
+void OnTagToAddTextCommited(const FText&amp; InText, ETextCommit::Type CommitInfo);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then we fill in those functions. If you type in a text, we save it to <strong>TagToAdd</strong>. If you click on the button, we search all selected actors and make the tag change. We wrap it around a transaction so it will support undo. To use transaction we need to include "ScopedTransaction.h".</p>
 </div>
 <div class="listingblock">
 <div class="title">MenuTool.cpp</div>
@@ -644,7 +657,7 @@ void MenuTool::OnTagToAddTextCommited(const FText&amp; InText, ETextCommit::Type
 <h2 id="_create_a_tab_window">Create a Tab (Window)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because create a tab from menu is a very common thing for tools, we will make a base case for it first.</p>
+<p>While we can do a lot in the menu, it is still more convenient and flexible if you have a window. In Unreal it is called "tab". Because creating a tab from menu is very common for tools, we will make a base class for it first.</p>
 </div>
 <div class="paragraph">
 <p>Add a new file:</p>
@@ -709,7 +722,7 @@ protected:
 </div>
 </div>
 <div class="paragraph">
-<p>Let&#8217;s look at TabTool class first, it is inherited from <strong>ExampleTabToolBase</strong> defined above.</p>
+<p>Let&#8217;s look at <strong>TabTool</strong> class first, it is inherited from <strong>ExampleTabToolBase</strong> defined above.</p>
 </div>
 <div class="paragraph">
 <p>We set tab name, display name and tool tips in <strong>Initialize</strong> function, and prepare the panel in <strong>SpawnTab</strong> function. Note here we send the tool object itself as a parameter when creating the panel. This is not necessary, but as an example how you can pass in an object to the widget.</p>
@@ -908,7 +921,7 @@ public:
 </div>
 </div>
 <div class="paragraph">
-<p>Now if we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.</p>
+<p>If we want option 1 and option 2 to be mutually exclusive. You can have both unchecked or one of them checked, but you cannot have both checked. We want to customize this details panel, so if user check one of them, it will automatically uncheck the other.</p>
 </div>
 <div class="paragraph">
 <p>Add the following files to editor module "ToolExampleEditor":</p>
@@ -1094,7 +1107,7 @@ void FToolExampleEditor::ShutdownModule()
 <div class="sect2">
 <h3 id="_new_custom_data">New Custom Data</h3>
 <div class="paragraph">
-<p>For simple data, you can just inherit from <strong>UDataAsset</strong> class, then you can create your data object in Urneal content browser: Add New → miscellaneous → Data Asset</p>
+<p>For simple data, you can just inherit from <strong>UDataAsset</strong> class, then you can create your data object in Unreal content browser: Add New → miscellaneous → Data Asset</p>
 </div>
 <div class="paragraph">
 <p>If you want to add you data to a custom category, you need to do a bit more work.</p>
@@ -1376,7 +1389,7 @@ void UExampleDataFactory::MakeExampleDataFromText(class UExampleData* Data, cons
 </div>
 </div>
 <div class="paragraph">
-<p>Note we changed <strong>bCreateNew</strong> and <strong>bEditAfterNew</strong> to false. We set "<strong>SourceFilePath&amp;</strong>" so we can do reimport later. If you want to import binary file, set <strong>bText = false</strong>, and override <strong>FactoryCreateBinary</strong> function instead.</p>
+<p>Note we changed <strong>bCreateNew</strong> and <strong>bEditAfterNew</strong> to false. We set "<strong>SourceFilePath</strong>" so we can do reimport later. If you want to import binary file, set <strong>bText = false</strong>, and override <strong>FactoryCreateBinary</strong> function instead.</p>
 </div>
 <div class="paragraph">
 <p>Now you can drag &amp; drop a xmp file and have the content imported automatically.</p>
@@ -2083,7 +2096,7 @@ public:
 </div>
 </div>
 <div class="paragraph">
-<p>Then in cpp file, we use macro <strong>IMPLEMENT_HIT_PROXY</strong> to implement the proxy. In <strong>Render</strong> we simply loops through all <strong>ExampleTargetPoint</strong> actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn&#8217;t leak through to other draws). In <strong>HandleClick</strong>, we test hit proxy and select point if we have a valid hit. We don&#8217;t test mouse button here, so you can select with left/right/middle click.</p>
+<p>Then in cpp file, we use macro <strong>IMPLEMENT_HIT_PROXY</strong> to implement the proxy. In <strong>Render</strong> we simply loops through all <strong>ExampleTargetPoint</strong> actor and draw all the points (and a line to the actor itself), we choose a different color if this is the current selected point. We set hit proxy for each point before drawing and clears it immediately afterwards (this is important so the proxy doesn&#8217;t leak through to other draws). In <strong>HandleClick</strong>, we test hit proxy and select point if we have a valid hit. We don&#8217;t check mouse button here, so you can select with left/right/middle click.</p>
 </div>
 <div class="listingblock">
 <div class="title">ExampleEdMode.cpp</div>
