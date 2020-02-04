@@ -10,22 +10,22 @@ v1.0, 2020-02-04
 
 toc::[]
 
-Before we start, think about this question: do we really need the inverse of a general matrix?
+始まる前に、逆行列を求められるのは「一般の行列」かどうかを考えてください。
 
-I came to this problem when writing a math library for my game engine. If you are making a game or 3D application, we use 4x4 matrix for object transform, which is a combination of 3D translation, rotation and scale. If most of your matrices are used as transform matrices, because of their special property, we have a fast route for calculating their inverse. In fact transform matrix inverse is only 50% of the cost compared to the optimized general matrix inverse. In the first half of this post we will talk about transform matrix.  In the second half we will dive in and explain the SIMD version of general 4x4 matrix inverse, and we compare the performance of our method with commonly used math libraries from UE4, Eigen and DirectX Math.
+私は自作ゲームエンジンの数学系ライブラリを書く時、逆行列の問題を考えました。ゲームや３Dアプリケーションでは、オブジェクトのトランスフォーム情報は４ｘ４行列で記録されています。このような、位置、回転、スケールの三要素から作成している行列は、この文章で「トランスフォーム行列」と呼びます。トランスフォーム行列は一般の行列より2倍早い逆行列の求め方があります。この文章の前半は先ずトランスフォーム行列について話しましょう。後半はSIMD命令を用いた一般の４ｘ４行列の逆行列の求め方を説明します。最後はこのアルゴリズムのパフォーマンスとよく使われる数学系ライブラリUE4、Eigen、DirectX Mathなどと比較させていただきます。
 
-The matrices used in this post are row major. This is mainly for (1) easier to demonstrate and visualize with matrix data layout; (2) easier to compare with other math library. The same matrix inverse function works for both row major and column major, because stem:[A^{-1}=((A^{T})^{-1})^{T}] (inverse is the same as transpose, inverse then transpose again). However if you are a column major guy like myself, I have a full-on column major version for you in <<Appendix>>.
+この文章では、行列は全て行優先となります。理由その一、データレイアウトの説明は列優先より簡単。その二、他の数学系ライブラリとの参照は出来ます。逆行列の求め方に関して、行優先と列優先の違いはありません（stem:[A^{-1}=((A^{T})^{-1})^{T}] のため）。私と同じ列優先が好みだとしたら、付録に列優先バージョンのソースコードが用意しています。
 
-=== Transform Matrix Inverse
+=== トランスフォーム行列
 
-The transform matrix we are talking about here is defined as following:
+トランスフォーム行列はこのように定義されています：
 
 [stem]
 ++++
 M=\left( \begin{matrix} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{matrix} \right)
 ++++
 
-The first 3 component of the last row is the translation stem:[\vec{T}]. The top left 3x3 sub-matrix is the scaled rotation matrix, with each row as a scaled axis. We have stem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0], and stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]. And the scale is stem:[(a,b,c)]. 
+最後の行の最初の3つの成分は位置stem:[\vec{T}]です。左上の３ｘ３小行列はスケール回転行列、その3行ともスケール変換した回転軸であります。つまりstem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0]、stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]、そしてスケールはstem:[(a,b,c)]です。 
 
 Most matrices in the game are of this form. For example, stem:[M] represents a local to world transform, stem:[\vec{X}], stem:[\vec{Y}], stem:[\vec{Z}] are your local space axes. If you have a point stem:[\vec{P}(P_0,P_1,P_2)], and you want to transform it from local space to world space, you do this:
 
