@@ -237,7 +237,7 @@ A^{\#}={\left( \begin{matrix} A_0 & A_1 \\ A_2 & A_3 \\ \end{matrix} \right)}^{\
 
 導出に使う性質しか書いていませんが、詳しくは前のWikiページを参照してください。
 
-Let stem:[M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}].Let’s start with the top left corner.
+stem:[M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}]と表示して、ブロック行列の左上側から始めましょう。
 
 [stem]
 ++++
@@ -249,16 +249,16 @@ X&=(A-BD^{-1}C)^{-1}\\
 \end{align*}
 ++++
 
-Similarly we can derive the bottom right corner:
+同じ方法で、右下側は下記の式になります：
 
 [stem]
 ++++
 W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}
 ++++
 
-Notice that we put parentheses around stem:[D^{\#}C] and stem:[A^{\#}B], and you will see the reason soon.
+stem:[D^{\#}C]とstem:[A^{\#}B]は括弧で囲まれている理由は後に明かします。
 
-Now let’s do the top right corner, and make use of the result of top left corner stem:[X]:
+次は左上側stem:[X]の導出結果を利用して、右上側を導出します。
 
 [stem]
 ++++
@@ -272,21 +272,21 @@ Y&=-(A-BD^{-1}C)^{-1}BD^{-1}\\
 \end{align*}
 ++++
 
-Similarly we can derive the bottom left corner:
+同じ方法で、左下側は下記の式になります：
 
 [stem]
 ++++
 Z=-(D-CA^{-1}B)^{-1}CA^{-1}=\frac{1}{\left|M\right|}(\left|C\right|B-A(D^{\#}C)^{\#})^{\#}
 ++++
 
-Here we also changed from stem:[B^{\#}A] to stem:[(A^{\#}B)^{\#}], so we can reuse the result of stem:[A^{\#}B]. Putting them together:
+右上側の式はstem:[A^{\#}B]の計算結果を再利用するため、stem:[B^{\#}A]の部分をstem:[(A^{\#}B)^{\#}]に変えます。以上４つの式を合わせて：
 
 [stem]
 ++++
 M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\frac{1}{\left|M\right|}{\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
 ++++
 
-Now it is clear what kind of calculation we need. We need 2x2 matrix multiply and multiply by adjugate: stem:[AB], stem:[A^{\#}B] and stem:[AB^{\#}]. We already know how to do adjugate, but in this case, adjugate can be combined with multiplication so we don’t waste instructions. Just expand the result and rearrange the order, for example:
+ここまで読んたら明白だと思いますが、必要な計算関数は２ｘ２行列の乗算、そして随伴行列との乗算：stem:[AB]、stem:[A^{\#}B]とstem:[AB^{\#}]。２ｘ２随伴行列の計算は前にも記述しましたが、この場合は乗算とまとめて計算する方が使う命令数が少ないです。計算結果を展開して、順序を調整するだけなので、例えば：
 
 [stem]
 ++++
@@ -296,7 +296,7 @@ A^{\#}B&={\left( \begin{matrix} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{matrix} \right)
 \end{align*}
 ++++
 
-Here’s the code for these three functions:
+以下はその３つの関数のソースコードです：
 
 [source,cpp]
 ----
@@ -327,9 +327,9 @@ __forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
 }
 ----
 
-Another trick is after we calculate the 2x2 sub matrix, for example stem:[\left|D\right|A-B(D^{\#}C)], the final adjugate to get stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}] can be combined with storing 2x2 sub matrices to the final result 4x4 matrix. You can see this at the end of the function.
+ここにもう一つのトリックがあります。例えばstem:[\left|D\right|A-B(D^{\#}C)]のような２ｘ２小行列を計算したあと、通常その随伴行列stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}]を求めますが、ここではその随伴行列の計算を後回しして、最終結果のデータを４ｘ４行列にを入れる時にまとめて計算するの方が効率良くなります。逆行列を求める関数の最後の部分を見れば分かるでしょう。
 
-The only thing left if determinant. 2x2 determinant is easy, the problem really is the whole 4x4 matrix determinant. Remember the determinant property we give above:
+最後に残ったのは行列式です。２ｘ２行列式は簡単ですが、４ｘ４行列式の方が問題です。前述した行列式性質を思い出してください：
 
 [stem]
 ++++
@@ -341,16 +341,16 @@ The only thing left if determinant. 2x2 determinant is easy, the problem really 
 \end{align*}
 ++++
 
-This is good. We need to calculate all sub matrices determinants and matrix stem:[A^{\#}B] and stem:[D^{\#}C] anyway. And if you derive the trace of 2x2 matrix multiplication:
+この式にある行列stem:[A^{\#}B]とstem:[D^{\#}C]は計算済みです。そして２ｘ２行列の乗算のトレースを展開すれば：
 
 [stem]
 ++++
 \operatorname{tr}(AB)={A_0}{B_0}+{A_1}{B_2}+{A_2}{B_1}+{A_3}{B_3}
 ++++
 
-This is just a shuffle and a dot product, should be easy enough to translate into instructions.
+shuffleと内積で、簡単な命令文でできます。
 
-Now we have all pieces ready, here is our function for general 4x4 matrix inverse:
+全てのパズルを解いたので、４ｘ４逆行列を求める関数は下記のようになります：
 
 [source,cpp]
 ----
@@ -435,43 +435,44 @@ inline Matrix4 GetInverse(const Matrix4& inM)
 }
 ----
 
-As side products of this function, it also gives you optimized version of calculating determinant and adjugate of 4x4 matrix. There are two things I want to talk a little bit more.
+おまけとして、最適化の４ｘ４行列式と随伴行列を求め方もこの関数にあります。この関数の２つのことについてもう少し話したいと思います。
 
-When we calculate the determinants of sub matrices, I do have a version to calculate 4 determinants in one go. However calculate them separately and use _mm_set1_ps to load into vector unit is proven to be faster on my CPU. My guess is since we need them to be separated anyway, even if I can calculate them together I need to use 4 shuffles to separate them out, which is not worth the effort, but I’m not sure. You should test performance in both versions.
+小行列の行列式を計算する時、４つの行列式をまとめて一気に計算する方法を書いたけど、私のCPUでは、別々で計算したあと_mm_set1_ps命令を使ってベクトルレジスタにロードする方が早いです。どうしてと言うと、まとめて計算してもあとで４つのshuffleを使った別々のレジスタに分離しないといけませんので、まとめて計算は近道ではないと思います。実際に使う時両方ともパフォーマンスを確認した上で選んでください。
 
-(*Edit*: in my new CPU (Coffee Lake) the second method (4 determinants in one go) is 20% faster than the first method)
+（*編集*：新しいCPU（Coffee Lake）でテストした結果、まとめて計算するのは別々で計算するより２０％早いです。）
 
-Also when calculating trace, I’m using two _mm_hadd_ps to sum up 4 components and have the result in all 4 components. There are a lot of ways to do the same thing. From what I tested, they yield similar performance, so I choose the one with less instructions. Again it could be different on different target platforms, and you should test them. 
+もう一つは、トレースを計算する時、２つの_mm_hadd_ps命令を使ってベクトルレジスタの４つの成分の加算し、その結果を４つの成分に保存することにします。他の方法もありますが、テストの結果、パフォーマンスはほぼ同じですので、一番命令数少ない方法を使いました。こちらも同じくパフォーマンスを確認した上で方法を選んでください。
 
-So how our functions perform? The following measurement and comparison is done in August 2017. We use __rdtsc to count cycles. For each test we loop 10 million times and measure the average cycle counts. We do 5 groups of tests and here is the result on Intel Haswell:
+では肝心なパフォーマンスはどうなっていますか？以下の数字は２０１７年８月でテストした結果です。Intel Haswellで計算を１０００万回を回して、__rdtsc命令を使ってサイクルをカウントします。全ての方法を５回テストして、平均値を求めます。
 
 .Figure 1
 image::https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fig1.jpg[, 600,align="center"]
 
-The first three columns are our 3 versions of functions. The SIMD version of general 4x4 matrix inverse only cost less than half (44%) of the float version. And if you know the matrix is a transform matrix, it would cost less than a quarter (21%) of the float version. The more information you have as a programmer, the less work the machine need to do.
+最初の３列はここで紹介した３つの関数。一般の逆行列を求める関数のSIMDバージョンの時間はfloatバージョンの半分以下（44%）です。そして、もし行列はトランスフォーム行列だとしたら、四分の一以下（21%）になります。計算対象の情報を知るほど、機械の計算量が減ります。
 
-Think about that question again, do we really need to inverse a matrix. If we are using transform matrix and all we do is inverse transform a point or vector temporarily (so no need to save inverse matrix for other calculations), write an inverse transform function, which is faster than get inverse matrix and then transform. Hopefully this will help you choose which function to write or use, and how to make it fast. 
+最後にこの質問を考えてみましょう：行列の逆行列を求める必要がありますか？もし計算の目的は空間の位置また方向の逆座標変換（トランスフォーム行列の逆行列を保存して他の計算に使う必要がない）だとしたら、逆座標変換の関数を書いてください。逆行列を求める関数より早いです。この文章を通じてどの関数を使うまた書くのか、そしてどうすればパフォーマンスが上がるのかを紹介出来たら幸いです。
 
-=== Appendix 1 
+=== 付録その一 
 
-We have one more thing to do, prove that this method is valid regardless of our assumptions before derivation. Let’s look back what we assumed:
+残った仕事はまた一つあります。この方法は仮定なしでも成立するのを証明することです。先ずは何を仮定したのかを振り返ってみよう：
 
 [stem]
 ++++
 M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
 ++++
 
-Assume these properties: submatrix stem:[A] and stem:[D] are invertible, stem:[C] and stem:[D] commute (stem:[CD=DC]).
+小行列stem:[A]とstem:[D]が正則、stem:[C]とstem:[D]は可換であります（stem:[CD=DC]）を仮定します。
 
-Consider this example:
+次の例を考えてください：
 
 [stem]
 ++++
 M'=\left( \begin{matrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ \end{matrix} \right)
 ++++
 
-Apparently none of our assumptions holds, but stem:[M'] is invertible (its inverse is itself stem:[(M')^{-1}=M']). If you use the above method to calculate the inverse of stem:[M'], surprisingly you do get the correct result. Now we need to prove our calculation holds for any invertible 4x4 matrix, with no above assumptions.
-Here’s our final form for calculation:
+先仮定した条件は一つも成立しませんが、stem:[M']は正則です。（逆行列は行列自身stem:[(M')^{-1}=M']）もし前述の方法を使って、stem:[M']の逆行列を計算したら、意外と正解が出ます。これは偶然ではありません。ここから、この計算は４ｘ４正則行列なら成立することを証明します。
+
+以下は計算に使った式です：
 
 [stem]
 ++++
@@ -483,17 +484,18 @@ M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\frac
 \left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
 ++++
 
-Remember the definition of adjugate matrix stem:[M^{-1}=\frac{1}{\left|M\right|}M^{\#}], here we are going to prove
+随伴行列の定義stem:[M^{-1}=\frac{1}{\left|M\right|}M^{\#}]により、先ずはこの式を証明します。
 
 [stem]
 ++++
 M^{\#}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}={\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
 ++++
 
-Starting from proving the top left submatrix stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}],
+左上の小行列stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}]から始めましょう。
 
-The adjugate matrix of stem:[M] is the transpose of the cofactor matrix stem:[C] of stem:[M] (stem:[M^{\#}=C^{T}]), and the cofactor matrix stem:[C=((-1)^{i+j} M_{ij})] where stem:[M_{ij}] is the determinant of the (i,j)-minor of stem:[M]. Thus stem:[M^{\#}= ((-1)^{j+i}M_{ji})]. Remember the *TRANSPOSE* here! 
-For details visit Adjugate Matrix wiki page.
+stem:[M]の随伴行列は余因子行列stem:[C]の転置行列であり（tem:[M^{\#}=C^{T}]）、その余因子行列はstem:[C=((-1)^{i+j} M_{ij})]と定義されています。stem:[M_{ij}]はstem:[M]からi行j列を取り除いて得られる小行列（(i,j)-minor）の行列式。つまりstem:[M^{\#}= ((-1)^{j+i}M_{ji})]になります。「*転置*」のとこを覚えてください。 
+
+詳細は随伴行列（Adjugate Matrix）の英語版wikiページに参照してください。
 
 [stem]
 ++++
@@ -503,14 +505,14 @@ X&={\left( \begin{matrix} \left| \begin{matrix} A_3 & B_2 & B_3 \\ C_1 & D_0 & D
 \end{align*}
 ++++
 
-Remember
+こちらの計算結果
 
 [stem]
 ++++
 D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
 ++++
 
-We have
+を利用すると
 
 [stem]
 ++++
@@ -521,16 +523,16 @@ X&={\left( \begin{matrix} A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 
 \end{align*}
 ++++
 
-Similarly we can prove other submatrices stem:[Y],stem:[Z],stem:[W].
+同じく他の小行列stem:[Y]、stem:[Z]、stem:[W]の証明が出来ます。
 
-Now we need to prove the determinant form 
+次は行列式の計算式を証明します。 
 
 [stem]
 ++++
 \left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
 ++++
 
-Again we start from the left hand side
+もう一回左側から
 
 [stem]
 ++++
@@ -544,7 +546,7 @@ Again we start from the left hand side
 \end{align*}
 ++++
 
-Remember
+こちらの計算結果
 
 [stem]
 ++++
@@ -556,7 +558,7 @@ A^{\#}B={\left( \begin{matrix}{} {A_3}{B_0}-{A_1}{B_2} &{A_3}{B_1}-{A_1}{B_3} \\
 D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
 ++++
 
-We have
+を利用すると
 
 [stem]
 ++++
@@ -566,11 +568,11 @@ We have
 \end{align*}
 ++++
 
-We have proved the derivation result holds for any invertible 4x4 matrix. Why this is the case? I think it is due to special properties of 2x2 matrices. With that said I believe there must be a more elegant way to derive the same result, if you know such a way, please leave a comment below!
+以上、この計算は４ｘ４正則行列なら成立することを証明しました。どうしてと言うと、２ｘ２行列の特別な性質が原因だと思います。そして、もっとシンプルな証明方法があると思いますので、もし解っていたら是非知らせてください。
 
-=== Appendix 2
+=== 付録その二
 
-This is column major area. The first two functions for transform matrix is exactly the same in column major. Here is the general matrix inverse and helper functions:
+ここからは列優先バージョンです。最初の２つのトランスフォーム行列の関数は全く同じですので、一般の行列の関数だけここに乗ります。
 
 [source,cpp]
 ----
