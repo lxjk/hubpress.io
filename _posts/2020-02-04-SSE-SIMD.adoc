@@ -10,6 +10,8 @@ v1.0, 2020-02-04
 
 toc::[]
 
+https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html[English Verison]
+
 始まる前に、逆行列を求められるのは「一般の行列」かどうかを考えてください。
 
 私は自作ゲームエンジンの数学系ライブラリを書く時、逆行列の問題を考えました。ゲームや３Dアプリケーションでは、オブジェクトのトランスフォーム情報は４ｘ４行列で記録されています。このような、位置、回転、スケールの三要素から作成している行列は、この文章で「トランスフォーム行列」と呼びます。トランスフォーム行列は一般の行列より2倍早い逆行列の求め方があります。この文章の前半は先ずトランスフォーム行列について話しましょう。後半はSIMD命令を用いた一般の４ｘ４行列の逆行列の求め方を説明します。最後はこのアルゴリズムのパフォーマンスとよく使われる数学系ライブラリUE4、Eigen、DirectX Mathなどと比較させていただきます。
@@ -180,7 +182,7 @@ inline Matrix4 GetTransformInverse(const Matrix4& inM)
 
 この関数の最初と最後の部分はNoScaleバージョンと全く同じです。その間に、スケールの２乗を計算します。絶対必要ではないですが、０に近い数字との除算を回避するテストもあります。
 
-=== General Matrix Inverse
+=== 一般の逆行列
 
 一般の逆行列の計算はかなり難しくなります。このあと使う理論の詳細は英語版のWikiページを参照してください。 
 https://en.wikipedia.org/wiki/Invertible_matrix[逆行列（Invertible Matrix）]、 https://en.wikipedia.org/wiki/Adjugate_matrix[随伴行列（Adjugate Matrix）]、 https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace[行列式（Determinant）]、 https://en.wikipedia.org/wiki/Trace_(linear_algebra)[トレース（Trace）]。
@@ -461,7 +463,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fi
 M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
 ++++
 
-小行列stem:[A]とstem:[D]が正則、stem:[C]とstem:[D]は可換であります（stem:[CD=DC]）を仮定します。
+小行列stem:[A]とstem:[D]が正則、stem:[C]とstem:[D]は可換（stem:[CD=DC]）を仮定します。
 
 次の例を考えてください：
 
@@ -493,7 +495,7 @@ M^{\#}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}={\left( \b
 
 左上の小行列stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}]から始めましょう。
 
-stem:[M]の随伴行列は余因子行列stem:[C]の転置行列であり（tem:[M^{\#}=C^{T}]）、その余因子行列はstem:[C=((-1)^{i+j} M_{ij})]と定義されています。stem:[M_{ij}]はstem:[M]からi行j列を取り除いて得られる小行列（(i,j)-minor）の行列式。つまりstem:[M^{\#}= ((-1)^{j+i}M_{ji})]になります。「*転置*」のとこを覚えてください。 
+stem:[M]の随伴行列は余因子行列stem:[C]の転置行列であり（stem:[M^{\#}=C^{T}]）、その余因子行列はstem:[C=((-1)^{i+j} M_{ij})]と定義されています。stem:[M_{ij}]はstem:[M]からi行j列を取り除いて得られる小行列（(i,j)-minor）の行列式。つまりstem:[M^{\#}= ((-1)^{j+i}M_{ji})]になります。「*転置*」のとこを覚えてください。 
 
 詳細は随伴行列（Adjugate Matrix）の英語版wikiページに参照してください。
 
