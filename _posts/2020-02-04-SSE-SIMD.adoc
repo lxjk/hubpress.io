@@ -14,7 +14,7 @@ toc::[]
 
 私は自作ゲームエンジンの数学系ライブラリを書く時、逆行列の問題を考えました。ゲームや３Dアプリケーションでは、オブジェクトのトランスフォーム情報は４ｘ４行列で記録されています。このような、位置、回転、スケールの三要素から作成している行列は、この文章で「トランスフォーム行列」と呼びます。トランスフォーム行列は一般の行列より2倍早い逆行列の求め方があります。この文章の前半は先ずトランスフォーム行列について話しましょう。後半はSIMD命令を用いた一般の４ｘ４行列の逆行列の求め方を説明します。最後はこのアルゴリズムのパフォーマンスとよく使われる数学系ライブラリUE4、Eigen、DirectX Mathなどと比較させていただきます。
 
-この文章では、行列は全て行優先となります。理由その一、データレイアウトの説明は列優先より簡単。その二、他の数学系ライブラリとの参照は出来ます。逆行列の求め方に関して、行優先と列優先の違いはありません（stem:[A^{-1}=((A^{T})^{-1})^{T}] のため）。私と同じ列優先が好みだとしたら、付録に列優先バージョンのソースコードが用意しています。
+この文章の行列は全て行優先になります。データレイアウトの説明は行優先の方が簡単であり、他の数学系ライブラリとの参照も出来ます。逆行列の求め方について、行優先と列優先は同じです（stem:[A^{-1}=((A^{T})^{-1})^{T}] のため）。私と同じく列優先が好みだとしたら、付録に列優先バージョンのソースコードも用意しています。
 
 === トランスフォーム行列
 
@@ -25,16 +25,16 @@ toc::[]
 M=\left( \begin{matrix} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{matrix} \right)
 ++++
 
-最後の行の最初の3つの成分は位置stem:[\vec{T}]です。左上の３ｘ３小行列はスケール回転行列、その3行ともスケール変換した回転軸であります。つまりstem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0]、stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]、そしてスケールはstem:[(a,b,c)]です。 
+第4行の最初の3つの成分は位置stem:[\vec{T}]です。左上の３ｘ３小行列はスケール回転行列、その3行ともスケール変換した回転軸であります。つまりstem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0]、stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]、そしてスケールはstem:[(a,b,c)]です。 
 
-Most matrices in the game are of this form. For example, stem:[M] represents a local to world transform, stem:[\vec{X}], stem:[\vec{Y}], stem:[\vec{Z}] are your local space axes. If you have a point stem:[\vec{P}(P_0,P_1,P_2)], and you want to transform it from local space to world space, you do this:
+ゲームに使う行列はほとんどこの形になります。例えば、stem:[M]はローカルからワールドへの座標変換、stem:[\vec{X}], stem:[\vec{Y}], stem:[\vec{Z}]はローカル座標の軸と考えます。ローカル空間内の位置stem:[\vec{P}(P_0,P_1,P_2)]をローカル座標からワールド座標へ変換する時、次の式を使います：
 
 [stem]
 ++++
 \vec{P'}=P_0a\vec{X}+P_1b\vec{Y}+P_2c\vec{Z}+\vec{T}
 ++++
 
-This is the same as extend stem:[\vec{P}] to a 4 component vector stem:[\vec{P}(P_0,P_1,P_2,1)] and multiply by matrix stem:[M]. Now what does inverse matrix stem:[M^{-1}] mean? In this case it represents a world to local transform, so if we multiply stem:[\vec{P'}] by stem:[M^{-1}], we should get stem:[\vec{P}] back. How do we transform the point stem:[\vec{P'}] from world space back in local space? We subtract the local space origin (aka the translation stem:[\vec{T}]), then dot each axes to get its local space coordinate and rescale it:
+これはベクトルstem:[\vec{P}]を拡張して、4元ベクトルstem:[\vec{P}(P_0,P_1,P_2,1)]と行列stem:[M]の積と同じです。なら逆行列stem:[M^{-1}]は何を意味するでしょうか？この例だと、ワールドからローカルへの座標変換です。つまり、拡張したワールド座標stem:[\vec{P'}]とstem:[M^{-1}]の積を求めれば、結果はローカル座標のstem:[\vec{P}]になるはずです。では行列なしでどうやってワールド空間の位置stem:[\vec{P'}]をワールド座標からローカル座標へ変換するでしょう？先ずローカル座標の原点（つまりstem:[\vec{T}]）を引き、そしてローカルの軸との内積を求め、最後に逆スケール変換します：
 
 [stem]
 ++++
@@ -44,30 +44,30 @@ This is the same as extend stem:[\vec{P}] to a 4 component vector stem:[\vec{P}(
 \end{align*}
 ++++
 
-With this, we can actually directly write the form of the inverse of our matrix.
+この式があれば、下記のように逆行列を直接書く事ができます：
 
 [stem]
 ++++
 M^{-1}=\left( \begin{matrix} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix} \right) = \left( \begin{matrix} \frac{1}{a}X_0 & \frac{1}{b}Y_0 & \frac{1}{c}Z_0 & 0 \\ \frac{1}{a}X_1 & \frac{1}{b}Y_1 & \frac{1}{c}Z_1 & 0 \\ \frac{1}{a}X_2 & \frac{1}{b}Y_2 & \frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix} \right)
 ++++
 
-The nice thing about transform matrix stem:[M] is its first 3 rows are perpendicular to each other. Its inverse form is basically transpose the 3x3 rotation matrix, and rescale it, and change translation part by doing dot product with 3 rescaled axes. It should be easy to confirm stem:[MM^{-1}=I].
+トランスフォーム行列stem:[M]は最初の3行が互いに垂直という素晴らしい特性があります。元の３ｘ３回転小行列を転置し、逆スケール変換し、最後に位置のベクトルと逆スケール変換した軸の内積を計算すると逆行列が出来上がります。stem:[MM^{-1}=I]は簡単に確認できます。
 
-Now let’s bake in the scale (so stem:[\left|\vec{X}\right|=a],stem:[\left|\vec{Y}\right|=b],stem:[\left|\vec{Z}\right|=c]) and get a more generic form.
+もしスケールを軸のベクトルに収めれば（つまりstem:[\left|\vec{X}\right|=a],stem:[\left|\vec{Y}\right|=b],stem:[\left|\vec{Z}\right|=c]）以下のように一般型になります。
 
 [stem]
 ++++
 M=\left( \begin{matrix} \vec{X} & 0 \\ \vec{Y} & 0 \\ \vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix} \right), M^{-1}=\left( \begin{matrix} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & -\vec{T}\cdot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & -\vec{T}\cdot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & 1 \\ \end{matrix} \right)
 ++++
 
-Notice that for rescaling, we divide by squared size of scaled axis, instead of size, which is good news for implementation. And if our transform is of unit scale, which is also common in games, our target becomes even simpler.
+逆スケール変換の部分を注目してください。分母の方はスケールではなく、スケールの2乗になります。平方根を求めなくてもいいので、これは朗報です。もしスケールが全て１であれば、この式はよりシンプルな形になります。
 
 [stem]
 ++++
 M^{-1}=\left( \begin{matrix} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\cdot\vec{X} & -\vec{T}\cdot\vec{Y} & -\vec{T}\cdot\vec{Z} & 1 \\ \end{matrix} \right)
 ++++
 
-Alright, enough theory, let’s see some code. This is our matrix definition.
+理論はここまでにしましょう。次はソースコードに行きます。まずは行列の定義です。
 
 [source,cpp]
 ----
@@ -82,9 +82,9 @@ public:
 };
 ----
 
-Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle macros. Hopefully they will make it easier to read. We also make use of faster instructions for special shuffles.
+intrinsics関数を使う前に、shuffleとswizzleに関する幾つのマクロを定義します。このあとのソースコードを読みやすくするためであり、特殊なshuffle はより早い命令を使いうためでもあります。
 
-(Thank you *Stefan Kaps* for pointing out single register shuffle instruction _mm_shuffle_epi32!)
+（_mm_shuffle_epi32命令を提案する*Stefan Kaps*さんに感謝です！）
 
 [source,cpp]
 ----
@@ -105,7 +105,7 @@ Before we jump in intrinsics, I would like to define a bunch of shuffle/swizzle 
 #define VecShuffle_2323(vec1, vec2)        _mm_movehl_ps(vec2, vec1)
 ----
 
-Here is our first function to inverse transform matrix without scaling (always unit scale).
+下記はスケール１のトランスフォーム行列の逆行列を求める関数です。
 
 [source,cpp]
 ----
@@ -131,7 +131,7 @@ inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
 }
 ----
 
-Very straight forward. This is the fastest function you can have, it only does a transpose and some dot products. If we add in scales, it takes a little more time to do rescaling, but still pretty fast. There is a little trick for calculating squared size, we can make use of the fact that we need to transpose 3x3 rotation part anyway, do squared size after and calculate 3 axes in one go.
+これは一番早い関数です。必要な計算は転置と幾つの内積しかありません。もしスケールを加われば、割り算に処理時間が増やしますが、それでもまた早い方です。スケールの２乗の計算について、ちょっとしたトリックがあります。いずれ３ｘ３回転行列を転置するので、スケールの２乗の計算を後回しして、転置行列の結果を利用し、一気に３つの軸のスケールの２乗を計算することが出来ます。
 
 [source,cpp]
 ----
@@ -178,12 +178,12 @@ inline Matrix4 GetTransformInverse(const Matrix4& inM)
 }
 ----
 
-Notice the top and bottom of the function is exactly the same as the NoScale version. In the middle we calculate squared size, with an optional divide-by-small-number test.
+この関数の最初と最後の部分はNoScaleバージョンと全く同じです。その間に、スケールの２乗を計算します。絶対必要ではないですが、０に近い数字との除算を回避するテストもあります。
 
 === General Matrix Inverse
 
-For general matrix, things are getting complicated. You can find most of the theory part in the following wiki pages: 
-https://en.wikipedia.org/wiki/Invertible_matrix[Invertible Matrix], https://en.wikipedia.org/wiki/Adjugate_matrix[Adjugate Matrix], https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace[Determinant], https://en.wikipedia.org/wiki/Trace_(linear_algebra)[Trace].
+一般の行列の計算は大分難しくなります。このあと使う理論の詳細は英語版のWikiページを参照してください。 
+https://en.wikipedia.org/wiki/Invertible_matrix[逆行列　Invertible Matrix], https://en.wikipedia.org/wiki/Adjugate_matrix[随伴行列　Adjugate Matrix], https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace[行列式　Determinant], https://en.wikipedia.org/wiki/Trace_(linear_algebra)[トレース　Trace].
 
 We will introduce some of them as we go. The method is based on the same block matrices method Intel used for its https://software.intel.com/en-us/articles/optimized-matrix-library-for-use-with-the-intel-pentiumr-4-processors-sse2-instructions/[Optimized Matrix Library].
 
