@@ -1,3 +1,9 @@
 = This is a test
 Eric Zhang
 v1.0, 2020-02-04
+:toc: macro
+:hp-tags: Math, SSE
+
+:stem: latexmath
+:source-highlighter: prettify
+:figure-caption!:
