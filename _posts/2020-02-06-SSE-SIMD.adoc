@@ -1,0 +1,686 @@
+= SSE SIMDを用いて４ｘ４の逆行列の高速アルゴリズム
+Eric Zhang
+v1.0, 2020-02-05
+:toc: macro
+:hp-tags: Math, SSE, 日本語
+
+:stem: latexmath
+:source-highlighter: prettify
+:figure-caption!:
+
+toc::[]
+
+https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html[English Verison]
+
+始まる前に、実際に必要となる逆行列は「一般の行列」かどうかを考えてください。
+
+私は自作ゲームエンジンの数学系ライブラリを書く時、逆行列の問題を考えました。ゲームや３Dアプリケーションでは、オブジェクトのトランスフォーム情報は４ｘ４行列で記録されています。このような、位置、回転、スケールの三要素から作成している行列は、この文章で「トランスフォーム行列」と呼びます。トランスフォーム行列は一般の行列より2倍早い逆行列の求め方があります。この文章の前半は先ずトランスフォーム行列について話しましょう。後半はSIMD命令を用いた一般の４ｘ４行列の逆行列の求め方を説明します。最後にこのアルゴリズムのパフォーマンスとよく使われる数学系ライブラリUE4、Eigen、DirectX Mathなどを比較させていただきます。
+
+この文章の行列は全て行優先になります。データレイアウトの説明は行優先の方が簡単であり、他の数学系ライブラリとの参照も出来ます。逆行列の求め方について、行優先と列優先は同じです（stem:[A^{-1}=((A^{T})^{-1})^{T}] のため）。私と同じく列優先が好みだとしたら、付録に列優先バージョンのソースコードも用意しています。
+
+=== トランスフォーム行列
+
+トランスフォーム行列はこのように定義されています：
+
+[stem]
+++++
+M=\left( \begin{matrix} a\vec{X} & 0 \\ b\vec{Y} & 0 \\ c\vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix} \right) = \left( \begin{matrix} aX_0 & aX_1 & aX_2 & 0 \\ bY_0 & bY_1 & bY_2 & 0 \\ cZ_0 & cZ_1 & cZ_2 & 0 \\ T_0 & T_1 & T_2 & 1 \\ \end{matrix} \right)
+++++
+
+第4行の最初の3つの成分は位置stem:[\vec{T}]です。左上の３ｘ３小行列はスケール回転行列で、その3行ともスケール変換した回転軸であります。つまりstem:[\vec{X}\cdot\vec{Y}=\vec{X}\cdot\vec{Z}=\vec{Y}\cdot\vec{Z}=0]、stem:[\left|\vec{X}\right|=\left|\vec{Y}\right|=\left|\vec{Z}\right|=1]、そしてスケールはstem:[(a,b,c)]です。 
+
+ゲームに使う行列はほとんどこの形になります。例えば、stem:[M]はローカルからワールドへの座標変換、stem:[\vec{X}], stem:[\vec{Y}], stem:[\vec{Z}]はローカル座標の軸と考えます。ローカル空間内の位置stem:[\vec{P}(P_0,P_1,P_2)]をローカル座標からワールド座標へ変換する時、次の式を使います：
+
+[stem]
+++++
+\vec{P'}=P_0a\vec{X}+P_1b\vec{Y}+P_2c\vec{Z}+\vec{T}
+++++
+
+これはベクトルstem:[\vec{P}]を拡張して、4元ベクトルstem:[\vec{P}(P_0,P_1,P_2,1)]と行列stem:[M]の積と同じです。なら逆行列stem:[M^{-1}]は何を意味するでしょうか？この例だと、ワールドからローカルへの座標変換です。つまり、拡張したワールド座標stem:[\vec{P'}]とstem:[M^{-1}]の積を求めれば、結果はローカル座標のstem:[\vec{P}]になるはずです。では行列なしでどうすればワールド空間の位置stem:[\vec{P'}]をワールド座標からローカル座標へ変換するでしょう？先ずローカル座標の原点（つまりstem:[\vec{T}]）を引き、そしてローカルの軸との内積を求め、最後に逆スケール変換します：
+
+[stem]
+++++
+\begin{align*}
+\vec{P}&=(\frac{1}{a}(\vec{P'}-\vec{T})\cdot\vec{X},\frac{1}{b}(\vec{P'}-\vec{T})\cdot\vec{Y},\frac{1}{c}(\vec{P'}-\vec{T})\cdot\vec{Z})\\
+&=(\frac{1}{a}\vec{P'}\cdot\vec{X},\frac{1}{b}\vec{P'}\cdot\vec{Y},\frac{1}{c}\vec{P'}\cdot\vec{Z})-(\frac{1}{a}\vec{T}\cdot\vec{X},\frac{1}{b}\vec{T}\cdot\vec{Y},\frac{1}{c}\vec{T}\cdot\vec{Z})
+\end{align*}
+++++
+
+この式があれば、下記のように逆行列を直接書く事ができます：
+
+[stem]
+++++
+M^{-1}=\left( \begin{matrix} \frac{1}{a}\vec{X} & \frac{1}{b}\vec{Y} & \frac{1}{c}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix} \right) = \left( \begin{matrix} \frac{1}{a}X_0 & \frac{1}{b}Y_0 & \frac{1}{c}Z_0 & 0 \\ \frac{1}{a}X_1 & \frac{1}{b}Y_1 & \frac{1}{c}Z_1 & 0 \\ \frac{1}{a}X_2 & \frac{1}{b}Y_2 & \frac{1}{c}Z_2 & 0 \\ -\vec{T}\cdot\frac{1}{a}\vec{X} & -\vec{T}\cdot\frac{1}{b}\vec{Y} & -\vec{T}\cdot\frac{1}{c}\vec{Z} & 1 \\ \end{matrix} \right)
+++++
+
+トランスフォーム行列stem:[M]は最初の3行が互いに垂直という嬉しい性質がありますので、stem:[MM^{-1}=I]は簡単に確認できます。元の３ｘ３回転小行列を転置し、逆スケール変換し、最後に位置のベクトルと逆スケール変換した軸の内積を計算すると逆行列が出来上がります。
+
+もしスケールを軸のベクトルに収めれば（つまりstem:[\left|\vec{X}\right|=a],stem:[\left|\vec{Y}\right|=b],stem:[\left|\vec{Z}\right|=c]）以下のように一般型になります。
+
+[stem]
+++++
+M=\left( \begin{matrix} \vec{X} & 0 \\ \vec{Y} & 0 \\ \vec{Z} & 0 \\ \vec{T} & 1 \\ \end{matrix} \right), M^{-1}=\left( \begin{matrix} \frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & \frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & \frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & \vec{0} \\ -\vec{T}\cdot\frac{1}{{\left|\vec{X}\right|}^{2}}\vec{X} & -\vec{T}\cdot\frac{1}{{\left|\vec{Y}\right|}^{2}}\vec{Y} & -\vec{T}\cdot\frac{1}{{\left|\vec{Z}\right|}^{2}}\vec{Z} & 1 \\ \end{matrix} \right)
+++++
+
+逆スケール変換の部分を注目してください。分母の方はスケールではなく、スケールの2乗になります。平方根を求めなくてもいいので、これは朗報です。もしスケールが全て１であれば、この式はよりシンプルな形になります。
+
+[stem]
+++++
+M^{-1}=\left( \begin{matrix} \vec{X} & \vec{Y} & \vec{Z} & \vec{0} \\ -\vec{T}\cdot\vec{X} & -\vec{T}\cdot\vec{Y} & -\vec{T}\cdot\vec{Z} & 1 \\ \end{matrix} \right)
+++++
+
+理論はここまでにしましょう。次はソースコードに行きます。まずは行列の定義です。
+
+[source,cpp]
+----
+__declspec(align(16)) struct Matrix4
+{
+public:
+	union
+	{
+		float m[4][4];
+		__m128 mVec[4];
+	};
+};
+----
+
+intrinsics関数を使う前に、shuffleとswizzleに関する幾つのマクロを定義します。このあとのソースコードを読みやすくするためであり、特殊なshuffle はより早い命令を使いうためでもあります。
+
+（_mm_shuffle_epi32命令を提案する*Stefan Kaps*さんに感謝です！）
+
+[source,cpp]
+----
+#define MakeShuffleMask(x,y,z,w)           (x | (y<<2) | (z<<4) | (w<<6))
+
+// vec(0, 1, 2, 3) -> (vec[x], vec[y], vec[z], vec[w])
+#define VecSwizzleMask(vec, mask)          _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(vec), mask))
+#define VecSwizzle(vec, x, y, z, w)        VecSwizzleMask(vec, MakeShuffleMask(x,y,z,w))
+#define VecSwizzle1(vec, x)                VecSwizzleMask(vec, MakeShuffleMask(x,x,x,x))
+// special swizzle
+#define VecSwizzle_0022(vec)               _mm_moveldup_ps(vec)
+#define VecSwizzle_1133(vec)               _mm_movehdup_ps(vec)
+
+// return (vec1[x], vec1[y], vec2[z], vec2[w])
+#define VecShuffle(vec1, vec2, x,y,z,w)    _mm_shuffle_ps(vec1, vec2, MakeShuffleMask(x,y,z,w))
+// special shuffle
+#define VecShuffle_0101(vec1, vec2)        _mm_movelh_ps(vec1, vec2)
+#define VecShuffle_2323(vec1, vec2)        _mm_movehl_ps(vec2, vec1)
+----
+
+下記はスケール１のトランスフォーム行列の逆行列を求める関数です。
+
+[source,cpp]
+----
+// Requires this matrix to be transform matrix, NoScale version requires this matrix be of scale 1
+inline Matrix4 GetTransformInverseNoScale(const Matrix4& inM)
+{
+	Matrix4 r;
+
+	// transpose 3x3, we know m03 = m13 = m23 = 0	
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// last line
+	r.mVec[3] =                       _mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}
+----
+
+これは一番早い関数です。必要な計算は転置と幾つの内積しかありません。もしスケールを加われば、割り算に処理時間が増やしますが、それでもまた早い方です。スケールの２乗の計算について、ちょっとしたトリックがあります。いずれ３ｘ３回転行列を転置するので、スケールの２乗の計算を後回しして、転置行列の結果を利用し、一気に３つの軸のスケールの２乗を計算することが出来ます。
+
+[source,cpp]
+----
+#define SMALL_NUMBER		(1.e-8f)
+
+// Requires this matrix to be transform matrix
+inline Matrix4 GetTransformInverse(const Matrix4& inM)
+{
+	Matrix4 r;
+	
+	// transpose 3x3, we know m03 = m13 = m23 = 0	
+	__m128 t0 = VecShuffle_0101(inM.mVec[0], inM.mVec[1]); // 00, 01, 10, 11
+	__m128 t1 = VecShuffle_2323(inM.mVec[0], inM.mVec[1]); // 02, 03, 12, 13
+	r.mVec[0] = VecShuffle(t0, inM.mVec[2], 0,2,0,3); // 00, 10, 20, 23(=0)
+	r.mVec[1] = VecShuffle(t0, inM.mVec[2], 1,3,1,3); // 01, 11, 21, 23(=0)
+	r.mVec[2] = VecShuffle(t1, inM.mVec[2], 0,2,2,3); // 02, 12, 22, 23(=0)
+
+	// (SizeSqr(mVec[0]), SizeSqr(mVec[1]), SizeSqr(mVec[2]), 0)
+	__m128 sizeSqr;
+	sizeSqr =                     _mm_mul_ps(r.mVec[0], r.mVec[0]);
+	sizeSqr = _mm_add_ps(sizeSqr, _mm_mul_ps(r.mVec[1], r.mVec[1]));
+	sizeSqr = _mm_add_ps(sizeSqr, _mm_mul_ps(r.mVec[2], r.mVec[2]));
+
+	// optional test to avoid divide by 0
+	__m128 one = _mm_set1_ps(1.f);
+	// for each component, if(sizeSqr < SMALL_NUMBER) sizeSqr = 1;
+	__m128 rSizeSqr = _mm_blendv_ps(
+		_mm_div_ps(one, sizeSqr),
+		one,
+		_mm_cmplt_ps(sizeSqr, _mm_set1_ps(SMALL_NUMBER))
+		);
+
+	r.mVec[0] = _mm_mul_ps(r.mVec[0], rSizeSqr);
+	r.mVec[1] = _mm_mul_ps(r.mVec[1], rSizeSqr);
+	r.mVec[2] = _mm_mul_ps(r.mVec[2], rSizeSqr);
+
+	// last line
+	r.mVec[3] =                       _mm_mul_ps(r.mVec[0], VecSwizzle1(inM.mVec[3], 0));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[1], VecSwizzle1(inM.mVec[3], 1)));
+	r.mVec[3] = _mm_add_ps(r.mVec[3], _mm_mul_ps(r.mVec[2], VecSwizzle1(inM.mVec[3], 2)));
+	r.mVec[3] = _mm_sub_ps(_mm_setr_ps(0.f, 0.f, 0.f, 1.f), r.mVec[3]);
+
+	return r;
+}
+----
+
+この関数の最初と最後の部分はNoScaleバージョンと全く同じです。その間に、スケールの２乗を計算します。絶対必要ではないですが、０に近い数字との除算を回避するテストもあります。
+
+=== 一般の逆行列
+
+一般の逆行列の計算はかなり難しくなります。このあと使う理論の詳細は英語版のWikiページを参照してください。 
+https://en.wikipedia.org/wiki/Invertible_matrix[逆行列（Invertible Matrix）]、 https://en.wikipedia.org/wiki/Adjugate_matrix[随伴行列（Adjugate Matrix）]、 https://en.wikipedia.org/wiki/Determinant#Relation_to_eigenvalues_and_trace[行列式（Determinant）]、 https://en.wikipedia.org/wiki/Trace_(linear_algebra)[トレース（Trace）]。
+
+その中の幾つは後で紹介します。以下の説明で使うブロック行列方法はIntelさんの https://software.intel.com/en-us/articles/optimized-matrix-library-for-use-with-the-intel-pentiumr-4-processors-sse2-instructions/[Optimized Matrix Library]と同じです。
+
+４ｘ４行列は4つの２ｘ２小行列で分割表示することが出来ます。２ｘ２行列は2つの利点があります。一つ目は逆行列と行列式の計算は簡単です。二つ目はそのデータを全て128ビット幅のベクトルレジスタに収められることで、高速計算が可能です。
+
+[stem]
+++++
+M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
+++++
+
+下記の式を導出するために、幾つを仮定します：小行列stem:[A]とstem:[D]が正則、stem:[C]とstem:[D]は可換であります（stem:[CD=DC]）。（*wychmaster*さんの指摘に感謝です。）かなり強い仮定ですが、あとの導出をしやすくするためです 。付録では仮定なしだとしても導出の結果は成立することを証明します。
+
+ブロック行列の逆行列の公式は以下のようになります：
+
+[stem]
+++++
+\begin{align*}
+{\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}&=\left( \begin{matrix} A^{-1}+A^{-1}B(D-CA^{-1}B)^{-1}CA^{-1} & -A^{-1}B(D-CA^{-1}B)^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{matrix} \right)\\
+&=\left( \begin{matrix} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -D^{-1}C(A-BD^{-1}C)^{-1} & D^{-1}+D^{-1}C(A-BD^{-1}C)^{-1}BD^{-1} \\ \end{matrix} \right)
+\end{align*}
+++++
+
+実際に使うのは、一つ目の第２行と二つ目の第１行を融合した行列です。
+
+[stem]
+++++
+{\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\left( \begin{matrix} (A-BD^{-1}C)^{-1} & -(A-BD^{-1}C)^{-1}BD^{-1} \\ -(D-CA^{-1}B)^{-1}CA^{-1} & (D-CA^{-1}B)^{-1} \\ \end{matrix} \right)
+++++
+
+初見ではこのやり方は意味不明と思うかもしれませんね。例えば、一つ目の式について、２つの２ｘ２逆行列（stem:[A^{-1}]とstem:[(D-CA^{-1} B)^{-1}]）を計算すればいいのに、どうしてわざわざ二つ目の式を混ぜるですか？それは適切な導出より、よりシンプルな形になれるからです。この２つの式の行列は実際全く同じものですので、どっちを使っても構いません。
+
+ここから、幾つの定義を紹介します。行列stem:[A]の随伴行列はこのように定義しています：stem:[A\operatorname{adj}(A)=\left|A\right|I]、 stem:[\left|A\right|]はstem:[A]の行列式です。この文章では、随伴行列を略しstem:[A^{\#}=\operatorname{adj}(A)]と記載します。stem:[A^{-1}=\frac{1}{\left|A\right|}A^{\#}]によって、逆行列の計算を随伴行列の計算に変換することが出来ます。２ｘ２行列の随伴行列は以下のようになります：
+
+[stem]
+++++
+A^{\#}={\left( \begin{matrix} A_0 & A_1 \\ A_2 & A_3 \\ \end{matrix} \right)}^{\#}=\left( \begin{matrix} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{matrix} \right)
+++++
+
+２ｘ２随伴行列の性質：stem:[(AB)^{\#}=B^{\#}A^{\#}]、stem:[(A^{\#})^{\#}=A]、stem:[(cA)^{\#}=cA^{\#}]。
+
+２ｘ２行列式について、下記の性質を使います：stem:[\left|A\right|={A_0}{A_3}-{A_1}{A_2}], stem:[\left|-A\right|=\left|A\right|]、stem:[\left|AB\right|=\left|A\right|\left|B\right|]、stem:[\left|A+B\right|=\left|A\right| + \left|B\right| + \operatorname{tr}(A^{\#}{B})]。
+
+トレースの性質：stem:[\operatorname{tr}(AB)=\operatorname{tr}(BA)]、stem:[\operatorname{tr}(-A)=-\operatorname{tr}(A)]。
+
+最後にブロック行列stem:[M={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}]の行列式の性質：
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D-CA^{-1}B\right|=\left|D\right|\left|A-BD^{-1}C\right|=\left|AD-BC\right|
+++++
+
+導出に使う性質しか書いていませんが、詳しくは前のWikiページを参照してください。
+
+stem:[M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}]と表示して、ブロック行列の左上側から始めましょう。
+
+[stem]
+++++
+\begin{align*}
+X&=(A-BD^{-1}C)^{-1}\\
+&=\frac{1}{\left|A-BD^{-1}C\right|}(A-\frac{1}{\left|D\right|}BD^{\#}C)^{\#}\\
+&=\frac{1}{\left|D\right|\left|A-BD^{-1}C\right|}(\left|D\right|A-BD^{\#}C)^{\#}\\
+&=\frac{1}{\left|M\right|}(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}
+++++
+
+同じ方法で、右下側は下記の式になります：
+
+[stem]
+++++
+W=(D-CA^{-1}B)^{-1}=\frac{1}{\left|M\right|}(\left|A\right|D-C(A^{\#}B))^{\#}
+++++
+
+stem:[D^{\#}C]とstem:[A^{\#}B]は括弧で囲まれている理由は後に明かします。
+
+次は左上側stem:[X]の導出結果を利用して、右上側を導出します。
+
+[stem]
+++++
+\begin{align*}
+Y&=-(A-BD^{-1}C)^{-1}BD^{-1}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(BD^{\#})\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|A-B(D^{\#}C))^{\#}(DB^{\#})^{\#}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|DB^{\#}A-DB^{\#}B(D^{\#}C))^{\#}\\
+&=-\frac{1}{\left|M\right|\left|D\right|}(\left|D\right|D(A^{\#}B)^{\#}-\left|D\right|\left|B\right|C))^{\#}\\
+&=\frac{1}{\left|M\right|}(\left|B\right|C-D(A^{\#}B)^{\#})^{\#}
+\end{align*}
+++++
+
+同じ方法で、左下側は下記の式になります：
+
+[stem]
+++++
+Z=-(D-CA^{-1}B)^{-1}CA^{-1}=\frac{1}{\left|M\right|}(\left|C\right|B-A(D^{\#}C)^{\#})^{\#}
+++++
+
+右上側の式はstem:[A^{\#}B]の計算結果を再利用するため、stem:[B^{\#}A]の部分をstem:[(A^{\#}B)^{\#}]に変えます。以上４つの式を合わせて：
+
+[stem]
+++++
+M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\frac{1}{\left|M\right|}{\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
+++++
+
+ここまで読んたら明白だと思いますが、必要な計算関数は２ｘ２行列の乗算、そして随伴行列との乗算：stem:[AB]、stem:[A^{\#}B]とstem:[AB^{\#}]。２ｘ２随伴行列の計算は前にも記述しましたが、この場合は乗算とまとめて計算する方が使う命令数が少ないです。計算結果を展開して、順序を調整するだけです、例えば：
+
+[stem]
+++++
+\begin{align*}
+A^{\#}B&={\left( \begin{matrix} A_3 & -A_1 \\ -A_2 & A_0 \\ \end{matrix} \right)}{\left( \begin{array}{} B_0 & B_1 \\ B_2 & B_3 \\ \end{array} \right)}\\
+&={\left( \begin{array}{} {A_3}{B_0}-{A_1}{B_2} &{A_3}{B_1}-{A_1}{B_3} \\ {A_0}{B_2}-{A_2}{B_0} & {A_0}{B_3}-{A_2}{B_1} \\ \end{array} \right)}
+\end{align*}
+++++
+
+以下はその３つの関数のソースコードです：
+
+[source,cpp]
+----
+// for row major matrix
+// we use __m128 to represent 2x2 matrix as A = | A0  A1 |
+//                                              | A2  A3 |
+// 2x2 row major Matrix multiply A*B
+__forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
+{
+	return 
+		_mm_add_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 0,3,0,3)),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+}
+// 2x2 row major Matrix adjugate multiply (A#)*B
+__forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(_mm_mul_ps(VecSwizzle(vec1, 3,3,0,0), vec2),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,1,2,2), VecSwizzle(vec2, 2,3,0,1)));
+
+}
+// 2x2 row major Matrix multiply adjugate A*(B#)
+__forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 3,0,3,0)),
+		           _mm_mul_ps(VecSwizzle(vec1, 1,0,3,2), VecSwizzle(vec2, 2,1,2,1)));
+}
+----
+
+ここにもう一つのトリックがあります。例えばstem:[\left|D\right|A-B(D^{\#}C)]のような２ｘ２小行列を計算したあと、通常その随伴行列stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}]を求めますが、ここではその随伴行列の計算を後回しして、最終結果のデータを４ｘ４行列にを入れる時にまとめて計算するの方が効率良くなります。逆行列を求める関数の最後の部分を見れば分かるでしょう。
+
+最後に残ったのは行列式です。２ｘ２行列式は簡単ですが、４ｘ４行列式の方が問題です。前述した行列式性質を思い出してください：
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&=\left|AD-BC\right|\\
+&=\left|AD\right|+\left|-BC\right|+\operatorname{tr}((AD)^{\#}(-BC))\\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}(D^{\#}A^{\#}BC)\\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+\end{align*}
+++++
+
+この式にある行列stem:[A^{\#}B]とstem:[D^{\#}C]は計算済みです。そして２ｘ２行列の乗算のトレースを展開すれば：
+
+[stem]
+++++
+\operatorname{tr}(AB)={A_0}{B_0}+{A_1}{B_2}+{A_2}{B_1}+{A_3}{B_3}
+++++
+
+shuffleと内積で、簡単な命令文でできます。
+
+全てのパズルを解いたので、４ｘ４逆行列を求める関数は下記のようになります：
+
+[source,cpp]
+----
+// Inverse function is the same no matter column major or row major
+// this version treats it as row major
+inline Matrix4 GetInverse(const Matrix4& inM)
+{
+	// use block matrix method
+	// A is a matrix, then i(A) or iA means inverse of A, A# (or A_ in code) means adjugate of A, |A| (or detA in code) is determinant, tr(A) is trace
+
+	// sub matrices
+	__m128 A = VecShuffle_0101(inM.mVec[0], inM.mVec[1]);
+	__m128 B = VecShuffle_2323(inM.mVec[0], inM.mVec[1]);
+	__m128 C = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
+	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
+
+#if 0
+	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
+	__m128 detB = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
+	__m128 detC = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
+	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
+#else
+	// determinant as (|A| |B| |C| |D|)
+	__m128 detSub = _mm_sub_ps(
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 1,3,1,3), VecShuffle(inM.mVec[1], inM.mVec[3], 0,2,0,2))
+	);
+	__m128 detA = VecSwizzle1(detSub, 0);
+	__m128 detB = VecSwizzle1(detSub, 1);
+	__m128 detC = VecSwizzle1(detSub, 2);
+	__m128 detD = VecSwizzle1(detSub, 3);
+#endif
+
+	// let iM = 1/|M| * | X  Y |
+	//                  | Z  W |
+
+	// D#C
+	__m128 D_C = Mat2AdjMul(D, C);
+	// A#B
+	__m128 A_B = Mat2AdjMul(A, B);
+	// X# = |D|A - B(D#C)
+	__m128 X_ = _mm_sub_ps(_mm_mul_ps(detD, A), Mat2Mul(B, D_C));
+	// W# = |A|D - C(A#B)
+	__m128 W_ = _mm_sub_ps(_mm_mul_ps(detA, D), Mat2Mul(C, A_B));
+
+	// |M| = |A|*|D| + ... (continue later)
+	__m128 detM = _mm_mul_ps(detA, detD);
+
+	// Y# = |B|C - D(A#B)#
+	__m128 Y_ = _mm_sub_ps(_mm_mul_ps(detB, C), Mat2MulAdj(D, A_B));
+	// Z# = |C|B - A(D#C)#
+	__m128 Z_ = _mm_sub_ps(_mm_mul_ps(detC, B), Mat2MulAdj(A, D_C));
+
+	// |M| = |A|*|D| + |B|*|C| ... (continue later)
+	detM = _mm_add_ps(detM, _mm_mul_ps(detB, detC));
+
+	// tr((A#B)(D#C))
+	__m128 tr = _mm_mul_ps(A_B, VecSwizzle(D_C, 0,2,1,3));
+	tr = _mm_hadd_ps(tr, tr);
+	tr = _mm_hadd_ps(tr, tr);
+	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C)
+	detM = _mm_sub_ps(detM, tr);
+
+	const __m128 adjSignMask = _mm_setr_ps(1.f, -1.f, -1.f, 1.f);
+	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
+	__m128 rDetM = _mm_div_ps(adjSignMask, detM);
+
+	X_ = _mm_mul_ps(X_, rDetM);
+	Y_ = _mm_mul_ps(Y_, rDetM);
+	Z_ = _mm_mul_ps(Z_, rDetM);
+	W_ = _mm_mul_ps(W_, rDetM);
+
+	Matrix4 r;
+
+	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
+	r.mVec[0] = VecShuffle(X_, Y_, 3,1,3,1);
+	r.mVec[1] = VecShuffle(X_, Y_, 2,0,2,0);
+	r.mVec[2] = VecShuffle(Z_, W_, 3,1,3,1);
+	r.mVec[3] = VecShuffle(Z_, W_, 2,0,2,0);
+
+	return r;
+}
+----
+
+おまけとして、４ｘ４行列式と随伴行列を求め方もこの関数にあります。
+
+小行列の行列式を計算する時、４つの行列式をまとめて一気に計算する方法を書いたけど、私のCPUでは、別々で計算したあと_mm_set1_ps命令を使ってベクトルレジスタにロードする方が早いです。どうしてと言うと、まとめて計算してもあとで４つのshuffleを使った別々のレジスタに分離しないといけませんので、まとめて計算は近道ではないと思います。実際に使う時両方ともパフォーマンスを確認した上で選んでください。
+
+（*編集*：新しいCPU（Coffee Lake）でテストした結果、まとめて計算するのは別々で計算するより２０％早いです。）
+
+もう一つは、トレースを計算する時、２つの_mm_hadd_ps命令を使ってベクトルレジスタの４つの成分の加算し、その結果を４つの成分に保存することにします。他の方法もありますが、テストの結果、パフォーマンスはほぼ同じですので、一番命令数少ない方法を使いました。こちらも同じくパフォーマンスを確認した上で方法を選んでください。
+
+では肝心なパフォーマンスはどうなっていますか？以下の数字は２０１７年８月でテストした結果です。Intel Haswellで計算を１０００万回を回して、__rdtsc命令を使ってサイクルをカウントします。全ての方法を５回テストして、平均値を求めます。
+
+.Figure 1
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/matrixinverse/fig1.jpg[, 600,align="center"]
+
+最初の３列はここで紹介した３つの関数。一般の逆行列を求める関数のSIMDバージョンの時間はfloatバージョンの半分以下（44%）です。そして、もし行列はトランスフォーム行列だとしたら、四分の一以下（21%）になります。計算対象の情報を知るほど、機械の計算量が減ります。
+
+最後にこの質問を考えてみましょう：行列の逆行列を求める必要がありますか？もし計算の目的は空間の位置また方向の逆座標変換（トランスフォーム行列の逆行列を保存して他の計算に使う必要がない）だとしたら、逆座標変換の関数を書いてください。逆行列を求める関数より早いです。この文章を通じてどの関数を使うまた書くのか、そしてどうすればパフォーマンスが上がるのかを紹介出来たら幸いです。
+
+=== 付録その一 
+
+残った仕事はまた一つあります。この方法は仮定なしでも成立するのを証明することです。先ずは何を仮定したのかを振り返ってみましょう：
+
+[stem]
+++++
+M=\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)=\left( \begin{matrix} A_0 & A_1 & B_0 & B_1 \\ A_2 & A_3 & B_2 & B_3 \\ C_0 & C_1 & D_0 & D_1 \\ C_2 & C_3 & D_2 & D_3 \\ \end{matrix} \right)
+++++
+
+小行列stem:[A]とstem:[D]が正則、stem:[C]とstem:[D]は可換（stem:[CD=DC]）を仮定します。
+
+次の例を考えてください：
+
+[stem]
+++++
+M'=\left( \begin{matrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ \end{matrix} \right)
+++++
+
+先仮定した条件は一つも成立しませんが、stem:[M']は正則です。（逆行列は行列自身stem:[(M')^{-1}=M']）もし前述の方法を使って、stem:[M']の逆行列を計算したら、意外と正解が出ます。これは偶然ではありません。ここから、この計算は４ｘ４正則行列なら成立することを証明します。
+
+以下は計算に使った式です：
+
+[stem]
+++++
+M^{-1}={\left( \begin{matrix} A & B \\ C & D \\ \end{matrix} \right)}^{-1}=\frac{1}{\left|M\right|}{\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
+++++
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+++++
+
+随伴行列の定義stem:[M^{-1}=\frac{1}{\left|M\right|}M^{\#}]により、先ずはこの式を証明します。
+
+[stem]
+++++
+M^{\#}={\left( \begin{matrix} X & Y \\ Z & W \\ \end{matrix} \right)}={\left( \begin{matrix} (\left|D\right|A-B(D^{\#}C))^{\#} & (\left|B\right|C-D(A^{\#}B)^{\#})^{\#} \\ (\left|C\right|B-A(D^{\#}C)^{\#})^{\#} & (\left|A\right|D-C(A^{\#}B))^{\#} \\ \end{matrix} \right)}
+++++
+
+左上の小行列stem:[X=(\left|D\right|A-B(D^{\#}C))^{\#}]から始めましょう。
+
+stem:[M]の随伴行列は余因子行列stem:[C]の転置行列であり（stem:[M^{\#}=C^{T}]）、その余因子行列はstem:[C=((-1)^{i+j} M_{ij})]と定義されています。stem:[M_{ij}]はstem:[M]からi行j列を取り除いて得られる小行列（(i,j)-minor）の行列式。つまりstem:[M^{\#}= ((-1)^{j+i}M_{ji})]になります。「*転置*」のとこを覚えてください。 
+
+詳細は随伴行列（Adjugate Matrix）の英語版wikiページに参照してください。
+
+[stem]
+++++
+\begin{align*}
+X&={\left( \begin{matrix} \left| \begin{matrix} A_3 & B_2 & B_3 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| & -\left| \begin{matrix} A_1 & B_0 & B_1 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| \\ -\left| \begin{matrix} A_2 & B_2 & B_3 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| & \left| \begin{matrix} A_0 & B_0 & B_1 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| \\ \end{matrix} \right)}\\
+&={\left( \begin{matrix} A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3) & -(A_1\left|D\right|-B_0(D_3C_1-D_1C_3) + B_1(D_2C_1-D_0C_3)) \\ -(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) & A_0\left|D\right|-B_0(D_3C_0-D_1C_2) + B_1(D_2C_0-D_0C_2) \\ \end{matrix} \right)}
+\end{align*}
+++++
+
+こちらの計算結果
+
+[stem]
+++++
+D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
+++++
+
+を利用すると
+
+[stem]
+++++
+\begin{align*}
+X&={\left( \begin{matrix} A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 & -(A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3) \\ -(A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2) & A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2 \\ \end{matrix} \right)} \\
+&={\left( \begin{matrix} A_0\left|D\right|-B_0{(D^{\#}C)}_0 - B_1{(D^{\#}C)}_2  & A_1\left|D\right|-B_0{(D^{\#}C)}_1 - B_1{(D^{\#}C)}_3 \\ A_2\left|D\right|-B_2{(D^{\#}C)}_0 - B_3{(D^{\#}C)}_2 & A_3\left|D\right|-B_2{(D^{\#}C)}_1 - B_3{(D^{\#}C)}_3 \\ \end{matrix} \right)}^{\#} \\
+&=(\left|D\right|A-B(D^{\#}C))^{\#}
+\end{align*}
+++++
+
+同じく他の小行列stem:[Y]、stem:[Z]、stem:[W]の証明が出来ます。
+
+次は行列式の計算式を証明します。 
+
+[stem]
+++++
+\left|M\right|=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+++++
+
+もう一回左側から
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&=A_0 \left| \begin{matrix} A_3 & B_2 & B_3 \\ C_1 & D_0 & D_1 \\ C_3 & D_2 & D_3 \end{matrix} \right| - A_1 \left| \begin{matrix} A_2 & B_2 & B_3 \\ C_0 & D_0 & D_1 \\ C_2 & D_2 & D_3 \end{matrix} \right| + B_0 \left| \begin{matrix} A_2 & A_3 & B_3 \\ C_0 & C_1 & D_1 \\ C_2 & C_3 & D_3 \end{matrix} \right| - B_1 \left| \begin{matrix} A_2 & A_3 & B_2 \\ C_0 & C_1 & D_0 \\ C_2 & C_3 & D_2 \end{matrix} \right| \\
+&= A_0(A_3\left|D\right|-B_2(D_3C_1-D_1C_3) + B_3(D_2C_1-D_0C_3)) - A_1(A_2\left|D\right|-B_2(D_3C_0-D_1C_2) + B_3(D_2C_0-D_0C_2)) \\
+&+B_0(B_3\left|C\right|+A_2(D_3C_1-D_1C_3) - A_3(D_3C_0-D_1C_2)) - B_1(B_2\left|C\right|+A_2(D_2C_1-D_0C_3) - A_3(D_2C_0-D_0C_2)) \\
+&= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|  \\
+&- ({A_3}{B_0}-{A_1}{B_2})({D_3}{C_0}-{D_1}{C_2}) - ({A_3}{B_1}-{A_1}{B_3})({D_0}{C_2}-{D_2}{C_0}) \\
+&- ({A_0}{B_2}-{A_2}{B_0})({D_3}{C_1}-{D_1}{C_3}) - ({A_0}{B_3}-{A_2}{B_1})({D_0}{C_3}-{D_2}{C_1})
+\end{align*}
+++++
+
+こちらの計算結果
+
+[stem]
+++++
+A^{\#}B={\left( \begin{matrix}{} {A_3}{B_0}-{A_1}{B_2} &{A_3}{B_1}-{A_1}{B_3} \\ {A_0}{B_2}-{A_2}{B_0} & {A_0}{B_3}-{A_2}{B_1} \\ \end{matrix} \right)}  
+++++
+
+[stem]
+++++
+D^{\#}C={\left( \begin{matrix}{} {D_3}{C_0}-{D_1}{C_2} &{D_3}{C_1}-{D_1}{C_3} \\ {D_0}{C_2}-{D_2}{C_0} & {D_0}{C_3}-{D_2}{C_1} \\ \end{matrix} \right)}
+++++
+
+を利用すると
+
+[stem]
+++++
+\begin{align*}
+\left|M\right|&= \left|A\right|\left|D\right| + \left|B\right|\left|C\right|- ({(A^{\#}B)}_0{(D^{\#}C)}_0 + {(A^{\#}B)}_1{(D^{\#}C)}_2 + {(A^{\#}B)}_2{(D^{\#}C)}_1 + {(A^{\#}B)}_3{(D^{\#}C)}_3) \\
+&=\left|A\right|\left|D\right|+\left|B\right|\left|C\right|-\operatorname{tr}((A^{\#}B)(D^{\#}C))
+\end{align*}
+++++
+
+以上、この計算は４ｘ４正則行列なら成立することを証明しました。どうしてと言うと、２ｘ２行列の特別な性質が原因だと思います。そして、もっとシンプルな証明方法があると思いますので、もし解っていたら是非教えていただきたいです。
+
+=== 付録その二
+
+ここからは列優先バージョンです。最初の２つのトランスフォーム行列の関数は全く同じですので、一般の行列の関数だけここに乗ります。
+
+[source,cpp]
+----
+// for column major matrix
+// we use __m128 to represent 2x2 matrix as A = | A0  A2 |
+//                                              | A1  A3 |
+// 2x2 column major Matrix multiply A*B
+__forceinline __m128 Mat2Mul(__m128 vec1, __m128 vec2)
+{
+	return 
+		_mm_add_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 0,0,3,3)),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+}
+// 2x2 column major Matrix adjugate multiply (A#)*B
+__forceinline __m128 Mat2AdjMul(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(_mm_mul_ps(VecSwizzle(vec1, 3,0,3,0), vec2),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,1,2,1), VecSwizzle(vec2, 1,0,3,2)));
+
+}
+// 2x2 column major Matrix multiply adjugate A*(B#)
+__forceinline __m128 Mat2MulAdj(__m128 vec1, __m128 vec2)
+{
+	return
+		_mm_sub_ps(_mm_mul_ps(                     vec1, VecSwizzle(vec2, 3,3,0,0)),
+		           _mm_mul_ps(VecSwizzle(vec1, 2,3,0,1), VecSwizzle(vec2, 1,1,2,2)));
+}
+
+// Inverse function is the same no matter column major or row major
+// this version treats it as column major
+inline Matrix4 GetInverse(const Matrix4& inM)
+{
+	// use block matrix method
+	// A is a matrix, then i(A) or iA means inverse of A, A# (or A_ in code) means adjugate of A, |A| (or detA in code) is determinant, tr(A) is trace
+				
+	// sub matrices
+	__m128 A = VecShuffle_0101(inM.mVec[0], inM.mVec[1]);
+	__m128 C = VecShuffle_2323(inM.mVec[0], inM.mVec[1]);
+	__m128 B = VecShuffle_0101(inM.mVec[2], inM.mVec[3]);
+	__m128 D = VecShuffle_2323(inM.mVec[2], inM.mVec[3]);
+
+#if 0
+	__m128 detA = _mm_set1_ps(inM.m[0][0] * inM.m[1][1] - inM.m[0][1] * inM.m[1][0]);
+	__m128 detC = _mm_set1_ps(inM.m[0][2] * inM.m[1][3] - inM.m[0][3] * inM.m[1][2]);
+	__m128 detB = _mm_set1_ps(inM.m[2][0] * inM.m[3][1] - inM.m[2][1] * inM.m[3][0]);
+	__m128 detD = _mm_set1_ps(inM.m[2][2] * inM.m[3][3] - inM.m[2][3] * inM.m[3][2]);
+#else
+	// determinant as (|A| |C| |B| |D|)
+	__m128 detSub = _mm_sub_ps(
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 0,2,0,2), VecShuffle(inM.mVec[1], inM.mVec[3], 1,3,1,3)),
+		_mm_mul_ps(VecShuffle(inM.mVec[0], inM.mVec[2], 1,3,1,3), VecShuffle(inM.mVec[1], inM.mVec[3], 0,2,0,2))
+		);
+	__m128 detA = VecSwizzle1(detSub, 0);
+	__m128 detC = VecSwizzle1(detSub, 1);
+	__m128 detB = VecSwizzle1(detSub, 2);
+	__m128 detD = VecSwizzle1(detSub, 3);
+#endif
+
+	// let iM = 1/|M| * | X  Y |
+	//                  | Z  W |
+
+	// D#C
+	__m128 D_C = Mat2AdjMul(D, C);
+	// A#B
+	__m128 A_B = Mat2AdjMul(A, B);
+	// X# = |D|A - B(D#C)
+	__m128 X_ = _mm_sub_ps(_mm_mul_ps(detD, A), Mat2Mul(B, D_C));
+	// W# = |A|D - C(A#B)
+	__m128 W_ = _mm_sub_ps(_mm_mul_ps(detA, D), Mat2Mul(C, A_B));
+
+	// |M| = |A|*|D| + ... (continue later)
+	__m128 detM = _mm_mul_ps(detA, detD);
+
+	// Y# = |B|C - D(A#B)#
+	__m128 Y_ = _mm_sub_ps(_mm_mul_ps(detB, C), Mat2MulAdj(D, A_B));
+	// Z# = |C|B - A(D#C)#
+	__m128 Z_ = _mm_sub_ps(_mm_mul_ps(detC, B), Mat2MulAdj(A, D_C));
+
+	// |M| = |A|*|D| + |B|*|C| ... (continue later)
+	detM = _mm_add_ps(detM, _mm_mul_ps(detB, detC));
+
+	// tr((A#B)(D#C))
+	__m128 tr = _mm_mul_ps(A_B, VecSwizzle(D_C, 0,2,1,3));
+	tr = _mm_hadd_ps(tr, tr);
+	tr = _mm_hadd_ps(tr, tr);
+	// |M| = |A|*|D| + |B|*|C| - tr((A#B)(D#C))
+	detM = _mm_sub_ps(detM, tr);
+
+	const __m128 adjSignMask = _mm_setr_ps(1.f, -1.f, -1.f, 1.f));
+	// (1/|M|, -1/|M|, -1/|M|, 1/|M|)
+	__m128 rDetM = _mm_div_ps(adjSignMask, detM);
+
+	X_ = _mm_mul_ps(X_, rDetM);
+	Y_ = _mm_mul_ps(Y_, rDetM);
+	Z_ = _mm_mul_ps(Z_, rDetM);
+	W_ = _mm_mul_ps(W_, rDetM);
+
+	Matrix4 r;
+
+	// apply adjugate and store, here we combine adjugate shuffle and store shuffle
+	r.mVec[0] = VecShuffle(X_, Z_, 3,1,3,1);
+	r.mVec[1] = VecShuffle(X_, Z_, 2,0,2,0);
+	r.mVec[2] = VecShuffle(Y_, W_, 3,1,3,1);
+	r.mVec[3] = VecShuffle(Y_, W_, 2,0,2,0);
+
+	return r;
+}
+----
