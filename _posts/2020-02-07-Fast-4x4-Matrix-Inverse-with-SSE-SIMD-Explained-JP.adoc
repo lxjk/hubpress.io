@@ -3,7 +3,7 @@
 Eric Zhang
 v1.0, 2020-02-04
 :toc: macro
-:hp-tags: Math, SSE
+:hp-tags: Math, SSE, Japanese
 
 :stem: latexmath
 :source-highlighter: prettify
