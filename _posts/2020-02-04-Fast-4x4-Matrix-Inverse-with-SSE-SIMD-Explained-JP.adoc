@@ -1,4 +1,5 @@
 = SSE SIMDを用いて４ｘ４の逆行列の高速アルゴリズム
+:hp-alt-title: Fast 4x4 Matrix Inverse with SSE SIMD, Explained (JP)
 Eric Zhang
 v1.0, 2020-02-04
 :toc: macro
