@@ -1,0 +1,16 @@
+= SSE SIMDを用いて４ｘ４の逆行列の高速アルゴリズム
+:hp-alt-title: Fast 4x4 Matrix Inverse with SSE SIMD, Explained (JP)
+Eric Zhang
+v1.0, 2020-02-04
+:toc: macro
+:hp-tags: Math, SSE
+
+:stem: latexmath
+:source-highlighter: prettify
+:figure-caption!:
+
+toc::[]
+
+https://lxjk.github.io/2017/09/03/Fast-4x4-Matrix-Inverse-with-SSE-SIMD-Explained.html[English Verison]
+
+始まる前に、実際に必要となる逆行列は「一般の行列」かどうかを考えてください。
