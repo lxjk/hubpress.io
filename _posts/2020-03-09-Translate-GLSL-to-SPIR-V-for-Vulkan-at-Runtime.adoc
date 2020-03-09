@@ -229,13 +229,49 @@ bool LoadShader(vk::ShaderStageFlagBits stage, const char* shaderCode) {
 }
 ----
 
-Now if you compile and succeeded, congratulations you are done!
+Now if it is compiled and succeeded, congratulations you are done!
 
 If you get the a similar error as the following, then you need to build the glslang libraries yourself, and let's keep going.
 
 ----
 Error	LNK2038	mismatch detected for '_MSC_VER': value '1800' doesn't match value '1900' in xxx.obj
 ----
+
+== Build Glslang Libs
+
+First we need to get CMake and Python 3.x, see details on https://github.com/KhronosGroup/glslang/blob/master/README.md
+
+Then use CMake to generate Glslang projects. Here the source code path is $(VK_SDK_PATH)\glslang and we will generate the project to $(VK_SDK_PATH)\glslang\build.
+Make sure you select the correct target platform, especially if you are building for x64. If you are using cmake-gui, click "Configure" and select as following.
+
+Now you can generate the project. If you get a similar error as the following:
+
+----
+  Could NOT find PythonInterp: Found unsuitable version "1.4", but required
+is at least "3"
+----
+
+It means you have another version of python installed, and you need to point CMake to the correct python.
+If you are using cmake-gui, change python path as the following:
+
+
+
+Generate again, and you should see the correct project got generated. Now open the generated project/solution, and build "ALL BUILD".
+
+Then copy over all the libraries under following paths (and Release version of course)
+
+----
+$(VK_SDK_PATH)\glslang\build\External\spirv-tools\source\Debug
+$(VK_SDK_PATH)\glslang\build\External\spirv-tools\source\opt\Debug
+$(VK_SDK_PATH)\glslang\build\glslang\Debug
+$(VK_SDK_PATH)\glslang\build\glslang\OSDependent\Windows\Debug
+$(VK_SDK_PATH)\glslang\build\hlsl\Debug
+$(VK_SDK_PATH)\glslang\build\OGLCompilersDLL\Debug
+$(VK_SDK_PATH)\glslang\build\SPIRV\Debug
+----
+
+With all these efforts, you got the glslang libs you need. Compile your program again and it should be up and running!
+
 
 
 
