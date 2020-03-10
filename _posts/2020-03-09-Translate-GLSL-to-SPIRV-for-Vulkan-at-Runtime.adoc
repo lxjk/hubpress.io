@@ -1,4 +1,5 @@
 = Translate GLSL to SPIR-V for Vulkan at Runtime
+:hp-alt-title: Translate GLSL to SPIRV for Vulkan at Runtime
 Eric Zhang
 v1.0, 2020-03-09
 :toc: macro
