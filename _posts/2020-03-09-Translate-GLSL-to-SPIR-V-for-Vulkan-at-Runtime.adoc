@@ -7,7 +7,7 @@ v1.0, 2020-03-09
 :source-highlighter: prettify
 :figure-caption!:
 
-As I'm porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain as glslangValidator provided in Vulkan SDK (https://vulkan.lunarg.com/doc/sdk/1.1.92.1/windows/spirv_toolchain.html[more info here]), then simply load the converted spir-v shader in your program. However for development it would be really handy if you can translate the shaders at runtime, so you don't need to run the offline tool everytime you change your shader. Moreover it would support shader hot reload so you can change the shader in glsl while the game is running.
+As I'm porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (https://vulkan.lunarg.com/doc/sdk/1.1.92.1/windows/spirv_toolchain.html[more info here]), then simply load the converted spir-v shader in your program. However for development it would be really handy if you can translate shaders at runtime, so you don't need to run the offline tool everytime you change your shader. Moreover you can support shader hot reload so that you can change shaders in glsl while the game is running.
 
 Of course you can build a process to monitor shader changes and run tools automatically, but that would be a topic down the road.
 
@@ -15,7 +15,7 @@ To be able to translate glsl at runtime, you would need to setup and link Glslan
 
 == Get Glslang Libs
 
-Glslang comes with Vulkan SDK under $(VK_SDK_PATH)\glslang, but there is no binary provided. The easiest way to get binaries is actually to download from their github:
+Glslang comes with Vulkan SDK under *$(VK_SDK_PATH)\glslang*, but there is no binary provided. The easiest way to get binaries is actually to download from their github:
 
 https://github.com/KhronosGroup/glslang/releases/tag/master-tot
 
@@ -25,7 +25,7 @@ Once downloaded, setup include path and library path in your project, then add a
 
 == Use Glslang
 
-There is an example in Vulkan SDK: $(VK_SDK_PATH)\Samples\API-Samples\utils\util.cpp. Search for "glslang" and you would see how it is used. The following code is pretty much the same as the sample:
+There is an example in Vulkan SDK: *$(VK_SDK_PATH)\Samples\API-Samples\utils\util.cpp*. Search for "glslang" and you would see how it is used. The following code is pretty much the same as the sample:
 
 [source,cpp]
 ----
@@ -241,8 +241,10 @@ Error	LNK2038	mismatch detected for '_MSC_VER': value '1800' doesn't match value
 
 First we need to get CMake and Python 3.x, see details on https://github.com/KhronosGroup/glslang/blob/master/README.md
 
-Then use CMake to generate Glslang projects. Here the source code path is $(VK_SDK_PATH)\glslang and we will generate the project to $(VK_SDK_PATH)\glslang\build.
+Then use CMake to generate Glslang projects. Here the source code path is *$(VK_SDK_PATH)\glslang* and we will generate the project to *$(VK_SDK_PATH)\glslang\build*.
 Make sure you select the correct target platform, especially if you are building for x64. If you are using cmake-gui, click "Configure" and select as following.
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/001.png[,504,align="left"]
 
 Now you can generate the project. If you get a similar error as the following:
 
@@ -254,9 +256,12 @@ is at least "3"
 It means you have another version of python installed, and you need to point CMake to the correct python.
 If you are using cmake-gui, change python path as the following:
 
-
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/002.png[,660,align="left"]
 
 Generate again, and you should see the correct project got generated. Now open the generated project/solution, and build "ALL BUILD".
+
+
+image::https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/003.png[,351,align="left"]
 
 Then copy over all the libraries under following paths (and Release version of course)
 
