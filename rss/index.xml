@@ -1,4 +1,316 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Fri, 07 Feb 2020 03:14:31 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[SSE SIMDを用いて４ｘ４の逆行列の高速アルゴリズム]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 10 Mar 2020 01:29:11 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Translate GLSL to SPIR-V for Vulkan at Runtime]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>As I&#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (<a href="https://vulkan.lunarg.com/doc/sdk/1.1.92.1/windows/spirv_toolchain.html">more info here</a>), then simply load the converted spir-v shader in your program. However for development it would be really handy if you can translate shaders at runtime, so you don&#8217;t need to run the offline tool everytime you change your shader. Moreover you can support shader hot reload so that you can change shaders in glsl while the game is running.</p>
+</div>
+<div class="paragraph">
+<p>Of course you can build a process to monitor shader changes and run tools automatically, but that would be a topic down the road.</p>
+</div>
+<div class="paragraph">
+<p>To be able to translate glsl at runtime, you would need to setup and link Glslang libraries to your program.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_get_glslang_libs">Get Glslang Libs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Glslang comes with Vulkan SDK under <strong>$(VK_SDK_PATH)\glslang</strong>, but there is no binary provided. The easiest way to get binaries is actually to download from their github:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/KhronosGroup/glslang/releases/tag/master-tot" class="bare">https://github.com/KhronosGroup/glslang/releases/tag/master-tot</a></p>
+</div>
+<div class="paragraph">
+<p>Use the above link to download the latest, there are both debug and release libraries. However if your required compiler version is higher than the libraries they compiled with, then unfortunately you would have to build the binaries yourself. We will talk about that in the later section.</p>
+</div>
+<div class="paragraph">
+<p>Once downloaded, setup include path and library path in your project, then add all libraries under glslang/lib to Linker dependencies.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_use_glslang">Use Glslang</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There is an example in Vulkan SDK: <strong>$(VK_SDK_PATH)\Samples\API-Samples\utils\util.cpp</strong>. Search for "glslang" and you would see how it is used. The following code is pretty much the same as the sample:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">#include "glslang/SPIRV/GlslangToSpv.h"
+
+struct SpirvHelper
+{
+	static void Init() {
+		glslang::InitializeProcess();
+	}
+
+	static void Finalize() {
+		glslang::FinalizeProcess();
+	}
+
+	static void InitResources(TBuiltInResource &amp;Resources) {
+		Resources.maxLights = 32;
+		Resources.maxClipPlanes = 6;
+		Resources.maxTextureUnits = 32;
+		Resources.maxTextureCoords = 32;
+		Resources.maxVertexAttribs = 64;
+		Resources.maxVertexUniformComponents = 4096;
+		Resources.maxVaryingFloats = 64;
+		Resources.maxVertexTextureImageUnits = 32;
+		Resources.maxCombinedTextureImageUnits = 80;
+		Resources.maxTextureImageUnits = 32;
+		Resources.maxFragmentUniformComponents = 4096;
+		Resources.maxDrawBuffers = 32;
+		Resources.maxVertexUniformVectors = 128;
+		Resources.maxVaryingVectors = 8;
+		Resources.maxFragmentUniformVectors = 16;
+		Resources.maxVertexOutputVectors = 16;
+		Resources.maxFragmentInputVectors = 15;
+		Resources.minProgramTexelOffset = -8;
+		Resources.maxProgramTexelOffset = 7;
+		Resources.maxClipDistances = 8;
+		Resources.maxComputeWorkGroupCountX = 65535;
+		Resources.maxComputeWorkGroupCountY = 65535;
+		Resources.maxComputeWorkGroupCountZ = 65535;
+		Resources.maxComputeWorkGroupSizeX = 1024;
+		Resources.maxComputeWorkGroupSizeY = 1024;
+		Resources.maxComputeWorkGroupSizeZ = 64;
+		Resources.maxComputeUniformComponents = 1024;
+		Resources.maxComputeTextureImageUnits = 16;
+		Resources.maxComputeImageUniforms = 8;
+		Resources.maxComputeAtomicCounters = 8;
+		Resources.maxComputeAtomicCounterBuffers = 1;
+		Resources.maxVaryingComponents = 60;
+		Resources.maxVertexOutputComponents = 64;
+		Resources.maxGeometryInputComponents = 64;
+		Resources.maxGeometryOutputComponents = 128;
+		Resources.maxFragmentInputComponents = 128;
+		Resources.maxImageUnits = 8;
+		Resources.maxCombinedImageUnitsAndFragmentOutputs = 8;
+		Resources.maxCombinedShaderOutputResources = 8;
+		Resources.maxImageSamples = 0;
+		Resources.maxVertexImageUniforms = 0;
+		Resources.maxTessControlImageUniforms = 0;
+		Resources.maxTessEvaluationImageUniforms = 0;
+		Resources.maxGeometryImageUniforms = 0;
+		Resources.maxFragmentImageUniforms = 8;
+		Resources.maxCombinedImageUniforms = 8;
+		Resources.maxGeometryTextureImageUnits = 16;
+		Resources.maxGeometryOutputVertices = 256;
+		Resources.maxGeometryTotalOutputComponents = 1024;
+		Resources.maxGeometryUniformComponents = 1024;
+		Resources.maxGeometryVaryingComponents = 64;
+		Resources.maxTessControlInputComponents = 128;
+		Resources.maxTessControlOutputComponents = 128;
+		Resources.maxTessControlTextureImageUnits = 16;
+		Resources.maxTessControlUniformComponents = 1024;
+		Resources.maxTessControlTotalOutputComponents = 4096;
+		Resources.maxTessEvaluationInputComponents = 128;
+		Resources.maxTessEvaluationOutputComponents = 128;
+		Resources.maxTessEvaluationTextureImageUnits = 16;
+		Resources.maxTessEvaluationUniformComponents = 1024;
+		Resources.maxTessPatchComponents = 120;
+		Resources.maxPatchVertices = 32;
+		Resources.maxTessGenLevel = 64;
+		Resources.maxViewports = 16;
+		Resources.maxVertexAtomicCounters = 0;
+		Resources.maxTessControlAtomicCounters = 0;
+		Resources.maxTessEvaluationAtomicCounters = 0;
+		Resources.maxGeometryAtomicCounters = 0;
+		Resources.maxFragmentAtomicCounters = 8;
+		Resources.maxCombinedAtomicCounters = 8;
+		Resources.maxAtomicCounterBindings = 1;
+		Resources.maxVertexAtomicCounterBuffers = 0;
+		Resources.maxTessControlAtomicCounterBuffers = 0;
+		Resources.maxTessEvaluationAtomicCounterBuffers = 0;
+		Resources.maxGeometryAtomicCounterBuffers = 0;
+		Resources.maxFragmentAtomicCounterBuffers = 1;
+		Resources.maxCombinedAtomicCounterBuffers = 1;
+		Resources.maxAtomicCounterBufferSize = 16384;
+		Resources.maxTransformFeedbackBuffers = 4;
+		Resources.maxTransformFeedbackInterleavedComponents = 64;
+		Resources.maxCullDistances = 8;
+		Resources.maxCombinedClipAndCullDistances = 8;
+		Resources.maxSamples = 4;
+		Resources.maxMeshOutputVerticesNV = 256;
+		Resources.maxMeshOutputPrimitivesNV = 512;
+		Resources.maxMeshWorkGroupSizeX_NV = 32;
+		Resources.maxMeshWorkGroupSizeY_NV = 1;
+		Resources.maxMeshWorkGroupSizeZ_NV = 1;
+		Resources.maxTaskWorkGroupSizeX_NV = 32;
+		Resources.maxTaskWorkGroupSizeY_NV = 1;
+		Resources.maxTaskWorkGroupSizeZ_NV = 1;
+		Resources.maxMeshViewCountNV = 4;
+		Resources.limits.nonInductiveForLoops = 1;
+		Resources.limits.whileLoops = 1;
+		Resources.limits.doWhileLoops = 1;
+		Resources.limits.generalUniformIndexing = 1;
+		Resources.limits.generalAttributeMatrixVectorIndexing = 1;
+		Resources.limits.generalVaryingIndexing = 1;
+		Resources.limits.generalSamplerIndexing = 1;
+		Resources.limits.generalVariableIndexing = 1;
+		Resources.limits.generalConstantMatrixVectorIndexing = 1;
+	}
+
+	static EShLanguage FindLanguage(const vk::ShaderStageFlagBits shader_type) {
+		switch (shader_type) {
+		case vk::ShaderStageFlagBits::eVertex:
+			return EShLangVertex;
+		case vk::ShaderStageFlagBits::eTessellationControl:
+			return EShLangTessControl;
+		case vk::ShaderStageFlagBits::eTessellationEvaluation:
+			return EShLangTessEvaluation;
+		case vk::ShaderStageFlagBits::eGeometry:
+			return EShLangGeometry;
+		case vk::ShaderStageFlagBits::eFragment:
+			return EShLangFragment;
+		case vk::ShaderStageFlagBits::eCompute:
+			return EShLangCompute;
+		default:
+			return EShLangVertex;
+		}
+	}
+
+	static bool GLSLtoSPV(const vk::ShaderStageFlagBits shader_type, const char *pshader, std::vector&lt;unsigned int&gt; &amp;spirv) {
+		EShLanguage stage = FindLanguage(shader_type);
+		glslang::TShader shader(stage);
+		glslang::TProgram program;
+		const char *shaderStrings[1];
+		TBuiltInResource Resources = {};
+		InitResources(Resources);
+
+		// Enable SPIR-V and Vulkan rules when parsing GLSL
+		EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+		shaderStrings[0] = pshader;
+		shader.setStrings(shaderStrings, 1);
+
+		if (!shader.parse(&amp;Resources, 100, false, messages)) {
+			puts(shader.getInfoLog());
+			puts(shader.getInfoDebugLog());
+			return false;  // something didn't work
+		}
+
+		program.addShader(&amp;shader);
+
+		//
+		// Program-level processing...
+		//
+
+		if (!program.link(messages)) {
+			puts(shader.getInfoLog());
+			puts(shader.getInfoDebugLog());
+			fflush(stdout);
+			return false;
+		}
+
+		glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
+		return true;
+	}
+};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then when you actually use it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-cpp" data-lang="cpp">void InitVulkan() {
+	// ...
+
+	// init glslang
+	SpirvHelper::Init();
+}
+
+void ShutdownVulkan() {
+	// ...
+
+	// shut down glslang
+	SpirvHelper::Finalize();
+}
+
+bool LoadShader(vk::ShaderStageFlagBits stage, const char* shaderCode) {
+
+	std::vector&lt;unsigned int&gt; shaderCodeSpirV;
+	bool success = SpirvHelper::GLSLtoSPV(stage, shaderCode, shaderCodeSpirV);
+
+	// ...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now if it is compiled and succeeded, congratulations you are done!</p>
+</div>
+<div class="paragraph">
+<p>If you get the a similar error as the following, then you need to build the glslang libraries yourself, and let&#8217;s keep going.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Error	LNK2038	mismatch detected for '_MSC_VER': value '1800' doesn't match value '1900' in xxx.obj</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_build_glslang_libs">Build Glslang Libs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>First we need to get CMake and Python 3.x, see details on <a href="https://github.com/KhronosGroup/glslang/blob/master/README.md" class="bare">https://github.com/KhronosGroup/glslang/blob/master/README.md</a></p>
+</div>
+<div class="paragraph">
+<p>Then use CMake to generate Glslang projects. Here the source code path is <strong>$(VK_SDK_PATH)\glslang</strong> and we will generate the project to <strong>$(VK_SDK_PATH)\glslang\build</strong>.
+Make sure you select the correct target platform, especially if you are building for x64. If you are using cmake-gui, click "Configure" and select as following.</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/001.png" alt="001.png" width="504">
+</div>
+</div>
+<div class="paragraph">
+<p>Now you can generate the project. If you get a similar error as the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>  Could NOT find PythonInterp: Found unsuitable version "1.4", but required
+is at least "3"</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It means you have another version of python installed, and you need to point CMake to the correct python.
+If you are using cmake-gui, change python path as the following:</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/002.png" alt="002.png" width="660">
+</div>
+</div>
+<div class="paragraph">
+<p>Generate again, and you should see the correct project got generated. Now open the generated project/solution, and build "ALL BUILD".</p>
+</div>
+<div class="imageblock" style="text-align: left">
+<div class="content">
+<img src="https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/003.png" alt="003.png" width="351">
+</div>
+</div>
+<div class="paragraph">
+<p>Then copy over all the libraries under following paths (and Release version of course)</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$(VK_SDK_PATH)\glslang\build\External\spirv-tools\source\Debug
+$(VK_SDK_PATH)\glslang\build\External\spirv-tools\source\opt\Debug
+$(VK_SDK_PATH)\glslang\build\glslang\Debug
+$(VK_SDK_PATH)\glslang\build\glslang\OSDependent\Windows\Debug
+$(VK_SDK_PATH)\glslang\build\hlsl\Debug
+$(VK_SDK_PATH)\glslang\build\OGLCompilersDLL\Debug
+$(VK_SDK_PATH)\glslang\build\SPIRV\Debug</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With all these efforts, you got the glslang libs you need. Compile your program again and it should be up and running!</p>
+</div>
+</div>
+</div>]]></description><link>https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html</link><guid isPermaLink="true">https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html</guid><category><![CDATA[Vulkan]]></category><dc:creator><![CDATA[Eric Zhang]]></dc:creator><pubDate>Tue, 10 Mar 2020 00:00:00 GMT</pubDate></item><item><title><![CDATA[SSE SIMDを用いて４ｘ４の逆行列の高速アルゴリズム]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
