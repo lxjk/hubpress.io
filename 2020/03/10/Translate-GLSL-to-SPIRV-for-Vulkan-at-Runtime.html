@@ -25,14 +25,14 @@
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
     <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
 
-    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1583803751173" />
-    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1583803751173"/>
+    <link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/css/uno.css?v=1583803960130" />
+    <link rel="stylesheet" href="//lxjk.github.io/themes/uno/assets/css/asciidoctor-foundation.css?v=1583803960130"/>
 
     <script type="text/javascript" async
       src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
 	
-	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1583803751173" />
+	<link rel="stylesheet" type="text/css" href="//lxjk.github.io/themes/uno/assets/highlighter/prettify.css?v=1583803960130" />
 	
     <link rel="canonical" href="https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html" />
     <meta name="referrer" content="origin" />
@@ -40,14 +40,14 @@
     <meta property="og:site_name" content="Eric&#x27;s Blog" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Translate GLSL to SPIR-V for Vulkan at Runtime" />
-    <meta property="og:description" content="As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (more info here), then simply load the converted spir-v shader" />
+    <meta property="og:description" content="Table of Contents Get Glslang Libs Use Glslang Build Glslang Libs As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan" />
     <meta property="og:url" content="https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html" />
     <meta property="article:published_time" content="2020-03-10T00:00:00.000Z" />
     <meta property="article:tag" content="Vulkan" />
     
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Translate GLSL to SPIR-V for Vulkan at Runtime" />
-    <meta name="twitter:description" content="As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (more info here), then simply load the converted spir-v shader" />
+    <meta name="twitter:description" content="Table of Contents Get Glslang Libs Use Glslang Build Glslang Libs As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan" />
     <meta name="twitter:url" content="https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html" />
     
     <script type="application/ld+json">
@@ -66,7 +66,7 @@
     "url": "https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html",
     "datePublished": "2020-03-10T00:00:00.000Z",
     "keywords": "Vulkan",
-    "description": "As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (more info here), then simply load the converted spir-v shader"
+    "description": "Table of Contents Get Glslang Libs Use Glslang Build Glslang Libs As I&amp;#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan"
 }
     </script>
 
@@ -169,6 +169,14 @@
     <section class="post tag-Vulkan">
       <div id="preamble">
 <div class="sectionbody">
+<div id="toc" class="toc">
+<div id="toctitle" class="title">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_get_glslang_libs">Get Glslang Libs</a></li>
+<li><a href="#_use_glslang">Use Glslang</a></li>
+<li><a href="#_build_glslang_libs">Build Glslang Libs</a></li>
+</ul>
+</div>
 <div class="paragraph">
 <p>As I&#8217;m porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (<a href="https://vulkan.lunarg.com/doc/sdk/1.1.92.1/windows/spirv_toolchain.html">more info here</a>), then simply load the converted spir-v shader in your program. However for development it would be really handy if you can translate shaders at runtime, so you don&#8217;t need to run the offline tool everytime you change your shader. Moreover you can support shader hot reload so that you can change shaders in glsl while the game is running.</p>
 </div>
@@ -499,17 +507,17 @@ $(VK_SDK_PATH)\glslang\build\SPIRV\Debug</pre>
 
             <section class="share">
                 <h5>SHARE THIS POST</h5>
-                <a href="https://twitter.com/intent/tweet?text=Translate%20GLSL%20to%20SPIR-V%20for%20Vulkan%20at%20Runtime&amp;url=https://lxjk.github.io/"
+                <a href="https://twitter.com/intent/tweet?text=Translate%20GLSL%20to%20SPIR-V%20for%20Vulkan%20at%20Runtime&amp;url=https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html"
                     onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
 					<i class='icon icon-social-twitter'></i>
 					<span class="hidden">Twitter</span>
                 </a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/"
+                <a href="https://www.facebook.com/sharer/sharer.php?u=https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html"
                     onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
 					<i class='icon icon-social-facebook'></i>
                     <span class="hidden">Facebook</span>
                 </a>
-                <a href="https://plus.google.com/share?url=https://lxjk.github.io/"
+                <a href="https://plus.google.com/share?url=https://lxjk.github.io/2020/03/10/Translate-GLSL-to-SPIRV-for-Vulkan-at-Runtime.html"
                    onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
 					<i class='icon icon-social-google-plus'></i>
 					<span class="hidden">Google-plus</span>
@@ -560,9 +568,9 @@ $(VK_SDK_PATH)\glslang\build\SPIRV\Debug</pre>
         hljs.initHighlightingOnLoad();
       </script>
 
-	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1583803751173"></script>
-	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/lang-glsl.js?v=1583803751173"></script>
-    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1583803751173"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/prettify.js?v=1583803960130"></script>
+	<script type='text/javascript' src="//lxjk.github.io/themes/uno/assets/highlighter/lang-glsl.js?v=1583803960130"></script>
+    <script type="text/javascript" src="//lxjk.github.io/themes/uno/assets/js/main.js?v=1583803960130"></script>
     
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
