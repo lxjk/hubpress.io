@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 10 Mar 2020 01:32:40 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Translate GLSL to SPIR-V for Vulkan at Runtime]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Eric's Blog]]></title><description><![CDATA[- Game - Engine - Tool  - Math -]]></description><link>https://lxjk.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 10 Mar 2020 01:33:58 GMT</lastBuildDate><atom:link href="https://lxjk.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Translate GLSL to SPIR-V for Vulkan at Runtime]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -279,8 +279,7 @@ Make sure you select the correct target platform, especially if you are building
 </div>
 <div class="listingblock">
 <div class="content">
-<pre>  Could NOT find PythonInterp: Found unsuitable version "1.4", but required
-is at least "3"</pre>
+<pre>  Could NOT find PythonInterp: Found unsuitable version "1.4", but required is at least "3"</pre>
 </div>
 </div>
 <div class="paragraph">
