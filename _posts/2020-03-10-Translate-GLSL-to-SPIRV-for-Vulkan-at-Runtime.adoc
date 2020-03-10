@@ -8,6 +8,8 @@ v1.0, 2020-03-09
 :source-highlighter: prettify
 :figure-caption!:
 
+toc::[]
+
 As I'm porting my game engine from OpenGL to Vulkan, I encountered the need of translating exisiting glsl shaders (with changes for Vulkan) to spir-v. The recommanded way is to use offline toolchain glslangValidator, provided in Vulkan SDK (https://vulkan.lunarg.com/doc/sdk/1.1.92.1/windows/spirv_toolchain.html[more info here]), then simply load the converted spir-v shader in your program. However for development it would be really handy if you can translate shaders at runtime, so you don't need to run the offline tool everytime you change your shader. Moreover you can support shader hot reload so that you can change shaders in glsl while the game is running.
 
 Of course you can build a process to monitor shader changes and run tools automatically, but that would be a topic down the road.
