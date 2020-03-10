@@ -252,8 +252,7 @@ image::https://github.com/lxjk/lxjk.github.io/raw/master/images/glsl2spirv/001.p
 Now you can generate the project. If you get a similar error as the following:
 
 ----
-  Could NOT find PythonInterp: Found unsuitable version "1.4", but required
-is at least "3"
+  Could NOT find PythonInterp: Found unsuitable version "1.4", but required is at least "3"
 ----
 
 It means you have another version of python installed, and you need to point CMake to the correct python.
